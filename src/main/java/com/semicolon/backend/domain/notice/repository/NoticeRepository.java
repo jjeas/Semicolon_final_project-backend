@@ -1,4 +1,7 @@
 package com.semicolon.backend.domain.notice.repository;
 
-public interface NoticeRepository {
+import com.semicolon.backend.domain.notice.entity.Notice;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface NoticeRepository extends JpaRepository<Notice, Long> {
 }
