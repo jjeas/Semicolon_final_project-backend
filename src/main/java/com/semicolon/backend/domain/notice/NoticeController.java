@@ -1,6 +1,5 @@
 package com.semicolon.backend.domain.notice;
 
-import com.semicolon.backend.domain.notice.dto.NoticeCreateRequest;
 import com.semicolon.backend.domain.notice.dto.NoticeDTO;
 import com.semicolon.backend.domain.notice.service.NoticeService;
 import lombok.extern.slf4j.Slf4j;
