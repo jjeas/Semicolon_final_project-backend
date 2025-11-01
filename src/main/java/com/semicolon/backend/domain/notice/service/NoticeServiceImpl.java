@@ -56,10 +56,8 @@ public class NoticeServiceImpl implements NoticeService{
     @Override
     public void modify(Long id, NoticeDTO dto) {
         Notice notice = repository.findById(id).orElseThrow();
-        notice.builder()
-                .title(dto.getTitle())
-                .content(dto.getTitle())
-                .build();
+        notice.setContent(dto.getContent());
+        notice.setTitle(dto.getTitle());
         repository.save(notice);
     }
 }
