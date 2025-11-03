@@ -15,14 +15,17 @@ import java.time.LocalDateTime;
 @Setter
 public class Notice {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_notice")
+    @SequenceGenerator(name = "seq_notice", sequenceName = "SEQ_NOTICE", allocationSize = 1)
     @Column(name = "notice_id")
     private Long noticeId;
 
     @Column(name = "title", nullable = false, length = 255)
     private String title;
 
-    @Column(name = "content",nullable = false, columnDefinition = "TEXT")
+//    @Column(name = "content",nullable = false, columnDefinition = "TEXT")
+    @Column(name = "content", nullable = false, columnDefinition = "CLOB")
     private String content;
 
     @Column(name = "created_at",nullable = false)

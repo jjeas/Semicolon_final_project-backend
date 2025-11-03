@@ -15,7 +15,9 @@ import java.time.LocalDateTime;
 public class Faq {
     @Id
     @Column(name = "faq_id",nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_faq")
+    @SequenceGenerator(name = "seq_faq", sequenceName = "SEQ_FAQ", allocationSize = 1)
     private Long faqId;
 
     @Column(name ="question",nullable = false)
