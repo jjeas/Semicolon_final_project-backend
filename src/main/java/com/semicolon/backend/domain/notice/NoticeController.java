@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @Slf4j
 @RequestMapping("/api/notice")
@@ -29,9 +31,18 @@ public class NoticeController {
     public ResponseEntity<NoticeDTO> getOneNotice(@PathVariable("id") Long noticeId) throws Exception{
         return ResponseEntity.ok(service.getOne(noticeId));
     }
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<String> modify(@PathVariable("id") Long id, @RequestBody NoticeDTO dto){
         service.modify(id, dto);
         return ResponseEntity.ok("공지 수정이 완료되었습니다.");
+    }
+    @GetMapping("/list")
+    public ResponseEntity<List<NoticeDTO>> getList(){
+        return ResponseEntity.ok(service.list());
+    }
+    @PostMapping("/{id}/view")
+    public ResponseEntity<String> addViewCount(@PathVariable long id){
+        service.increaseViewCount(id);
+        return ResponseEntity.ok("조회수 1 증가");
     }
 }
