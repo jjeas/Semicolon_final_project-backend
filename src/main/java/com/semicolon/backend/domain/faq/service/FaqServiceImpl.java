@@ -1,28 +1,33 @@
 package com.semicolon.backend.domain.faq.service;
 
+import com.semicolon.backend.domain.faq.dto.FaqCategoryDTO;
 import com.semicolon.backend.domain.faq.dto.FaqDTO;
 import com.semicolon.backend.domain.faq.entity.Faq;
+import com.semicolon.backend.domain.faq.entity.FaqCategory;
+import com.semicolon.backend.domain.faq.repository.FaqCategoryRepository;
 import com.semicolon.backend.domain.faq.repository.FaqRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class FaqServiceImpl implements FaqService{
-    @Autowired
-    private FaqRepository repository;
+
+    private final FaqRepository repository;
+    private final FaqCategoryRepository categoryRepository;
 
     public FaqDTO toDto(Faq faq){
         return FaqDTO.builder()
                     .faqId(faq.getFaqId())
                     .question(faq.getQuestion())
                     .answer(faq.getAnswer())
-                    .category(faq.getCategory())
                     .createdAt(faq.getCreatedAt())
                     .updatedAt(faq.getUpdatedAt())
+                    .faqCategoryId(faq.getFaqCategory().getFaqCategoryId())
+                    .categoryName(faq.getFaqCategory().getCategoryName())
                     .build();
     }
     @Override
@@ -31,29 +36,32 @@ public class FaqServiceImpl implements FaqService{
     }
 
     @Override
-    public void update(FaqDTO dto, Long id) {
-        Faq faq = repository.findById(id).orElseThrow(()->new IllegalArgumentException("일치하는 FAQ가 존재하지 않습니다."));
-        faq.setQuestion(dto.getQuestion());
-        faq.setAnswer(dto.getAnswer());
-        faq.setUpdatedAt(LocalDateTime.now());
-        faq.setCategory(dto.getCategory());
-        repository.save(faq);
+    public List<FaqCategoryDTO> getAllCategories() {
+        return categoryRepository.findAll().stream().map(i->new FaqCategoryDTO(i.getFaqCategoryId(),i.getCategoryName())).toList();
     }
 
-    @Override
-    public void modify(FaqDTO dto) {
-        Faq faq = Faq.builder()
-                .question(dto.getQuestion())
-                .answer(dto.getAnswer())
-                .category(dto.getCategory())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(null)
-                .build();
-        repository.save(faq);
-    }
-
-    @Override
-    public void delete(Long id) {
-        repository.deleteById(id);
-    }
+//    @Override
+//    public void update(FaqDTO dto, Long id) {
+//        Faq faq = repository.findById(id).orElseThrow(()->new IllegalArgumentException("일치하는 FAQ가 존재하지 않습니다."));
+//        faq.setQuestion(dto.getQuestion());
+//        faq.setAnswer(dto.getAnswer());
+//        faq.setUpdatedAt(LocalDateTime.now());
+//        repository.save(faq);
+//    }
+//
+//    @Override
+//    public void modify(FaqDTO dto) {
+//        Faq faq = Faq.builder()
+//                .question(dto.getQuestion())
+//                .answer(dto.getAnswer())
+//                .createdAt(LocalDateTime.now())
+//                .updatedAt(null)
+//                .build();
+//        repository.save(faq);
+//    }
+//
+//    @Override
+//    public void delete(Long id) {
+//        repository.deleteById(id);
+//    }
 }

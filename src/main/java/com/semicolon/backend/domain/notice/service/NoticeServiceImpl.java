@@ -3,17 +3,21 @@ package com.semicolon.backend.domain.notice.service;
 import com.semicolon.backend.domain.notice.dto.NoticeDTO;
 import com.semicolon.backend.domain.notice.entity.Notice;
 import com.semicolon.backend.domain.notice.repository.NoticeRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-
+@Slf4j
 @Service
 public class NoticeServiceImpl implements NoticeService{
     @Autowired
     private NoticeRepository repository;
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss");
 
     public Notice toEntity(NoticeDTO dto){
         return Notice.builder()
@@ -25,6 +29,7 @@ public class NoticeServiceImpl implements NoticeService{
     }
     public NoticeDTO toDto(Notice notice){
         return NoticeDTO.builder()
+                .noticeId(notice.getNoticeId())
                 .content(notice.getContent())
                 .title(notice.getTitle())
                 .createdAt(notice.getCreatedAt())
@@ -58,6 +63,14 @@ public class NoticeServiceImpl implements NoticeService{
         Notice notice = repository.findById(id).orElseThrow();
         notice.setContent(dto.getContent());
         notice.setTitle(dto.getTitle());
+        repository.save(notice);
+    }
+
+    @Override
+    public void increaseViewCount(Long id) {
+        Notice notice = repository.findById(id).orElseThrow(()->new IllegalArgumentException("해당하는 공지사항이 없습니다."));
+        notice.setViewCount(notice.getViewCount()+1);
+        log.info("조회수 1 증가 공지={}",notice);
         repository.save(notice);
     }
 }
