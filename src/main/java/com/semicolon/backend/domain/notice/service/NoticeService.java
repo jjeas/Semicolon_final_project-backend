@@ -12,4 +12,5 @@ public interface NoticeService {
     public List<NoticeDTO> list();
     public NoticeDTO getOne(Long noticeId) throws Exception;
     public void modify(Long id, NoticeDTO dto);
+    public void increaseViewCount(Long id);
 }
