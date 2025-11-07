@@ -7,6 +7,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ProgramServiceImpl implements ProgramService{
 
@@ -25,5 +27,11 @@ public class ProgramServiceImpl implements ProgramService{
     public Long register(ProgramDTO program) {
         Program dto = repository.save(mapper.map(program, Program.class));
         return dto.getPno();
+    }
+
+    @Override
+    public List<ProgramDTO> getList() {
+        List<ProgramDTO> list = repository.findAll().stream().map(i->mapper.map(i,ProgramDTO.class)).toList();
+        return list;
     }
 }
