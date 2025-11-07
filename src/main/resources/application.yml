@@ -20,9 +20,19 @@ spring:
         show_sql: true
         format_sql: true
     database-platform: org.hibernate.dialect.OracleDialect
+servlet:
+  multipart:
+    max-request-size: 30MB # 전체 요청의 최대 크기
+    max-file-size: 10MB    # 개별 파일의 최대 크기
 
 logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
     org.hibernate.type: TRACE
+
+
+com:
+    semicolon:
+        backend:
+          upload: upload

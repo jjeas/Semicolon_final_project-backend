@@ -3,6 +3,7 @@ package com.semicolon.backend.domain.notice.service;
 import com.semicolon.backend.domain.notice.dto.NoticeDTO;
 import com.semicolon.backend.domain.notice.entity.Notice;
 import com.semicolon.backend.domain.notice.repository.NoticeRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,9 +14,10 @@ import java.util.List;
 import java.util.Optional;
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class NoticeServiceImpl implements NoticeService{
-    @Autowired
-    private NoticeRepository repository;
+
+    private final NoticeRepository repository;
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss");
 
