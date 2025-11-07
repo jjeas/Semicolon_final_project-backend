@@ -1,4 +1,7 @@
 package com.semicolon.backend.domain.gallery.repository;
 
-public interface GalleryRepository {
+import com.semicolon.backend.domain.gallery.entity.Gallery;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface GalleryRepository extends JpaRepository<Gallery,Long> {
 }
