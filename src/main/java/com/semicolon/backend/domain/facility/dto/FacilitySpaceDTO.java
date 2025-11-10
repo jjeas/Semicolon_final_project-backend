@@ -1,4 +1,4 @@
 package com.semicolon.backend.domain.facility.dto;
 
-public class FacilityRentalRequest {
+public class FacilitySpaceDTO {
 }
