@@ -1,14 +1,14 @@
 package com.semicolon.backend.domain.gallery.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.semicolon.backend.domain.gallery.entity.Gallery;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class GalleryDTO {
@@ -18,6 +18,6 @@ public class GalleryDTO {
     private int viewCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private String thumbnailUrl;
-    private String imageUrl;
+
+    private List<GalleryImageDTO> images;
 }

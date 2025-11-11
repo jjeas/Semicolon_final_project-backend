@@ -35,4 +35,4 @@ logging:
 com:
     semicolon:
         backend:
-          upload: upload
+          upload: C:/dev/upload
