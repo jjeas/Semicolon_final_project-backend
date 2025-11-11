@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 
 @Entity
+@Table(name = "tbl_gallery_image")
 @Getter
 @Builder
 @AllArgsConstructor
@@ -16,13 +17,21 @@ import lombok.extern.apachecommons.CommonsLog;
 
 public class GalleryImage {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,generator = "seq_gallery_image")
+    @SequenceGenerator(name = "seq_gallery_image", sequenceName = "SEQ_GALLERY_IMAGE", allocationSize = 1)
     private Long imageId;
 
     @Column(name ="image_url", nullable = false)
     private String imageUrl;
 
+    @Column(name ="thumbnail_url", nullable = false)
+    private String thumbnailUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gallery_id")
+    @JoinColumn(name = "gallery_id", nullable = false)
     private Gallery gallery;
+
+    public void setGallery(Gallery gallery) {
+        this.gallery = gallery;
+    }
 }
