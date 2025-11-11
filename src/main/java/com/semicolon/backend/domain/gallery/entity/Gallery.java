@@ -2,20 +2,24 @@ package com.semicolon.backend.domain.gallery.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "tbl_gallery")
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 
 public class Gallery {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,generator = "seq_gallery")
     @SequenceGenerator(name = "seq_gallery", sequenceName = "SEQ_GALLERY",allocationSize = 1)
     @Column(name = "gallery_id")
     private Long galleryId;
@@ -35,10 +39,12 @@ public class Gallery {
     @Column(name = "updated_at", nullable = true)
     private LocalDateTime updatedAt;
 
-    @Column(name = "thumbnail_url", nullable = false)
-    private String thumbnailUrl;
+    @OneToMany(mappedBy = "gallery", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default // Builder 사용 시 초기화
+    private List<GalleryImage> images = new ArrayList<>();
 
-    @Column(name = "image_url", nullable = false)
-    private String imageUrl;
-
+    public void addImage(GalleryImage image) {
+        this.images.add(image);
+        image.setGallery(this); // 자식에게도 부모(this)를 설정
+    }
 }

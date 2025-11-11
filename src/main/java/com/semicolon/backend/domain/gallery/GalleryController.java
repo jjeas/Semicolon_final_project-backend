@@ -24,6 +24,12 @@ public class GalleryController {
         return ResponseEntity.ok(galleryService.getList());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<GalleryDTO> getOne(@PathVariable("id") Long id){
+        log.info("gallery read 컨트롤러 실행");
+        return ResponseEntity.ok(galleryService.getOne(id));
+    }
+
     @PostMapping("")
     public ResponseEntity<String> register(@RequestBody GalleryDTO dto){
         log.info("gallery 등록 컨트롤러 실행");
