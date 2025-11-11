@@ -25,6 +25,7 @@ public class Facility {
     @Column(name="facility_name", nullable = false, length = 100)
     private String facilityName;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "facility_Type", nullable = false, length = 10)
     private FacilityType facilityType;
 
@@ -32,12 +33,15 @@ public class Facility {
     private String description;
 
     @Column(name = "dailyUse_available", nullable = false)
-    private boolean dailyUse = false;
+    @Builder.Default
+    private boolean dailyUseAvailable = false;
 
     @OneToMany(mappedBy = "facility", fetch = FetchType.LAZY)
+    @Builder.Default
     private List<FacilitySpace> spaces = new ArrayList<>();
 
     @OneToMany(mappedBy = "facility", fetch = FetchType.LAZY)
+    @Builder.Default
     private List<DailyUse> dailyUses = new ArrayList<>();
 
 
