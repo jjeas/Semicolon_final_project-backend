@@ -1,23 +1,33 @@
 package com.semicolon.backend.domain.notice.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.semicolon.backend.domain.notice.dto.NoticeDTO;
 import com.semicolon.backend.domain.notice.entity.Notice;
+import com.semicolon.backend.domain.notice.entity.NoticeFile;
 import com.semicolon.backend.domain.notice.repository.NoticeRepository;
+import com.semicolon.backend.global.file.service.FileUploadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.aspectj.weaver.ast.Not;
+import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class NoticeServiceImpl implements NoticeService{
 
     private final NoticeRepository repository;
+    private final FileUploadService service;
+    private final ModelMapper mapper;
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss");
 
@@ -73,6 +83,44 @@ public class NoticeServiceImpl implements NoticeService{
         Notice notice = repository.findById(id).orElseThrow(()->new IllegalArgumentException("해당하는 공지사항이 없습니다."));
         notice.setViewCount(notice.getViewCount()+1);
         log.info("조회수 1 증가 공지={}",notice);
+        repository.save(notice);
+    }
+
+    @Override
+    public void registerAllNotice(NoticeDTO dto) {
+
+        Notice notice = toEntity(dto);
+
+        if(dto.getFiles()!=null && dto.getFiles().length > 0){
+            ResponseEntity<?> result = service.upload(dto.getFiles(), "notice");
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> bodyMap = (Map<String, Object>) result.getBody();
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<Map<String, String>> uploadedFiles = objectMapper.convertValue(
+                    bodyMap.get("fileData"),
+                    new TypeReference<List<Map<String, String>>>() {}
+            );
+
+            for (int i = 0; i < dto.getFiles().length; i++) {
+                MultipartFile file = dto.getFiles()[i];
+                Map<String, String> uploaded = uploadedFiles.get(i);
+                log.info("get..imageUrl=======>{}",uploaded.get("imageUrl"));
+                NoticeFile noticeFile = NoticeFile.builder()
+                        .originalName(file.getOriginalFilename())
+                        .savedName(uploaded.get("imageUrl")
+                                .substring(uploaded.get("imageUrl").lastIndexOf("/") + 1))
+                        .filePath(uploaded.get("imageUrl"))
+                        .thumbnailPath(uploaded.get("thumbnailUrl"))
+                        .notice(notice)
+                        .build();
+                log.info("NoticeFile=======>{}",noticeFile);
+
+                notice.addFile(noticeFile);
+            }
+        }
+
         repository.save(notice);
     }
 }

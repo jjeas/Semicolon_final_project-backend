@@ -5,8 +5,10 @@ import com.semicolon.backend.domain.notice.dto.NoticeDTO;
 import com.semicolon.backend.domain.notice.service.NoticeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -17,11 +19,11 @@ public class NoticeController {
     @Autowired
     private NoticeService service;
 
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody NoticeDTO noticeDTO){
-        service.registerNotice(noticeDTO);
-        return ResponseEntity.ok("공지가 저장되었습니다.");
-    }
+//    @PostMapping("/register")
+//    public ResponseEntity<String> register(@RequestBody NoticeDTO noticeDTO){
+//        service.registerNotice(noticeDTO);
+//        return ResponseEntity.ok("공지가 저장되었습니다.");
+//    }
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable("id") long id){
         service.deleteNotice(id);
@@ -44,5 +46,13 @@ public class NoticeController {
     public ResponseEntity<String> addViewCount(@PathVariable long id){
         service.increaseViewCount(id);
         return ResponseEntity.ok("조회수 1 증가");
+    }
+
+    @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> registerAll(@ModelAttribute NoticeDTO dto){
+        log.info("dto를 확인해요 => {}",dto);
+        service.registerAllNotice(dto);
+
+        return ResponseEntity.ok("성공");
     }
 }
