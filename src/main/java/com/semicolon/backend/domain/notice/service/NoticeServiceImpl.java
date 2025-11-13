@@ -3,6 +3,7 @@ package com.semicolon.backend.domain.notice.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.semicolon.backend.domain.notice.dto.NoticeDTO;
+import com.semicolon.backend.domain.notice.dto.NoticeFileDTO;
 import com.semicolon.backend.domain.notice.entity.Notice;
 import com.semicolon.backend.domain.notice.entity.NoticeFile;
 import com.semicolon.backend.domain.notice.repository.NoticeRepository;
@@ -114,8 +115,26 @@ public class NoticeServiceImpl implements NoticeService{
 
     @Override
     public NoticeDTO getOne(Long noticeId){
-        Notice notice =repository.findById(noticeId).orElseThrow(()->new IllegalArgumentException("해당 ID에 해당하는 공지사항이 없습니다."));
-        log.info("notice는???? ====> {}",notice);
-        return toDto(notice);
+        Notice notice = repository.findById(noticeId)
+                .orElseThrow(() -> new RuntimeException("공지사항을 찾을 수 없습니다."));
+
+        List<NoticeFileDTO> fileDTOList = notice.getFiles().stream()
+                .map(file -> NoticeFileDTO.builder()
+                        .id(file.getId())
+                        .originalName(file.getOriginalName())
+                        .savedName(file.getSavedName())
+                        .filePath(file.getFilePath())
+                        .thumbnailPath(file.getThumbnailPath())
+                        .build())
+                .toList();
+
+        return NoticeDTO.builder()
+                .noticeId(notice.getNoticeId())
+                .title(notice.getTitle())
+                .content(notice.getContent())
+                .createdAt(notice.getCreatedAt())
+                .viewCount(notice.getViewCount())
+                .fileList(fileDTOList)
+                .build();
     }
 }
