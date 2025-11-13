@@ -59,8 +59,8 @@ public class FileUploadServiceImpl implements FileUploadService{
         }catch (IOException e){
             e.printStackTrace();
             return ResponseEntity.status(500).body("파일 저장 중 오류 발생, "+e.getMessage());
+        }
     }
-}
     private boolean isImageFile(Path path) { //MIME 표준 규약으로 이미지인지 확인하는 함수
         try {
             String mimeType = Files.probeContentType(path);
