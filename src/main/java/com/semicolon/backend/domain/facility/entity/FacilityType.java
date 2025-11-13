@@ -1,4 +1,5 @@
 package com.semicolon.backend.domain.facility.entity;
 
-public class FacilityPricing {
+public enum FacilityType {
+    HEALTH,POOL,GOLF
 }

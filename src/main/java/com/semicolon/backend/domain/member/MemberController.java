@@ -1,4 +1,28 @@
 package com.semicolon.backend.domain.member;
 
+import com.semicolon.backend.domain.member.dto.MemberDTO;
+import com.semicolon.backend.domain.member.service.MemberService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@Slf4j
+@RequestMapping("/api/member")
 public class MemberController {
+    @Autowired
+    private MemberService service;
+
+    @GetMapping("/memberEdit/{id}")
+    public ResponseEntity<MemberDTO> memberDTOResponseEntity (@PathVariable("id") Long memberId) {
+        return ResponseEntity.ok(service.getOne(memberId));
+    }
+
+    @PostMapping("/memberEdit/{id}")
+    public ResponseEntity<String> memberDTO (@PathVariable("id") Long memberId, @RequestBody MemberDTO memberDTO) {
+        service.register(memberDTO);
+        return ResponseEntity.ok("Member 수정 완료");
+    }
 }
+
