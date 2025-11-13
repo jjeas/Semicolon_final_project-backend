@@ -105,7 +105,6 @@ public class NoticeServiceImpl implements NoticeService{
                         .notice(notice)
                         .build();
                 log.info("NoticeFile=======>{}",noticeFile);
-
                 notice.addFile(noticeFile);
             }
         }

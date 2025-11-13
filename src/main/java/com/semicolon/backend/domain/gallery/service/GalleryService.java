@@ -8,4 +8,5 @@ public interface GalleryService {
     public void register(GalleryDTO dto);
     public List<GalleryDTO> getList();
     public GalleryDTO getOne(Long id);
+    public void increaseViewCount(Long id);
 }

@@ -37,6 +37,7 @@ public class NoticeController {
     public ResponseEntity<List<NoticeDTO>> getList(){
         return ResponseEntity.ok(service.list());
     }
+
     @PostMapping("/{id}/view")
     public ResponseEntity<String> addViewCount(@PathVariable long id){
         service.increaseViewCount(id);

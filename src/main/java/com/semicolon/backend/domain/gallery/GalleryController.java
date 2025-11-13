@@ -37,4 +37,11 @@ public class GalleryController {
         return ResponseEntity.ok("gallery 등록 성공");
     }
 
+    @PostMapping("/{id}/view")
+    public ResponseEntity<String> addViewCount(@PathVariable long id){
+        galleryService.increaseViewCount(id);
+        return ResponseEntity.ok("조회수 1 증가 완료");
+
+    }
+
 }
