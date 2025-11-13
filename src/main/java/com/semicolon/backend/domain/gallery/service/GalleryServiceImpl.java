@@ -51,6 +51,13 @@ public class GalleryServiceImpl implements GalleryService {
         return convertEntityToDTO(gallery);
     }
 
+    @Override
+    public void increaseViewCount(Long id) {
+        Gallery gallery = Galleryrepository.findById(id).get();
+        gallery.setViewCount(gallery.getViewCount()+1);
+        Galleryrepository.save(gallery);
+    }
+
     private GalleryDTO convertEntityToDTO(Gallery gallery) {
 
         // 1. 자식(GalleryImage) 리스트를 ImageInfoDTO 리스트로 변환
