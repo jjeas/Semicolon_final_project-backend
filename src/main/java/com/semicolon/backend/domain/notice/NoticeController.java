@@ -19,11 +19,6 @@ public class NoticeController {
     @Autowired
     private NoticeService service;
 
-//    @PostMapping("/register")
-//    public ResponseEntity<String> register(@RequestBody NoticeDTO noticeDTO){
-//        service.registerNotice(noticeDTO);
-//        return ResponseEntity.ok("공지가 저장되었습니다.");
-//    }
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable("id") long id){
         service.deleteNotice(id);
@@ -47,12 +42,10 @@ public class NoticeController {
         service.increaseViewCount(id);
         return ResponseEntity.ok("조회수 1 증가");
     }
-
     @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> registerAll(@ModelAttribute NoticeDTO dto){
         log.info("dto를 확인해요 => {}",dto);
-        service.registerAllNotice(dto);
-
+        service.registerNotice(dto);
         return ResponseEntity.ok("성공");
     }
 }

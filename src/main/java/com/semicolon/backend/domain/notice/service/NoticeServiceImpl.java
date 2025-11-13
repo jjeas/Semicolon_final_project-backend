@@ -50,11 +50,6 @@ public class NoticeServiceImpl implements NoticeService{
     }
 
     @Override
-    public void registerNotice(NoticeDTO dto) {
-        repository.save(toEntity(dto));
-    }
-
-    @Override
     public void deleteNotice(Long noticeId) {
         repository.deleteById(noticeId);
     }
@@ -62,12 +57,6 @@ public class NoticeServiceImpl implements NoticeService{
     @Override
     public List<NoticeDTO> list() {
         return repository.findAll().stream().map(notice->toDto(notice)).toList();
-    }
-
-    @Override
-    public NoticeDTO getOne(Long noticeId) throws Exception{
-        Notice notice =repository.findById(noticeId).orElseThrow(()->new IllegalArgumentException("해당 ID에 해당하는 공지사항이 없습니다."));
-        return toDto(notice);
     }
 
     @Override
@@ -87,7 +76,7 @@ public class NoticeServiceImpl implements NoticeService{
     }
 
     @Override
-    public void registerAllNotice(NoticeDTO dto) {
+    public void registerNotice(NoticeDTO dto) {
 
         Notice notice = toEntity(dto);
 
@@ -122,5 +111,12 @@ public class NoticeServiceImpl implements NoticeService{
         }
 
         repository.save(notice);
+    }
+
+    @Override
+    public NoticeDTO getOne(Long noticeId){
+        Notice notice =repository.findById(noticeId).orElseThrow(()->new IllegalArgumentException("해당 ID에 해당하는 공지사항이 없습니다."));
+        log.info("notice는???? ====> {}",notice);
+        return toDto(notice);
     }
 }
