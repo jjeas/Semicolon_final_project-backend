@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "tbl_daily_use")
-@ToString
+@ToString(exclude = {"facility", "member", "space"})
 @Getter
 @Setter
 @Builder

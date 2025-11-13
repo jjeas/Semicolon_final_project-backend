@@ -14,7 +14,7 @@ import java.util.List;
 @Setter
 @Getter
 @Table(name = "tbl_facility")
-@ToString
+@ToString(exclude = {"spaces", "dailyUses"})
 public class Facility {
 
     @Id
