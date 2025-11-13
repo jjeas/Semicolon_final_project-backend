@@ -9,6 +9,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "tbl_partner_file")
+@ToString(exclude = "partner")
 @Getter
 @Setter
 @Builder
@@ -20,9 +21,8 @@ public class PartnerFile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long fileId;
 
-    private String originalName;
+    private String fileCategory;
     private String savedName;
-    private String fileType;
     private String filePath;
 
     @ManyToOne(fetch = FetchType.LAZY)
