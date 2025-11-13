@@ -15,9 +15,9 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @Entity
 @Table(name = "tbl_partner")
+@ToString(exclude = "member")
 
 public class Partner {
 
@@ -26,7 +26,7 @@ public class Partner {
     @Column(name = "partner_request_no")
     private long requestNo;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
@@ -41,5 +41,14 @@ public class Partner {
     @CollectionTable(name = "tbl_partner_class", joinColumns = @JoinColumn(name = "partner_request_no"))
     @Column(name = "class_name")
     private List<String> partnerClass = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "partner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PartnerFile> files = new ArrayList<>();
+
+    public void addPartner(PartnerFile partnerFile) {
+        files.add(partnerFile);
+        partnerFile.setPartner(this);
+    }
 
 }
