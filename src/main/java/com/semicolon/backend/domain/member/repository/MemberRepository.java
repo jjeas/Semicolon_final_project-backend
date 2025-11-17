@@ -15,8 +15,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     from Partner p
     join p.member m
     where m.memberId = :memId
-     order by p.requestNo desc
-                    fetch first 1 rows only
+    order by p.requestNo desc
+    fetch first 1 rows only
 """)
     Optional<PartnerDTO> getPartnerStatus(@Param("memId") Long memId);
 

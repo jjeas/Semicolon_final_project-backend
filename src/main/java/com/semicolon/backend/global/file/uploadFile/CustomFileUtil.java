@@ -1,4 +1,4 @@
-package com.semicolon.backend.domain.partner.uploadFile;
+package com.semicolon.backend.global.file.uploadFile;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +46,8 @@ public class CustomFileUtil {
 
         List<String> uploadNames = new ArrayList<>();
         for (MultipartFile i : files) {
-            String savedName = UUID.randomUUID().toString() + "_" + i.getOriginalFilename();
+            String originalName = i.getOriginalFilename();
+            String savedName = UUID.randomUUID().toString() + "_" + originalName;
             Path savePath = Paths.get(categoryPath.toString(), savedName);
 
             try {
@@ -57,11 +58,13 @@ public class CustomFileUtil {
                     Path thumbnailPath = Paths.get(categoryPath.toString(), "s_" + savedName.trim());
                     Thumbnails.of(savePath.toFile()).size(100, 100).toFile(thumbnailPath.toFile());
                 }
+                uploadNames.add(originalName);
                 uploadNames.add(savedName);
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
             }
         }
+        log.info("uploadNames => {}", uploadNames);
         return uploadNames;
     }
 
