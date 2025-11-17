@@ -8,11 +8,9 @@ import com.semicolon.backend.domain.partner.entity.PartnerFile;
 import com.semicolon.backend.domain.partner.entity.PartnerStatus;
 import com.semicolon.backend.domain.partner.repository.PartnerFileRepository;
 import com.semicolon.backend.domain.partner.repository.PartnerRepository;
-import com.semicolon.backend.domain.partner.uploadFile.CustomFileUtil;
+import com.semicolon.backend.global.file.uploadFile.CustomFileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,12 +48,16 @@ public class PartnerServiceImpl implements PartnerService{
         List<String> bankNames = customFileUtil.saveFiles(dto.getBankFiles(), "bank");
 
         if (resumeNames != null) {
-            for (String name : resumeNames) {
+            for (int i = 0; i < resumeNames.size(); i += 2) {
+                String originalName = resumeNames.get(i);
+                String savedName = resumeNames.get(i + 1);
+
                 PartnerFile partnerFile = new PartnerFile();
-                partnerFile.setSavedName(name);
+                partnerFile.setOriginalName(originalName);
+                partnerFile.setSavedName(savedName);
                 partnerFile.setFileCategory("resume");
                 partnerFile.setPartner(partner);
-                partnerFile.setFilePath(customFileUtil.getUploadPath() + "/" + partnerFile.getFileCategory() + "/" + name);
+                partnerFile.setFilePath(customFileUtil.getUploadPath() + "/resume/" + savedName);
 
                 partner.addPartner(partnerFile);
                 partnerFileRepository.save(partnerFile);
@@ -64,12 +66,16 @@ public class PartnerServiceImpl implements PartnerService{
         }
 
         if (certNames != null) {
-            for (String name : certNames) {
+            for (int i = 0; i < certNames.size(); i += 2) {
+                String originalName = certNames.get(i);
+                String savedName = certNames.get(i + 1);
+
                 PartnerFile partnerFile = new PartnerFile();
-                partnerFile.setSavedName(name);
+                partnerFile.setOriginalName(originalName);
+                partnerFile.setSavedName(savedName);
                 partnerFile.setFileCategory("cert");
                 partnerFile.setPartner(partner);
-                partnerFile.setFilePath(customFileUtil.getUploadPath() + "/" + partnerFile.getFileCategory() + "/" + name);
+                partnerFile.setFilePath(customFileUtil.getUploadPath() + "/cert/" + savedName);
 
                 partner.addPartner(partnerFile);
                 partnerFileRepository.save(partnerFile);
@@ -77,18 +83,22 @@ public class PartnerServiceImpl implements PartnerService{
         }
 
         if (bankNames != null) {
-            for (String name : bankNames) {
+            for (int i = 0; i < bankNames.size(); i += 2) {
+                String originalName = bankNames.get(i);
+                String savedName = bankNames.get(i + 1);
+
                 PartnerFile partnerFile = new PartnerFile();
-                partnerFile.setSavedName(name);
+                partnerFile.setOriginalName(originalName);
+                partnerFile.setSavedName(savedName);
                 partnerFile.setFileCategory("bank");
                 partnerFile.setPartner(partner);
-                partnerFile.setFilePath(customFileUtil.getUploadPath() + "/" + partnerFile.getFileCategory() + "/" + name);
+                partnerFile.setFilePath(customFileUtil.getUploadPath() + "/bank/" + savedName);
 
                 partner.addPartner(partnerFile);
                 partnerFileRepository.save(partnerFile);
             }
         }
-        log.info("partnerForm => {}{}{}", partner.getMember(), partner.getFiles(), partner.getPartnerClass());
+        log.info("파트너 신청 완료 => {}{}{}", partner.getMember(), partner.getFiles(), partner.getPartnerClass());
 
         return ResponseEntity.ok("파트너 신청 완료");
     }

@@ -6,7 +6,9 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -35,10 +37,8 @@ public class Member {
     @Column(name = "member_address", nullable = false, length = 500)
     private String memberAddress;
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "tbl_member_role", joinColumns = @JoinColumn(name = "member_id"))
-    @Column(name = "member_role")
-    private List<String> memberRole;
+    @Column(name = "member_role", nullable = false, length = 50)
+    private String memberRole;
 
     @Column(name = "email", nullable = false, length = 100)
     private String memberEmail;
