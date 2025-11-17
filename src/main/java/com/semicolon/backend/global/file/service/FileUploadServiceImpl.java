@@ -70,4 +70,35 @@ public class FileUploadServiceImpl implements FileUploadService{
         }
     }
 
+    @Override
+    public void deleteFile(String filePath, String thumbnailPath) {
+        if (filePath != null && filePath.startsWith("/upload/")) {
+            String relativePath = filePath.substring("/upload/".length());
+            Path originalFilePath = Path.of(uploadDir, relativePath);
+            try {
+                // 원본 파일 삭제
+                if (Files.exists(originalFilePath)) {
+                    Files.delete(originalFilePath);
+                    log.info("원본 파일 삭제 완료: {}", originalFilePath);
+                }
+            } catch (IOException e) {
+                log.error("원본 파일 삭제 실패:{}",  e.getMessage());
+            }
+        }
+
+        if (thumbnailPath != null && thumbnailPath.startsWith("/upload/")) {
+            String relativePath = thumbnailPath.substring("/upload/".length());
+            Path thumbnailFilePath = Path.of(uploadDir, relativePath);
+
+            try {
+                if (Files.exists(thumbnailFilePath)) {
+                    Files.delete(thumbnailFilePath);
+                    log.info("썸네일 파일 삭제 완료: {}", thumbnailFilePath);
+                }
+            } catch (IOException e) {
+                log.error("썸네일 파일 삭제 실패: {}",  e.getMessage());
+            }
+        }
+    }
+
 }

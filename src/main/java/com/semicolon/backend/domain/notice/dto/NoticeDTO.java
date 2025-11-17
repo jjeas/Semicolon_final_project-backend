@@ -21,7 +21,6 @@ public class NoticeDTO {
     private LocalDateTime createdAt;
     private int viewCount;
 
-    private MultipartFile[] files; // formdata 로 프런트에서 보내는 용도
-
-    private List<NoticeFileDTO> fileList; // 백엔드에서 프런트로 보내는 용도
+    private List<NoticeFileDTO> fileList;
+    private List<Long> removeFileId;
 }

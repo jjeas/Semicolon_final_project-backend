@@ -38,7 +38,8 @@ public class Member {
     private String memberAddress;
 
     @Column(name = "member_role", nullable = false, length = 50)
-    private String memberRole;
+    @Enumerated(EnumType.STRING)
+    private MemberRole memberRole;
 
     @Column(name = "email", nullable = false, length = 100)
     private String memberEmail;
