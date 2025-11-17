@@ -22,6 +22,7 @@ public class PartnerFile {
     private Long fileId;
 
     private String fileCategory;
+    private String originalName;
     private String savedName;
     private String filePath;
 
