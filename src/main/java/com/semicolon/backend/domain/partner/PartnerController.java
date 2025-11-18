@@ -9,16 +9,18 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Slf4j
-@RequestMapping("/api/member/partnerRequest")
+@RequestMapping("/api/member")
 @RequiredArgsConstructor
 public class PartnerController {
 
     private final PartnerService service;
 
-    @PostMapping("")
-    public ResponseEntity<String> requestPartner(@ModelAttribute PartnerDTO dto) {
+    @PostMapping("/{id}/partnerRequest")
+    public ResponseEntity<String> requestPartner(@PathVariable("id") Long id, @ModelAttribute PartnerDTO dto) {
         service.requestPartnerForm(dto);
+        log.info("파트너 들어오는지 확인 => {}", dto);
         return ResponseEntity.ok("requestPartner 성공");
     }
 
 }
+
