@@ -1,25 +1,21 @@
 package com.semicolon.backend.domain.notice.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.semicolon.backend.domain.notice.dto.NoticeDTO;
 import com.semicolon.backend.domain.notice.dto.NoticeFileDTO;
 import com.semicolon.backend.domain.notice.entity.Notice;
 import com.semicolon.backend.domain.notice.entity.NoticeFile;
 import com.semicolon.backend.domain.notice.repository.NoticeRepository;
 import com.semicolon.backend.global.file.service.FileUploadService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.ast.Not;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Service
@@ -52,7 +48,12 @@ public class NoticeServiceImpl implements NoticeService{
 
     @Override
     public void deleteNotice(Long noticeId) {
-        repository.deleteById(noticeId);
+        Notice notice = repository.findById(noticeId)
+                .orElseThrow(() -> new IllegalArgumentException("공지사항을 찾을 수 없습니다."));
+        for (NoticeFile file : notice.getFiles()){
+            service.deleteFile(file.getFilePath(),file.getThumbnailPath());
+        }
+        repository.delete(notice);
     }
 
     @Override
@@ -60,13 +61,6 @@ public class NoticeServiceImpl implements NoticeService{
         return repository.findAll().stream().map(notice->toDto(notice)).toList();
     }
 
-    @Override
-    public void modify(Long id, NoticeDTO dto) {
-        Notice notice = repository.findById(id).orElseThrow();
-        notice.setContent(dto.getContent());
-        notice.setTitle(dto.getTitle());
-        repository.save(notice);
-    }
 
     @Override
     public void increaseViewCount(Long id) {
@@ -79,37 +73,55 @@ public class NoticeServiceImpl implements NoticeService{
     @Override
     public void registerNotice(NoticeDTO dto) {
 
-        Notice notice = toEntity(dto);
+        Notice newNotice = mapper.map(dto, Notice.class);
+        newNotice.setViewCount(0);
+        newNotice.setCreatedAt(LocalDateTime.now());
 
-        if(dto.getFiles()!=null && dto.getFiles().length > 0){
-            ResponseEntity<?> result = service.upload(dto.getFiles(), "notice");
+        if (dto.getFileList() != null && !dto.getFileList().isEmpty()) {
+            List<NoticeFile> noticeFiles = dto.getFileList().stream()
+                    .map(fileDto -> mapper.map(fileDto, NoticeFile.class))
+                    .toList();
+            noticeFiles.forEach(i->newNotice.addFile(i));
+        }
+        repository.save(newNotice);
+    }
 
-            @SuppressWarnings("unchecked")
-            Map<String, Object> bodyMap = (Map<String, Object>) result.getBody();
+    @Override
+    @Transactional
+    public void modify(Long id, NoticeDTO dto) {
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            List<Map<String, String>> uploadedFiles = objectMapper.convertValue(
-                    bodyMap.get("fileData"),
-                    new TypeReference<List<Map<String, String>>>() {}
-            );
+        Notice notice = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("공지사항을 찾을 수 없습니다."));
 
-            for (int i = 0; i < dto.getFiles().length; i++) {
-                MultipartFile file = dto.getFiles()[i];
-                Map<String, String> uploaded = uploadedFiles.get(i);
-                log.info("get..imageUrl=======>{}",uploaded.get("imageUrl"));
-                NoticeFile noticeFile = NoticeFile.builder()
-                        .originalName(file.getOriginalFilename())
-                        .savedName(uploaded.get("imageUrl")
-                                .substring(uploaded.get("imageUrl").lastIndexOf("/") + 1))
-                        .filePath(uploaded.get("imageUrl"))
-                        .thumbnailPath(uploaded.get("thumbnailUrl"))
-                        .notice(notice)
-                        .build();
-                log.info("NoticeFile=======>{}",noticeFile);
-                notice.addFile(noticeFile);
+        notice.setTitle(dto.getTitle());
+        notice.setContent(dto.getContent());
+
+        if (dto.getRemoveFileId() != null && !dto.getRemoveFileId().isEmpty()) {
+
+            List<NoticeFile> filesToDelete = notice.getFiles().stream()
+                    .filter(f -> dto.getRemoveFileId().contains(f.getId()))
+                    .toList();
+
+            for (NoticeFile file : filesToDelete) {
+                service.deleteFile(file.getFilePath(), file.getThumbnailPath());
+                notice.removeFile(file);
             }
         }
 
+        if (dto.getFileList() != null) {
+            dto.getFileList().stream()
+                    .filter(f -> f.getId() == null)
+                    .forEach(f -> {
+                        NoticeFile nf = NoticeFile.builder()
+                                .originalName(f.getOriginalName())
+                                .savedName(f.getSavedName())
+                                .filePath(f.getFilePath())
+                                .thumbnailPath(f.getThumbnailPath())
+                                .build();
+
+                        notice.addFile(nf);
+                    });
+        }
         repository.save(notice);
     }
 
@@ -117,17 +129,20 @@ public class NoticeServiceImpl implements NoticeService{
     public NoticeDTO getOne(Long noticeId){
         Notice notice = repository.findById(noticeId)
                 .orElseThrow(() -> new RuntimeException("공지사항을 찾을 수 없습니다."));
+       return entityToDTO(notice);
+    }
 
+    private NoticeDTO entityToDTO(Notice notice){
         List<NoticeFileDTO> fileDTOList = notice.getFiles().stream()
-                .map(file -> NoticeFileDTO.builder()
-                        .id(file.getId())
-                        .originalName(file.getOriginalName())
-                        .savedName(file.getSavedName())
-                        .filePath(file.getFilePath())
-                        .thumbnailPath(file.getThumbnailPath())
-                        .build())
-                .toList();
-
+                .map(i->{
+                    return NoticeFileDTO.builder()
+                            .id(i.getId())
+                            .filePath(i.getFilePath())
+                            .thumbnailPath(i.getThumbnailPath())
+                            .savedName(i.getSavedName())
+                            .originalName(i.getOriginalName())
+                            .build();
+                }).toList();
         return NoticeDTO.builder()
                 .noticeId(notice.getNoticeId())
                 .title(notice.getTitle())
