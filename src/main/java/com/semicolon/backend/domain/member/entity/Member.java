@@ -1,6 +1,7 @@
 package com.semicolon.backend.domain.member.entity;
 
 import com.semicolon.backend.domain.dailyUse.entity.DailyUse;
+import com.semicolon.backend.domain.dailyUse.entity.DailyUseStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -37,9 +38,10 @@ public class Member {
     @Column(name = "member_address", nullable = false, length = 500)
     private String memberAddress;
 
-    @Column(name = "member_role", nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
-    private MemberRole memberRole;
+    @Column(name = "role", length = 10)
+    @Builder.Default
+    private MemberRole memberRole = MemberRole.USER;
 
     @Column(name = "email", nullable = false, length = 100)
     private String memberEmail;
