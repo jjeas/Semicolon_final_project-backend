@@ -1,12 +1,16 @@
 package com.semicolon.backend.domain.support.entity;
 
 import com.semicolon.backend.domain.member.entity.Member;
+import com.semicolon.backend.domain.member.entity.MemberRole;
 import com.semicolon.backend.domain.partner.entity.PartnerStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -32,7 +36,9 @@ public class Support {
     private LocalDateTime createdDate;
 
     @Enumerated(EnumType.STRING)
-    private SupportStatus status;
+    @Column(name = "status", length = 10)
+    @Builder.Default
+    private SupportStatus status = SupportStatus.WAITING;
 
     @Column(name = "support_title", nullable = false)
     private String title;
@@ -40,4 +46,13 @@ public class Support {
     @Lob
     @Column(name = "support_content", nullable = false)
     private String content;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "support", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SupportFile> files = new ArrayList<>();
+
+    public void addSupport(SupportFile supportFile){
+        files.add(supportFile);
+        supportFile.setSupport(this);
+    }
 }

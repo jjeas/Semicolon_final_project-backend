@@ -38,13 +38,18 @@ public class Notice {
     @Builder.Default
     private int viewCount=0;
 
-    @OneToMany(mappedBy = "notice",fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @OneToMany(mappedBy = "notice",fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<NoticeFile> files = new ArrayList<>();
 
     public void addFile(NoticeFile file){
         files.add(file);
         file.setNotice(this);
+    }
+
+    public void removeFile(NoticeFile file) {
+        this.files.remove(file);
+        file.setNotice(null);
     }
 
 

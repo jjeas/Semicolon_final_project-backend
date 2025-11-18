@@ -49,8 +49,8 @@ public class NoticeController {
         return ResponseEntity.ok("조회수 1 증가");
     }
 
-    @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> registerAll(@ModelAttribute NoticeDTO dto){
+    @PostMapping("/register")
+    public ResponseEntity<String> registerAll(@RequestBody NoticeDTO dto){
         log.info("dto를 확인해요 => {}",dto);
         service.registerNotice(dto);
 

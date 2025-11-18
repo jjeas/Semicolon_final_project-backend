@@ -18,7 +18,7 @@ public class MemberDTO {
     private String memberPassword;
     private String memberName;
 
-    private String memberRole;
+    private MemberRole memberRole;
 
     private String memberEmail;
     private String memberAddress;
