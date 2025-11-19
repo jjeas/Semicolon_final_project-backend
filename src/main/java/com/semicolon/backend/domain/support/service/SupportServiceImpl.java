@@ -44,8 +44,6 @@ public class SupportServiceImpl implements SupportService {
 
         List<String> fileNames = customFileUtil.saveFiles(supportDTO.getSupportFiles(), "supportFiles");
 
-        log.info("커스텀파일유틸 가져온 거 => {}", fileNames); // originalName, savedName
-
         if(fileNames != null) {
             for(var i=0; i<fileNames.size(); i += 2){
                 String originalName = fileNames.get(i);
@@ -62,7 +60,7 @@ public class SupportServiceImpl implements SupportService {
                 log.info("supportFileRepository => {}", supportFileRepository);
             }
         }
-        log.info("문의 등록 완료 => {}{}{}{}", support.getStatus(), support.getTitle(), support.getContent(), support.getFiles());
+        log.info("문의 등록 완료 => {}{}{}{}", support.getStatus(), support.getTitle(), support.getContent(), support.getFiles(), support.getStatus());
         return ResponseEntity.ok("문의 등록 완료");
     }
 
@@ -73,28 +71,49 @@ public class SupportServiceImpl implements SupportService {
                 .filter(i -> i.getMember().getMemberId() == id)
                 .toList();
 
-        if(supportList.isEmpty()) {
-            throw  new RuntimeException("조회된 목록이 없습니다");
-        }
-
         return supportList.stream()
                 .map(i -> {
             List<String> fileNames = i.getFiles().stream()
                     .map(j->j.getOriginalName()).toList();
-            List<String> filePath = i.getFiles().stream()
+            List<String> filePaths = i.getFiles().stream()
                     .map(j->j.getFilePath()).toList();
+            List<String> savedName = i.getFiles().stream()
+                    .map(j->j.getSavedName()).toList();
 
             return SupportUploadDTO.builder()
                     .supportNo(i.getSupportNo())
+                    .status(i.getStatus().name())
                     .memberId(i.getMember().getMemberId())
                     .supportTitle(i.getTitle())
                     .supportContent(i.getContent())
                     .fileName(fileNames)
-                    .filePath(filePath)
+                    .filePath(filePaths)
+                    .savedName(savedName)
                     .createdDate(i.getCreatedDate())
                     .build();
 
         }).toList();
+    }
 
+    @Override
+    public SupportUploadDTO getOneSupport(Long id, Long no) {
+
+       Support support = supportRepository.findById(no).orElseThrow();
+
+        List<String> fileNames= support.getFiles().stream().map(i->i.getOriginalName()).toList();
+        List<String> filePath = support.getFiles().stream().map(i->i.getFilePath()).toList();
+        List<String> savedName = support.getFiles().stream().map(i->i.getSavedName()).toList();
+
+        return SupportUploadDTO.builder()
+                .supportNo(support.getSupportNo())
+                .status(support.getStatus().name())
+                .memberId(support.getMember().getMemberId())
+                .supportContent(support.getContent())
+                .supportTitle(support.getTitle())
+                .filePath(filePath)
+                .fileName(fileNames)
+                .savedName(savedName)
+                .createdDate(support.getCreatedDate())
+                .build();
     }
 }

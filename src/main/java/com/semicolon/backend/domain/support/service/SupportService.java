@@ -10,4 +10,5 @@ import java.util.List;
 public interface SupportService {
     public ResponseEntity<?> supportReqRegister (SupportDTO supportDTO);
     public List<SupportUploadDTO> getSupportList (Long id);
+    public SupportUploadDTO getOneSupport (Long id, Long no);
 }

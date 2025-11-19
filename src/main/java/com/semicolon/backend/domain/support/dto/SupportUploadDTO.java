@@ -23,6 +23,7 @@ public class SupportUploadDTO {
     private String status;
     private List<String> fileName;
     private List<String> filePath;
+    private List<String> savedName;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdDate;
