@@ -13,6 +13,6 @@ import java.time.LocalDateTime;
 public class GuideDTO {
     private Long id;
     private String category;
-    private String html;
     private LocalDateTime updatedDate;
+    private String html;
 }
