@@ -1,10 +1,18 @@
 package com.semicolon.backend.global.config;
 
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.io.IOException;
+import java.nio.file.Paths;
+
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -26,5 +34,29 @@ public class WebConfig implements WebMvcConfigurer {
         //file 접두사가 있으면 실제 디스크 경로를 의미
         registry.addResourceHandler("/upload/**") //프론트가 요청하는 URL
                 .addResourceLocations(resourcePath);//서버의 실제 파일 경로
+        registry.addResourceHandler("/download/**")
+                .addResourceLocations("file:///C:/dev/upload/notice/")
+                .setCachePeriod(3600);
+    }
+
+    @Bean
+    public Filter downloadHeaderFilter() {
+        return new Filter() {
+            @Override
+            public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+                    throws IOException, ServletException {
+
+                HttpServletRequest req = (HttpServletRequest) request;
+                HttpServletResponse res = (HttpServletResponse) response;
+
+                String uri = req.getRequestURI();
+                if (uri.startsWith("/download/")) {
+                    String filename = Paths.get(uri).getFileName().toString();
+                    res.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+                }
+
+                chain.doFilter(request, response);
+            }
+        };
     }
 }
