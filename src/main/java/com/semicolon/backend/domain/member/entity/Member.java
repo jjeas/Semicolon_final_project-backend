@@ -39,7 +39,7 @@ public class Member {
     private String memberAddress;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", length = 10)
+    @Column(name = "member_role", length = 10)
     @Builder.Default
     private MemberRole memberRole = MemberRole.USER;
 
