@@ -60,7 +60,7 @@ public class SupportServiceImpl implements SupportService {
                 log.info("supportFileRepository => {}", supportFileRepository);
             }
         }
-        log.info("문의 등록 완료 => {}{}{}{}", support.getStatus(), support.getTitle(), support.getContent(), support.getFiles(), support.getStatus());
+        log.info("문의 등록 완료 => {}{}{}{}{}", support.getStatus(), support.getTitle(), support.getContent(), support.getFiles(), support.getStatus());
         return ResponseEntity.ok("문의 등록 완료");
     }
 
@@ -91,7 +91,6 @@ public class SupportServiceImpl implements SupportService {
                     .savedName(savedName)
                     .createdDate(i.getCreatedDate())
                     .build();
-
         }).toList();
     }
 
