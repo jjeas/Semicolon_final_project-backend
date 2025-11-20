@@ -1,12 +1,10 @@
 package com.semicolon.backend.domain.support.entity;
 
 import com.semicolon.backend.domain.member.entity.Member;
-import com.semicolon.backend.domain.member.entity.MemberRole;
-import com.semicolon.backend.domain.partner.entity.PartnerStatus;
+
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.multipart.MultipartFile;
+
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
