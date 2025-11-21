@@ -51,8 +51,18 @@ public class Support {
     @OneToMany(mappedBy = "support", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SupportFile> files = new ArrayList<>();
 
+    @Builder.Default
+    @OneToMany(mappedBy = "support", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SupportResponse> response = new ArrayList<>();
+
     public void addSupport(SupportFile supportFile){
         files.add(supportFile);
         supportFile.setSupport(this);
     }
+
+    public void addResponse(SupportResponse supportResponse){
+        response.add(supportResponse);
+        supportResponse.setSupport(this);
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.semicolon.backend.global.file.uploadFile;
 
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
@@ -16,7 +17,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.LongStream;
 
+@Getter
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -33,10 +36,6 @@ public class CustomFileUtil {
         log.info("실제 업로드 경로 => {}", uploadPath);
     }
 
-    public String getUploadPath() {
-        return uploadPath;
-    }
-
     public List<String> saveFiles(MultipartFile[] files, String category) throws RuntimeException {
         if (files == null || files.length == 0) return null;
 
@@ -49,7 +48,6 @@ public class CustomFileUtil {
             String originalName = i.getOriginalFilename();
             String savedName = UUID.randomUUID().toString() + "_" + originalName;
             Path savePath = Paths.get(categoryPath.toString(), savedName);
-
             try {
                 Files.copy(i.getInputStream(), savePath);
 
@@ -66,6 +64,37 @@ public class CustomFileUtil {
         }
         log.info("uploadNames => {}", uploadNames);
         return uploadNames;
+    }
+
+    public void deleteFile(String filePath) {
+        String thumbnailPath = "s_"+filePath;
+        if (filePath != null && filePath.startsWith("/upload/")) {
+            String relativePath = filePath.substring("/upload/".length());
+            Path originalFilePath = Path.of(uploadPath, relativePath);
+            try {
+                // 원본 파일 삭제
+                if (Files.exists(originalFilePath)) {
+                    Files.delete(originalFilePath);
+                    log.info("원본 파일 삭제 완료: {}", originalFilePath);
+                }
+            } catch (IOException e) {
+                log.error("원본 파일 삭제 실패:{}",  e.getMessage());
+            }
+        }
+
+        if (thumbnailPath != null && thumbnailPath.startsWith("/upload/")) {
+            String relativePath = thumbnailPath.substring("/upload/".length());
+            Path thumbnailFilePath = Path.of(uploadPath, relativePath);
+
+            try {
+                if (Files.exists(thumbnailFilePath)) {
+                    Files.delete(thumbnailFilePath);
+                    log.info("썸네일 파일 삭제 완료: {}", thumbnailFilePath);
+                }
+            } catch (IOException e) {
+                log.error("썸네일 파일 삭제 실패: {}",  e.getMessage());
+            }
+        }
     }
 
 }

@@ -19,12 +19,6 @@ import java.util.Optional;
 @ToString
 public class PartnerUploadDTO {
     private long requestNo;
-//    private String memberId;
-//    private String memberPhone;
-//    private String memberName;
-//    private String memberAddress;
-//    private String memberGender;
-//    private LocalDateTime memberJoinDate;
     private MemberDTO member;
     private LocalDateTime requestDate;
     private String status;
@@ -33,6 +27,5 @@ public class PartnerUploadDTO {
     private List<PartnerFileDTO> resumeFiles;
     private List<PartnerFileDTO> certFiles;
     private List<PartnerFileDTO> bankFiles;
-
 
 }
