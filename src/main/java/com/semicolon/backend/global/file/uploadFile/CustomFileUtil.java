@@ -1,6 +1,7 @@
 package com.semicolon.backend.global.file.uploadFile;
 
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
@@ -16,7 +17,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.LongStream;
 
+@Getter
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -33,10 +36,6 @@ public class CustomFileUtil {
         log.info("실제 업로드 경로 => {}", uploadPath);
     }
 
-    public String getUploadPath() {
-        return uploadPath;
-    }
-
     public List<String> saveFiles(MultipartFile[] files, String category) throws RuntimeException {
         if (files == null || files.length == 0) return null;
 
@@ -49,7 +48,6 @@ public class CustomFileUtil {
             String originalName = i.getOriginalFilename();
             String savedName = UUID.randomUUID().toString() + "_" + originalName;
             Path savePath = Paths.get(categoryPath.toString(), savedName);
-
             try {
                 Files.copy(i.getInputStream(), savePath);
 

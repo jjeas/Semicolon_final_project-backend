@@ -112,14 +112,13 @@ public class NoticeServiceImpl implements NoticeService{
             dto.getFileList().stream()
                     .filter(f -> f.getId() == null)
                     .forEach(f -> {
-                        NoticeFile nf = NoticeFile.builder()
+                        NoticeFile noticeFile = NoticeFile.builder()
                                 .originalName(f.getOriginalName())
                                 .savedName(f.getSavedName())
                                 .filePath(f.getFilePath())
                                 .thumbnailPath(f.getThumbnailPath())
                                 .build();
-
-                        notice.addFile(nf);
+                        notice.addFile(noticeFile);
                     });
         }
         repository.save(notice);
