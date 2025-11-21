@@ -29,9 +29,6 @@ public class Facility {
     @Column(name = "facility_Type", nullable = false, length = 10)
     private FacilityType facilityType;
 
-    @Column(name = "description", length = 4000)
-    private String description;
-
     @Column(name = "dailyUse_available", nullable = false)
     @Builder.Default
     private boolean dailyUseAvailable = false;
