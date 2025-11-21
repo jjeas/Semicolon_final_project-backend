@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Transactional
@@ -64,6 +65,7 @@ public class PartnerServiceImpl implements PartnerService{
                 partnerFile.setFileCategory("resume");
                 partnerFile.setPartner(partner);
                 partnerFile.setFilePath(customFileUtil.getUploadPath() + "/resume/" + savedName);
+                partnerFile.setThumbnailPath(customFileUtil.getUploadPath() + "/resume/s_" + savedName);
 
                 partner.addPartner(partnerFile);
                 partnerFileRepository.save(partnerFile);
@@ -82,6 +84,7 @@ public class PartnerServiceImpl implements PartnerService{
                 partnerFile.setFileCategory("cert");
                 partnerFile.setPartner(partner);
                 partnerFile.setFilePath(customFileUtil.getUploadPath() + "/cert/" + savedName);
+                partnerFile.setThumbnailPath(customFileUtil.getUploadPath() + "/cert/s_" + savedName);
 
                 partner.addPartner(partnerFile);
                 partnerFileRepository.save(partnerFile);
@@ -99,6 +102,7 @@ public class PartnerServiceImpl implements PartnerService{
                 partnerFile.setFileCategory("bank");
                 partnerFile.setPartner(partner);
                 partnerFile.setFilePath(customFileUtil.getUploadPath() + "/bank/" + savedName);
+                partnerFile.setThumbnailPath(customFileUtil.getUploadPath() + "/bank/s_" + savedName);
 
                 partner.addPartner(partnerFile);
                 partnerFileRepository.save(partnerFile);
@@ -124,16 +128,34 @@ public class PartnerServiceImpl implements PartnerService{
 
     @Override
     @Transactional
-    public void changeStatus(Long id, PartnerStatus status) {
-        Partner partner = partnerRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("파트너 승급 신청서를 찾을 수 없습니다."));
-        if(status == PartnerStatus.ACCEPTED){
-            Member member = memberRepository.findById(partner.getMember().getMemberId())
-                    .orElseThrow(() -> new IllegalArgumentException("해당 멤버를 찾을 수 없습니다."));
-            member.setMemberRole(MemberRole.PARTNER);
-            memberRepository.save(member);
+    public List<PartnerFile> changeStatus(Long id, PartnerStatus status) {
+
+        Partner partner = partnerRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("파트너 승급 신청서를 찾을 수 없습니다."));
+
+        List<PartnerFile> deleteFiles = new ArrayList<>();
+
+        switch (status) {
+
+            case ACCEPTED -> {
+                Member member = memberRepository.findById(partner.getMember().getMemberId())
+                        .orElseThrow(() -> new IllegalArgumentException("해당 멤버를 찾을 수 없습니다."));
+                member.setMemberRole(MemberRole.PARTNER);
+            }
+            case REJECTED -> {
+                deleteFiles.addAll(partner.getFiles());
+                partner.getFiles().clear();
+            }
         }
         partner.setStatus(status);
-        partnerRepository.save(partner);
+        return deleteFiles;
+    }
+
+    @Override
+    public void deleteFiles(List<PartnerFile> files) {
+        for (PartnerFile file : files) {
+            customFileUtil.deleteFile(file.getFilePath());
+        }
     }
 
     public PartnerUploadDTO entityToDto(Partner partner){
@@ -143,6 +165,7 @@ public class PartnerServiceImpl implements PartnerService{
                         .originalName(j.getOriginalName())
                         .savedName(j.getSavedName())
                         .filePath(j.getFilePath())
+                        .thumbnailPath(j.getThumbnailPath())
                         .fileId(j.getFileId())
                         .fileCategory(j.getFileCategory())
                         .build())
@@ -154,6 +177,7 @@ public class PartnerServiceImpl implements PartnerService{
                         .originalName(j.getOriginalName())
                         .savedName(j.getSavedName())
                         .filePath(j.getFilePath())
+                        .thumbnailPath(j.getThumbnailPath())
                         .fileId(j.getFileId())
                         .fileCategory(j.getFileCategory())
                         .build())
@@ -165,6 +189,7 @@ public class PartnerServiceImpl implements PartnerService{
                         .originalName(j.getOriginalName())
                         .savedName(j.getSavedName())
                         .filePath(j.getFilePath())
+                        .thumbnailPath(j.getThumbnailPath())
                         .fileId(j.getFileId())
                         .fileCategory(j.getFileCategory())
                         .build())

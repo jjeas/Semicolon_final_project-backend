@@ -1,6 +1,7 @@
 package com.semicolon.backend.domain.support;
 
 import com.semicolon.backend.domain.support.dto.SupportDTO;
+import com.semicolon.backend.domain.support.dto.SupportResponseDTO;
 import com.semicolon.backend.domain.support.dto.SupportUploadDTO;
 import com.semicolon.backend.domain.support.service.SupportService;
 import org.springframework.core.io.Resource;
@@ -28,17 +29,27 @@ public class SupportController {
     }
 
     @GetMapping("/{id}/support")
-    public List<SupportUploadDTO> supportUploadDTO (@PathVariable("id") Long id){
+    public List<SupportUploadDTO> supportUploadDTOList (@PathVariable("id") Long id){
         return service.getSupportList(id);
     }
 
-    @GetMapping("/{id}/support/{no}")
-    public SupportUploadDTO supportUploadDTO (@PathVariable("id") Long id, @PathVariable("no") Long no) {
-        return service.getOneSupport(id, no);
+    @GetMapping("/support/{no}")
+    public SupportUploadDTO supportUploadDTO (@PathVariable("no") Long no) {
+        return service.getOneSupport(no);
     }
 
     @GetMapping("/support/view/{fileName}")
     public Resource view(@PathVariable String fileName) {
         return new FileSystemResource("C:/dev/upload/supportFiles/" + fileName);
+    }
+
+    @GetMapping("/support")
+    public ResponseEntity<List<SupportUploadDTO>> getAll(){
+        return ResponseEntity.ok(service.getSupportAllList());
+    }
+
+    @PostMapping("/support/{no}")
+    public ResponseEntity<List<SupportResponseDTO>> registerResponse(@PathVariable("no") Long no, @RequestBody SupportResponseDTO dto){
+        return service.registerResponse(no, dto);
     }
 }

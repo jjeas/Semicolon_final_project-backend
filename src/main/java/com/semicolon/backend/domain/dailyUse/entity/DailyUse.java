@@ -50,7 +50,4 @@ public class DailyUse {
     @JoinColumn(name = "space_id", nullable = false)
     private FacilitySpace space;
 
-
-
-
 }

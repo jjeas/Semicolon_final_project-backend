@@ -14,4 +14,5 @@ public class PartnerFileDTO {
     private String originalName;
     private String savedName;
     private String filePath;
+    private String thumbnailPath;
 }

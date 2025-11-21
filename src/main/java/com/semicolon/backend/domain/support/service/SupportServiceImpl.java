@@ -1,17 +1,21 @@
 package com.semicolon.backend.domain.support.service;
 
+import com.semicolon.backend.domain.member.dto.MemberDTO;
 import com.semicolon.backend.domain.member.entity.Member;
 import com.semicolon.backend.domain.member.repository.MemberRepository;
 import com.semicolon.backend.domain.support.dto.SupportDTO;
+import com.semicolon.backend.domain.support.dto.SupportResponseDTO;
 import com.semicolon.backend.domain.support.dto.SupportUploadDTO;
 import com.semicolon.backend.domain.support.entity.Support;
 import com.semicolon.backend.domain.support.entity.SupportFile;
+import com.semicolon.backend.domain.support.entity.SupportResponse;
 import com.semicolon.backend.domain.support.entity.SupportStatus;
 import com.semicolon.backend.domain.support.repository.SupportFileRepository;
 import com.semicolon.backend.domain.support.repository.SupportRepository;
 import com.semicolon.backend.global.file.uploadFile.CustomFileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +31,7 @@ public class SupportServiceImpl implements SupportService {
     private final CustomFileUtil customFileUtil;
     private final SupportRepository supportRepository;
     private final SupportFileRepository supportFileRepository;
+    private final ModelMapper mapper;
 
     @Override
     public ResponseEntity<?> supportReqRegister(SupportDTO supportDTO) {
@@ -72,47 +77,73 @@ public class SupportServiceImpl implements SupportService {
                 .toList();
 
         return supportList.stream()
-                .map(i -> {
-            List<String> fileNames = i.getFiles().stream()
-                    .map(j->j.getOriginalName()).toList();
-            List<String> filePaths = i.getFiles().stream()
-                    .map(j->j.getFilePath()).toList();
-            List<String> savedName = i.getFiles().stream()
-                    .map(j->j.getSavedName()).toList();
-
-            return SupportUploadDTO.builder()
-                    .supportNo(i.getSupportNo())
-                    .status(i.getStatus().name())
-                    .memberId(i.getMember().getMemberId())
-                    .supportTitle(i.getTitle())
-                    .supportContent(i.getContent())
-                    .fileName(fileNames)
-                    .filePath(filePaths)
-                    .savedName(savedName)
-                    .createdDate(i.getCreatedDate())
-                    .build();
-        }).toList();
+                .map(this::entityToDTO).toList();
     }
 
     @Override
-    public SupportUploadDTO getOneSupport(Long id, Long no) {
+    public SupportUploadDTO getOneSupport(Long no) {
 
-       Support support = supportRepository.findById(no).orElseThrow();
+       Support support = supportRepository.findDetailWithResponse(no).orElseThrow();
 
-        List<String> fileNames= support.getFiles().stream().map(i->i.getOriginalName()).toList();
-        List<String> filePath = support.getFiles().stream().map(i->i.getFilePath()).toList();
-        List<String> savedName = support.getFiles().stream().map(i->i.getSavedName()).toList();
+        return entityToDTO(support);
+    }
+
+    @Override
+    public List<SupportUploadDTO> getSupportAllList() {
+        List<SupportUploadDTO> list = supportRepository.findAll().stream().map(i->entityToDTO(i)).toList();
+        return list;
+    }
+
+    @Override
+    public ResponseEntity<List<SupportResponseDTO>> registerResponse(Long no, SupportResponseDTO dto) {
+        Support support = supportRepository.findById(no)
+                .orElseThrow(() -> new RuntimeException("문의 내역을 찾을 수 없습니다."));
+
+        SupportResponse response = SupportResponse.builder()
+                .content(dto.getContent())
+                .createdAt(LocalDateTime.now())
+                .support(support)
+                .build();
+
+        support.addResponse(response);
+        support.setStatus(SupportStatus.ANSWERED);
+        supportRepository.save(support);
+
+
+        List<SupportResponseDTO> responses = support.getResponse().stream()
+                .map(r -> SupportResponseDTO.builder()
+                        .content(r.getContent())
+                        .createdAt(r.getCreatedAt())
+                        .build())
+                .toList();
+
+        return ResponseEntity.ok(responses);
+    }
+
+    public SupportUploadDTO entityToDTO(Support support){
+        List<String> fileNames = support.getFiles().stream().map(SupportFile::getOriginalName).toList();
+        List<String> filePath = support.getFiles().stream().map(SupportFile::getFilePath).toList();
+        List<String> savedName = support.getFiles().stream().map(SupportFile::getSavedName).toList();
+
+        List<SupportResponseDTO> responses = support.getResponse().stream()
+                .map(r -> SupportResponseDTO.builder()
+                        .content(r.getContent())
+                        .createdAt(r.getCreatedAt())
+                        .build())
+                .toList();
 
         return SupportUploadDTO.builder()
                 .supportNo(support.getSupportNo())
                 .status(support.getStatus().name())
-                .memberId(support.getMember().getMemberId())
+                .member(mapper.map(support.getMember(), MemberDTO.class))
                 .supportContent(support.getContent())
                 .supportTitle(support.getTitle())
                 .filePath(filePath)
                 .fileName(fileNames)
                 .savedName(savedName)
                 .createdDate(support.getCreatedDate())
+                .response(responses)
                 .build();
     }
+
 }

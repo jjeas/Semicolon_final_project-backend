@@ -37,6 +37,15 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/download/**")
                 .addResourceLocations("file:///C:/dev/upload/notice/")
                 .setCachePeriod(3600);
+        registry.addResourceHandler("/download/**")
+                .addResourceLocations("file:///C:/dev/upload/bank/")
+                .setCachePeriod(3600);
+        registry.addResourceHandler("/download/**")
+                .addResourceLocations("file:///C:/dev/upload/cert/")
+                .setCachePeriod(3600);
+        registry.addResourceHandler("/download/**")
+                .addResourceLocations("file:///C:/dev/upload/resume/")
+                .setCachePeriod(3600);
     }
 
     @Bean
