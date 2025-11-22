@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/faq")
+@RequestMapping("/api/community/faq")
 public class FaqController {
 
     @Autowired

@@ -17,7 +17,7 @@ import java.util.List;
 public class GalleryServiceImpl implements GalleryService {
 
     private final GalleryRepository Galleryrepository;
-    private final GalleryRepository GalleryImagerepository;
+    private final GalleryRepository GalleryImageRepository;
 
     @Override
     @Transactional

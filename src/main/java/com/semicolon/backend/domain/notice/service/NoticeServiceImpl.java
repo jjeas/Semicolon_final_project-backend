@@ -118,7 +118,6 @@ public class NoticeServiceImpl implements NoticeService{
                                 .filePath(f.getFilePath())
                                 .thumbnailPath(f.getThumbnailPath())
                                 .build();
-
                         notice.addFile(nf);
                     });
         }
