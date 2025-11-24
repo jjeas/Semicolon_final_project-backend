@@ -8,8 +8,8 @@ import java.util.List;
 
 public interface FaqService {
     public List<FaqDTO> getAll();
-//    public void update(FaqDTO dto, Long id);
-//    public void modify(FaqDTO dto);
-//    public void delete(Long id);
+    public void update(FaqDTO dto, Long id);
+    public void register(FaqDTO dto);
+    public void delete(Long id);
     public List<FaqCategoryDTO>  getAllCategories();
 }
