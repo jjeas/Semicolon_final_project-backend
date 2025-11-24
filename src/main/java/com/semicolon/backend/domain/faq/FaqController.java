@@ -21,23 +21,27 @@ public class FaqController {
     public List<FaqDTO> list(){
         return service.getAll();
     }
-//    @PutMapping("/{id}")
-//    public ResponseEntity<String> update(@RequestBody FaqDTO dto, @PathVariable("id") long id){
-//        service.update(dto,id);
-//        return ResponseEntity.ok("FAQ 업데이트 성공");
-//    }
-//    @PostMapping("/modify")
-//    public ResponseEntity<String> modify(@RequestBody FaqDTO dto){
-//        service.modify(dto);
-//        return ResponseEntity.ok("FAQ 등록 성공");
-//    }
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<String> delete(@PathVariable("id") Long id){
-//        service.delete(id);
-//        return ResponseEntity.ok("FAQ 삭제 완료");
-//    }
+
     @GetMapping("/category")
     public ResponseEntity<List<FaqCategoryDTO>> categoryList(){
         return ResponseEntity.ok(service.getAllCategories());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<String> update(@RequestBody FaqDTO dto, @PathVariable("id") long id){
+        service.update(dto,id);
+        return ResponseEntity.ok("FAQ 업데이트 성공");
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<String> modify(@RequestBody FaqDTO dto){
+        service.register(dto);
+        return ResponseEntity.ok("FAQ 등록 성공");
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> delete(@PathVariable("id") Long id){
+        service.delete(id);
+        return ResponseEntity.ok("FAQ 삭제 완료");
     }
 }
