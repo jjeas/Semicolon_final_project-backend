@@ -15,7 +15,6 @@ import java.util.Set;
 public class MemberDTO {
     private long memberId;
     private String memberLoginId;
-    private String memberPassword;
     private String memberName;
 
     private MemberRole memberRole;
