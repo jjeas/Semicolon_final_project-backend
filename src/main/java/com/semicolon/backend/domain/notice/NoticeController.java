@@ -20,19 +20,19 @@ public class NoticeController {
 //        service.registerNotice(noticeDTO);
 //        return ResponseEntity.ok("공지가 저장되었습니다.");
 //    }
-    @DeleteMapping("/{id}/admin")
-    public ResponseEntity<String> delete(@PathVariable("id") long id){
+    @DeleteMapping("/admin/{no}")
+    public ResponseEntity<String> delete(@PathVariable("no") long no){
         log.info("공지 삭제기능 실행");
-        service.deleteNotice(id);
+        service.deleteNotice(no);
         return ResponseEntity.ok("공지가 삭제되었습니다.");
     }
-    @GetMapping("/{id}")
-    public ResponseEntity<NoticeDTO> getOneNotice(@PathVariable("id") Long noticeId) throws Exception{
-        return ResponseEntity.ok(service.getOne(noticeId));
+    @GetMapping("/{no}")
+    public ResponseEntity<NoticeDTO> getOneNotice(@PathVariable("no") Long no) throws Exception{
+        return ResponseEntity.ok(service.getOne(no));
     }
-    @PutMapping("/{id}/admin")
-    public ResponseEntity<String> modify(@PathVariable("id") Long id, @RequestBody NoticeDTO dto){
-        service.modify(id, dto);
+    @PutMapping("/admin/{no}")
+    public ResponseEntity<String> modify(@PathVariable("no") Long no, @RequestBody NoticeDTO dto){
+        service.modify(no, dto);
         return ResponseEntity.ok("공지 수정이 완료되었습니다.");
     }
     @GetMapping("/list")
@@ -40,13 +40,13 @@ public class NoticeController {
         return ResponseEntity.ok(service.list());
     }
 
-    @PostMapping("/{id}/view")
-    public ResponseEntity<String> addViewCount(@PathVariable long id){
-        service.increaseViewCount(id);
+    @PostMapping("/{no}/view")
+    public ResponseEntity<String> addViewCount(@PathVariable long no){
+        service.increaseViewCount(no);
         return ResponseEntity.ok("조회수 1 증가");
     }
 
-    @PostMapping("/register/admin")
+    @PostMapping("/admin/register")
     public ResponseEntity<String> registerAll(@RequestBody NoticeDTO dto){
         log.info("dto를 확인해요 => {}",dto);
         service.registerNotice(dto);

@@ -7,9 +7,8 @@ import com.semicolon.backend.domain.member.entity.Member;
 import com.semicolon.backend.domain.partner.dto.PartnerDTO;
 
 public interface MemberService {
-    public MemberDTO getOne(Long memberId);
     public void modify(String loginIdFromToken, MemberDTO requestDTO);
-    public PartnerDTO getPartnerStatus(Long memberId);
+    public PartnerDTO getPartnerStatus(String loginIdFromToken);
     public MemberDTO getOneByLoginId(String loginId);
-    public void changePassword(Long memberId,PasswordChangeDTO passwordChangeDTO);
+    public void changePassword(String loginIdFromToken,PasswordChangeDTO passwordChangeDTO);
 }

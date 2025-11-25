@@ -20,7 +20,6 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-@Slf4j
 public class MemberServiceImpl implements MemberService {
     @Autowired
     private MemberRepository repository;
@@ -30,11 +29,6 @@ public class MemberServiceImpl implements MemberService {
     // 3. (추가) 비밀번호 암호화를 위해 PasswordEncoder 주입
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @Override
-    public MemberDTO getOne(Long memberId) {
-        return mapper.map(repository.findById(memberId).orElseThrow(() -> new NoSuchElementException("해당 ID에 해당되는 회원이 없습니다.")), MemberDTO.class);
-    }
 
     // 4. (★핵심 수정★) "수정"을 위한 modify 메서드
     @Override
@@ -71,22 +65,14 @@ public class MemberServiceImpl implements MemberService {
 
         // 10. @Transactional이 붙어있으므로,
         //     메서드가 끝나면 "변경된" member 객체를 JPA가 알아서 DB에 UPDATE 쿼리를 날려줍니다.
-    
-      public void register(MemberDTO memberDTO) {
-        Member member = repository.findById(memberDTO.getMemberId())
-                .orElseThrow(() -> new NoSuchElementException("해당 ID에 해당되는 회원이 없습니다."));
 
-
-        member.setMemberEmail(memberDTO.getMemberEmail());
-        member.setMemberPhoneNumber(memberDTO.getMemberPhoneNumber());
-        member.setMemberAddress(memberDTO.getMemberAddress());
-
-        repository.save(member);
     }
 
 
     @Override
-    public PartnerDTO getPartnerStatus(Long memberId) {
+    public PartnerDTO getPartnerStatus(String loginIdFromToken) {
+        Long memberId = repository.findByMemberLoginId(loginIdFromToken).orElseThrow().getMemberId();
+        log.info("long memberid==+==> {}", memberId);
         return repository.getPartnerStatus(memberId)
                 .orElse(new PartnerDTO((PartnerStatus) null));
     }
@@ -100,8 +86,9 @@ public class MemberServiceImpl implements MemberService {
     }
 
 
-}
-    public void changePassword(Long memberId, PasswordChangeDTO passwordChangeDTO) {
+    @Override
+    public void changePassword(String loginIdFromToken, PasswordChangeDTO passwordChangeDTO) {
+        Long memberId =repository.findByMemberLoginId(loginIdFromToken).orElseThrow().getMemberId();
         Member member = repository.findById(memberId).orElseThrow(() -> new NoSuchElementException("해당 ID에 해당되는 회원이 없습니다."));
 
         if(!passwordChangeDTO.getMemberCurrentPassword().equals(member.getMemberPassword())) {
@@ -115,6 +102,8 @@ public class MemberServiceImpl implements MemberService {
         member.setMemberPassword(passwordChangeDTO.getMemberPassword());
         repository.save(member);
     }
+
+
 
 
 }

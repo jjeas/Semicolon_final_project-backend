@@ -31,21 +31,16 @@ public class MemberController {
         MemberDTO dtoBefore = service.getOneByLoginId(loginIdFromToken);
         service.modify(loginIdFromToken, requestDTO);
         return ResponseEntity.ok("Member 수정 완료");
-      
-    @PostMapping("/{id}/memberEdit")
-    public ResponseEntity<String> memberDTO (@PathVariable("id") Long memberId, @RequestBody MemberDTO memberDTO) {
-        service.register(memberDTO);
-        return ResponseEntity.ok("Member 수정 중");
     }
 
-    @GetMapping("/{id}/partnerRequest")
-    public PartnerDTO partnerStatus(@PathVariable("id") Long memberId){
-        return service.getPartnerStatus(memberId);
+    @GetMapping("/partnerRequest")
+    public PartnerDTO partnerStatus(@AuthenticationPrincipal String loginIdFromToken){
+        return service.getPartnerStatus(loginIdFromToken);
     }
 
-    @PostMapping("/{id}/passwordEdit")
-    public ResponseEntity<String> changePassword(@PathVariable("id") Long memberId, @RequestBody PasswordChangeDTO passwordChangeDTO) {
-        service.changePassword(memberId, passwordChangeDTO);
+    @PostMapping("/passwordEdit")
+    public ResponseEntity<String> changePassword(@AuthenticationPrincipal String loginIdFromToken, @RequestBody PasswordChangeDTO passwordChangeDTO) {
+        service.changePassword(loginIdFromToken, passwordChangeDTO);
         return ResponseEntity.ok("password 수정 중");
     }
 

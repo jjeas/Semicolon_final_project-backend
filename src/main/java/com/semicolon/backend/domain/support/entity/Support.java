@@ -39,11 +39,11 @@ public class Support {
     private SupportStatus status = SupportStatus.WAITING;
 
     @Column(name = "support_title", nullable = false)
-    private String title;
+    private String supportTitle;
 
     @Lob
     @Column(name = "support_content", nullable = false)
-    private String content;
+    private String supportContent;
 
     @Builder.Default
     @OneToMany(mappedBy = "support", cascade = CascadeType.ALL, orphanRemoval = true)
