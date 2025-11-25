@@ -37,16 +37,12 @@ public class WebConfig implements WebMvcConfigurer {
                 //위 링크로 요청이 들어오면 서버의 실제 파일 경로에서 파일을 찾아 반환해주겠다
                 .addResourceLocations(resourcePath);//서버의 실제 파일 경로
         registry.addResourceHandler("/download/**")
-                .addResourceLocations("file:///C:/dev/upload/notice/")
-                .setCachePeriod(3600);
-        registry.addResourceHandler("/download/**")
-                .addResourceLocations("file:///C:/dev/upload/bank/")
-                .setCachePeriod(3600);
-        registry.addResourceHandler("/download/**")
-                .addResourceLocations("file:///C:/dev/upload/cert/")
-                .setCachePeriod(3600);
-        registry.addResourceHandler("/download/**")
-                .addResourceLocations("file:///C:/dev/upload/resume/")
+                .addResourceLocations(
+                        "file:///C:/dev/upload/notice/",
+                        "file:///C:/dev/upload/bank/",
+                        "file:///C:/dev/upload/cert/",
+                        "file:///C:/dev/upload/resume/"
+                )
                 .setCachePeriod(3600);
     }
 
