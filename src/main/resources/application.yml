@@ -5,6 +5,18 @@ spring:
   application:
     name: final_project
 
+  mail:
+     host: smtp.gmail.com
+     port: 587
+     username: dlrjsgh951@gmail.com
+     password: "edqq xbvb adzu rzwt"
+     properties:
+        mail:
+          smtp:
+            auth: true
+            starttls:
+              enable: true
+
   # DB ?? ??
   datasource:
     driver-class-name: oracle.jdbc.OracleDriver
@@ -38,3 +50,6 @@ com:
     semicolon:
         backend:
           upload: C:/dev/upload
+
+jwt:
+    secret:

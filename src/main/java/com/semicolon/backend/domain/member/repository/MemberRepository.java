@@ -19,5 +19,9 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     fetch first 1 rows only
 """)
     Optional<PartnerDTO> getPartnerStatus(@Param("memId") Long memId);
-
+    Optional<Member> findByMemberLoginId(String memberLoginId);
+    Optional<Member> findMemberIdByMemberNameAndMemberEmail(String memberName, String memberEmail);
+    Optional<Member> findMemberByMemberNameAndMemberEmailAndMemberLoginId(String memberName, String memberEmail, String memberLoginId);
+    boolean existsByMemberEmail(String memberEmail);
+    boolean existsByMemberLoginId(String memberLoginId);
 }

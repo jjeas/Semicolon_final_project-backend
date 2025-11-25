@@ -12,11 +12,11 @@ import java.util.List;
 
 @RestController
 @Slf4j
-@RequestMapping("/api/gallery")
+@RequestMapping("/api/community/gallery")
 @RequiredArgsConstructor
 public class GalleryController {
     private final GalleryService galleryService;
-    private final FileUploadService fileUploadService;
+//    private final FileUploadService fileUploadService;
 
     @GetMapping("")
     public ResponseEntity<List<GalleryDTO>> getList(){
@@ -41,7 +41,6 @@ public class GalleryController {
     public ResponseEntity<String> addViewCount(@PathVariable long id){
         galleryService.increaseViewCount(id);
         return ResponseEntity.ok("조회수 1 증가 완료");
-
     }
 
 }

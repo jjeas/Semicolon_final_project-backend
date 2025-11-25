@@ -22,6 +22,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins("http://localhost:3000")
                 .allowedMethods("HEAD","GET","POST","PUT","DELETE","OPTIONS")
+                .allowedHeaders("Authorization", "Content-Type")
                 .maxAge(300)
                 .allowedHeaders("*");
     }
@@ -33,6 +34,7 @@ public class WebConfig implements WebMvcConfigurer {
         String resourcePath = "file:"+uploadDir+"/";
         //file 접두사가 있으면 실제 디스크 경로를 의미
         registry.addResourceHandler("/upload/**") //프론트가 요청하는 URL
+                //위 링크로 요청이 들어오면 서버의 실제 파일 경로에서 파일을 찾아 반환해주겠다
                 .addResourceLocations(resourcePath);//서버의 실제 파일 경로
         registry.addResourceHandler("/download/**")
                 .addResourceLocations("file:///C:/dev/upload/notice/")
