@@ -34,15 +34,17 @@ public class SupportServiceImpl implements SupportService {
     private final ModelMapper mapper;
 
     @Override
-    public ResponseEntity<?> supportReqRegister(SupportDTO supportDTO) {
-        Member member = memberRepository.findById(supportDTO.getMemberId()).orElseThrow();
+    public ResponseEntity<?> supportReqRegister(String loginIdFromToken, SupportDTO supportDTO) {
+        log.info("이거이거이거이거 = {}",supportDTO);
+        Long id = memberRepository.findByMemberLoginId(loginIdFromToken).get().getMemberId();
+        Member member = memberRepository.findById(id).orElseThrow();
 
         Support support = new Support();
         support.setMember(member);
         support.setCreatedDate(LocalDateTime.now());
         support.setStatus(SupportStatus.WAITING);
-        support.setTitle(supportDTO.getSupportTitle());
-        support.setContent(supportDTO.getSupportContent());
+        support.setSupportTitle(supportDTO.getSupportTitle());
+        support.setSupportContent(supportDTO.getSupportContent());
         supportRepository.save(support);
 
         log.info("supportRepository => {}", supportRepository);
@@ -65,7 +67,7 @@ public class SupportServiceImpl implements SupportService {
                 log.info("supportFileRepository => {}", supportFileRepository);
             }
         }
-        log.info("문의 등록 완료 => {}{}{}{}{}", support.getStatus(), support.getTitle(), support.getContent(), support.getFiles(), support.getStatus());
+        log.info("문의 등록 완료 => {}{}{}{}{}", support.getStatus(), support.getSupportTitle(), support.getSupportContent(), support.getFiles(), support.getStatus());
         return ResponseEntity.ok("문의 등록 완료");
     }
 
@@ -136,8 +138,8 @@ public class SupportServiceImpl implements SupportService {
                 .supportNo(support.getSupportNo())
                 .status(support.getStatus().name())
                 .member(mapper.map(support.getMember(), MemberDTO.class))
-                .supportContent(support.getContent())
-                .supportTitle(support.getTitle())
+                .supportContent(support.getSupportContent())
+                .supportTitle(support.getSupportTitle())
                 .filePath(filePath)
                 .fileName(fileNames)
                 .savedName(savedName)

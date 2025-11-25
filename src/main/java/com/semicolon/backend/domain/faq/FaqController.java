@@ -27,19 +27,19 @@ public class FaqController {
         return ResponseEntity.ok(service.getAllCategories());
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/admin/{id}")
     public ResponseEntity<String> update(@RequestBody FaqDTO dto, @PathVariable("id") long id){
         service.update(dto,id);
         return ResponseEntity.ok("FAQ 업데이트 성공");
     }
 
-    @PostMapping("/register")
+    @PostMapping("/admin/register")
     public ResponseEntity<String> modify(@RequestBody FaqDTO dto){
         service.register(dto);
         return ResponseEntity.ok("FAQ 등록 성공");
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/admin/{id}")
     public ResponseEntity<String> delete(@PathVariable("id") Long id){
         service.delete(id);
         return ResponseEntity.ok("FAQ 삭제 완료");

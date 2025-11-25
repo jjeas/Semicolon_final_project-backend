@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 public interface SupportService {
-    public ResponseEntity<?> supportReqRegister (SupportDTO supportDTO);
+    public ResponseEntity<?> supportReqRegister (String loginIdFromToken, SupportDTO supportDTO);
     public List<SupportUploadDTO> getSupportList (Long id);
     public SupportUploadDTO getOneSupport (Long no);
     public List<SupportUploadDTO> getSupportAllList ();

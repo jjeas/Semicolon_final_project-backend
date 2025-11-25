@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 public interface PartnerService {
-    public ResponseEntity<?> requestPartnerForm(PartnerDTO dto);
+    public ResponseEntity<?> requestPartnerForm(Long id,PartnerDTO dto);
     public List<PartnerUploadDTO> getList();
     public PartnerUploadDTO getOne(Long id);
     public List<PartnerFile> changeStatus(Long id, PartnerStatus status);

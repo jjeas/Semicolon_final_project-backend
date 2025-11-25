@@ -19,7 +19,7 @@ public class UserDetailService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("DB에서 {}으로 사용자 검색",username);
-        Member member=repository.findByMemberLoginId(username).orElseThrow();
+        Member member=repository.findByMemberLoginId(username).orElseThrow(() -> new UsernameNotFoundException("해당 로그인ID의 회원이 없음"));
         return User.builder()
                 .username(member.getMemberLoginId())
                 .password(member.getMemberPassword())
