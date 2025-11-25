@@ -25,7 +25,7 @@ public class PartnerFile {
     private String originalName;
     private String savedName;
     private String filePath;
-
+    private String thumbnailPath;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "partner_request_no")
     private Partner partner;

@@ -14,7 +14,7 @@ import java.util.List;
 @Setter
 @Getter
 @Table(name = "tbl_facility")
-@ToString(exclude = {"spaces", "dailyUses"})
+@ToString(exclude = {"spaces"})
 public class Facility {
 
     @Id
@@ -29,9 +29,6 @@ public class Facility {
     @Column(name = "facility_Type", nullable = false, length = 10)
     private FacilityType facilityType;
 
-    @Column(name = "description", length = 4000)
-    private String description;
-
     @Column(name = "dailyUse_available", nullable = false)
     @Builder.Default
     private boolean dailyUseAvailable = false;
@@ -39,10 +36,5 @@ public class Facility {
     @OneToMany(mappedBy = "facility", fetch = FetchType.LAZY)
     @Builder.Default
     private List<FacilitySpace> spaces = new ArrayList<>();
-
-    @OneToMany(mappedBy = "facility", fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<DailyUse> dailyUses = new ArrayList<>();
-
 
 }

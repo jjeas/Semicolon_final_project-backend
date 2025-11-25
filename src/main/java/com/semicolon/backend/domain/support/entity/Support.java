@@ -1,12 +1,10 @@
 package com.semicolon.backend.domain.support.entity;
 
 import com.semicolon.backend.domain.member.entity.Member;
-import com.semicolon.backend.domain.member.entity.MemberRole;
-import com.semicolon.backend.domain.partner.entity.PartnerStatus;
+
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.multipart.MultipartFile;
+
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -51,8 +49,18 @@ public class Support {
     @OneToMany(mappedBy = "support", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SupportFile> files = new ArrayList<>();
 
+    @Builder.Default
+    @OneToMany(mappedBy = "support", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SupportResponse> response = new ArrayList<>();
+
     public void addSupport(SupportFile supportFile){
         files.add(supportFile);
         supportFile.setSupport(this);
     }
+
+    public void addResponse(SupportResponse supportResponse){
+        response.add(supportResponse);
+        supportResponse.setSupport(this);
+    }
+
 }
