@@ -7,6 +7,7 @@ import com.semicolon.backend.domain.faq.entity.FaqCategory;
 import com.semicolon.backend.domain.faq.repository.FaqCategoryRepository;
 import com.semicolon.backend.domain.faq.repository.FaqRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FaqServiceImpl implements FaqService{
 
     private final FaqRepository repository;
@@ -58,6 +60,7 @@ public class FaqServiceImpl implements FaqService{
 
     @Override
     public void register(FaqDTO dto) {
+        log.info("FaqDTO ======> {}",dto);
         FaqCategory category = categoryRepository.findById(dto.getFaqCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리입니다."));
 

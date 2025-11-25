@@ -18,7 +18,6 @@ import java.util.Optional;
 @ToString
 public class PartnerDTO {
     private long requestNo;
-    private long memberId;
     private LocalDateTime requestDate;
     private String status;
     private List<String> partnerClass;
