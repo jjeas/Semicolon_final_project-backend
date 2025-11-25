@@ -1,10 +1,8 @@
 package com.semicolon.backend.domain.facility.entity;
 
-
 import com.semicolon.backend.domain.dailyUse.entity.DailyUse;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +24,10 @@ public class FacilitySpace {
     @Column(name = "space_name",nullable = false,length = 100)
     private String spaceName;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "space_category",nullable = false,length = 20)
+    private SpaceCategory spaceCategory;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "facility_id",nullable = false)
     private Facility facility;
@@ -33,5 +35,4 @@ public class FacilitySpace {
     @OneToMany(mappedBy = "space", fetch = FetchType.LAZY)
     @Builder.Default
     private List<DailyUse> dailyUses = new ArrayList<>();
-
 }

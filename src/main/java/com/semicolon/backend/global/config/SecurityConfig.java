@@ -63,7 +63,6 @@ public class SecurityConfig {
                 //아이디, 비밀번호 찾기 허용
                 .requestMatchers("/api/auth/check/**").permitAll()
                 .requestMatchers("/api/program/**").permitAll()
-                .requestMatchers("/upload/**", "/download/**").permitAll()
                 .requestMatchers(HttpMethod.GET,"/upload/**").permitAll()
                 .requestMatchers(HttpMethod.GET,"/gallery/**").permitAll()
                 //갤러리 이미지+콘텐트 조회 요청 허용

@@ -1,6 +1,6 @@
 package com.semicolon.backend.domain.facility.entity;
 
-
+import com.semicolon.backend.domain.dailyUse.entity.DailyUse;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,6 +28,10 @@ public class Facility {
     @Enumerated(EnumType.STRING)
     @Column(name = "facility_Type", nullable = false, length = 10)
     private FacilityType facilityType;
+
+    @Column(name = "dailyUse_available", nullable = false)
+    @Builder.Default
+    private boolean dailyUseAvailable = false;
 
     @OneToMany(mappedBy = "facility", fetch = FetchType.LAZY)
     @Builder.Default
