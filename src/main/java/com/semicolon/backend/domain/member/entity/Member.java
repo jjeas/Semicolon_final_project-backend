@@ -41,7 +41,7 @@ public class Member {
     @Enumerated(EnumType.STRING)
     @Column(name = "member_role", length = 10)
     @Builder.Default
-    private MemberRole memberRole = MemberRole.USER;
+    private MemberRole memberRole = MemberRole.ROLE_USER;
 
     @Column(name = "email", nullable = false, length = 100)
     private String memberEmail;

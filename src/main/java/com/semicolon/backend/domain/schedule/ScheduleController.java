@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/schedule")
+@RequestMapping("api/community/schedule")
 public class ScheduleController {
     @Autowired
     private ScheduleService service;
