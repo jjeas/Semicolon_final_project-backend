@@ -1,6 +1,5 @@
 package com.semicolon.backend.domain.schedule.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Getter;
 
