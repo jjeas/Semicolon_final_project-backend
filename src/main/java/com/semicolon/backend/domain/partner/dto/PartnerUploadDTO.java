@@ -1,5 +1,6 @@
 package com.semicolon.backend.domain.partner.dto;
 
+import com.semicolon.backend.domain.member.dto.MemberDTO;
 import com.semicolon.backend.domain.partner.entity.PartnerStatus;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,17 +17,15 @@ import java.util.Optional;
 @AllArgsConstructor
 @Builder
 @ToString
-public class PartnerDTO {
+public class PartnerUploadDTO {
     private long requestNo;
+    private MemberDTO member;
     private LocalDateTime requestDate;
     private String status;
     private List<String> partnerClass;
 
-    private MultipartFile[] resumeFiles;
-    private MultipartFile[] certFiles;
-    private MultipartFile[] bankFiles;
+    private List<PartnerFileDTO> resumeFiles;
+    private List<PartnerFileDTO> certFiles;
+    private List<PartnerFileDTO> bankFiles;
 
-    public PartnerDTO (PartnerStatus status){
-        this.status = (status != null) ? status.name() : "";
-    }
 }

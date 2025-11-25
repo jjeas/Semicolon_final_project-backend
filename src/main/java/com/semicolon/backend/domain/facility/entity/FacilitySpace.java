@@ -26,7 +26,7 @@ public class FacilitySpace {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "space_category",nullable = false,length = 20)
-    private FacilityType facilityType;
+    private SpaceCategory spaceCategory;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "facility_id",nullable = false)

@@ -1,6 +1,7 @@
 package com.semicolon.backend.domain.member;
 
 import com.semicolon.backend.domain.member.dto.MemberDTO;
+import com.semicolon.backend.domain.member.dto.PasswordChangeDTO;
 import com.semicolon.backend.domain.member.service.MemberService;
 import com.semicolon.backend.domain.partner.dto.PartnerDTO;
 import lombok.RequiredArgsConstructor;
@@ -32,9 +33,16 @@ public class MemberController {
         return ResponseEntity.ok("Member 수정 완료");
     }
 
-    @GetMapping("/{id}/partnerRequest")
-    public PartnerDTO partnerStatus(@PathVariable("id") Long memberId){
-        return service.getPartnerStatus(memberId);
+    @GetMapping("/partnerRequest")
+    public PartnerDTO partnerStatus(@AuthenticationPrincipal String loginIdFromToken){
+        return service.getPartnerStatus(loginIdFromToken);
     }
+
+    @PostMapping("/passwordEdit")
+    public ResponseEntity<String> changePassword(@AuthenticationPrincipal String loginIdFromToken, @RequestBody PasswordChangeDTO passwordChangeDTO) {
+        service.changePassword(loginIdFromToken, passwordChangeDTO);
+        return ResponseEntity.ok("password 수정 중");
+    }
+
 }
 

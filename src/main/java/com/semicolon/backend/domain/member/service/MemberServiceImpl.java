@@ -2,12 +2,14 @@ package com.semicolon.backend.domain.member.service;
 
 import com.semicolon.backend.domain.auth.dto.FindIdRequestDTO;
 import com.semicolon.backend.domain.member.dto.MemberDTO;
+import com.semicolon.backend.domain.member.dto.PasswordChangeDTO;
 import com.semicolon.backend.domain.member.entity.Member;
 import com.semicolon.backend.domain.member.repository.MemberRepository;
 import com.semicolon.backend.domain.partner.dto.PartnerDTO;
 import com.semicolon.backend.domain.partner.entity.PartnerStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.internal.bytebuddy.implementation.bytecode.Throw;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder; // 1. (추가)
 import org.springframework.stereotype.Service;
@@ -16,8 +18,8 @@ import org.springframework.transaction.annotation.Transactional; // 2. (추가)
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-@Service
 @Slf4j
+@Service
 public class MemberServiceImpl implements MemberService {
     @Autowired
     private MemberRepository repository;
@@ -27,11 +29,6 @@ public class MemberServiceImpl implements MemberService {
     // 3. (추가) 비밀번호 암호화를 위해 PasswordEncoder 주입
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @Override
-    public MemberDTO getOne(Long memberId) {
-        return mapper.map(repository.findById(memberId).orElseThrow(() -> new NoSuchElementException("해당 ID에 해당되는 회원이 없습니다.")), MemberDTO.class);
-    }
 
     // 4. (★핵심 수정★) "수정"을 위한 modify 메서드
     @Override
@@ -68,11 +65,14 @@ public class MemberServiceImpl implements MemberService {
 
         // 10. @Transactional이 붙어있으므로,
         //     메서드가 끝나면 "변경된" member 객체를 JPA가 알아서 DB에 UPDATE 쿼리를 날려줍니다.
+
     }
 
 
     @Override
-    public PartnerDTO getPartnerStatus(Long memberId) {
+    public PartnerDTO getPartnerStatus(String loginIdFromToken) {
+        Long memberId = repository.findByMemberLoginId(loginIdFromToken).orElseThrow().getMemberId();
+        log.info("long memberid==+==> {}", memberId);
         return repository.getPartnerStatus(memberId)
                 .orElse(new PartnerDTO((PartnerStatus) null));
     }
@@ -84,6 +84,26 @@ public class MemberServiceImpl implements MemberService {
                 .orElseThrow(() -> new NoSuchElementException("해당 로그인 ID에 해당되는 회원이 없습니다."));
         return mapper.map(member, MemberDTO.class);
     }
+
+
+    @Override
+    public void changePassword(String loginIdFromToken, PasswordChangeDTO passwordChangeDTO) {
+        Long memberId =repository.findByMemberLoginId(loginIdFromToken).orElseThrow().getMemberId();
+        Member member = repository.findById(memberId).orElseThrow(() -> new NoSuchElementException("해당 ID에 해당되는 회원이 없습니다."));
+
+        if(!passwordChangeDTO.getMemberCurrentPassword().equals(member.getMemberPassword())) {
+            throw new NoSuchElementException("기존 비밀번호가 일치하지 않습니다");
+        }
+
+        if(!passwordChangeDTO.getMemberPassword().equals(passwordChangeDTO.getMemberPasswordCheck())){
+            throw new IllegalArgumentException("새 비밀번호 확인이 일치하지 않습니다");
+        }
+
+        member.setMemberPassword(passwordChangeDTO.getMemberPassword());
+        repository.save(member);
+    }
+
+
 
 
 }
