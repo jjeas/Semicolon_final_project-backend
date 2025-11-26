@@ -16,50 +16,79 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GalleryServiceImpl implements GalleryService {
 
-    private final GalleryRepository Galleryrepository;
-    private final GalleryRepository GalleryImageRepository;
+    private final GalleryRepository galleryrepository;
 
     @Override
     @Transactional
-    public void register(GalleryDTO dto) {
+    public void register(GalleryDTO dto) { //갤러리 신규 등록 시 실행
         Gallery newGallery = Gallery.builder()
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .viewCount(0)
                 .createdAt(LocalDateTime.now())
-                .build();
-        if (dto.getImages() != null && !dto.getImages().isEmpty()) {
+                .build(); //파일을 제외한 나머지를 설정
+        if (dto.getImages() != null && !dto.getImages().isEmpty()) { //이미지 파일 유효성 검사 후
             List<GalleryImage> galleryImages = dto.getImages().stream().map(image -> GalleryImage.builder()
-                    .imageUrl(image.getImageUrl())
+                    .imageUrl(image.getImageUrl()) //갤러리이미지(갤러리의 자식 엔터티) 구현
                     .thumbnailUrl(image.getThumbnailUrl())
                     .build()).toList();
             galleryImages.forEach(image -> newGallery.addImage(image));
+            //갤러리 엔터티에 구현한 addImages 실행하여 넣어줌
         }
-        Galleryrepository.save(newGallery);
+        galleryrepository.save(newGallery);
     }
 
     @Override
     public List<GalleryDTO> getList() {
-        return Galleryrepository.findAll().stream().map(gal ->
+        return galleryrepository.findAll().stream().map(gal ->
                 convertEntityToDTO(gal)
         ).toList();
     }
 
     @Override
     public GalleryDTO getOne(Long id) {
-        Gallery gallery = Galleryrepository.findById(id).get();
+        Gallery gallery = galleryrepository.findById(id).get();
         return convertEntityToDTO(gallery);
     }
 
     @Override
     public void increaseViewCount(Long id) {
-        Gallery gallery = Galleryrepository.findById(id).get();
+        Gallery gallery = galleryrepository.findById(id).get();
         gallery.setViewCount(gallery.getViewCount()+1);
-        Galleryrepository.save(gallery);
+        galleryrepository.save(gallery);
     }
 
-    private GalleryDTO convertEntityToDTO(Gallery gallery) {
+    @Override
+    public void update(Long id, GalleryDTO dto) {
+        Gallery gallery = galleryrepository.findById(id).orElseThrow();
+        gallery.setUpdatedAt(LocalDateTime.now());
+        gallery.setTitle(dto.getTitle());
+        gallery.setContent(dto.getContent());
+        if(dto.getImages()!=null && !dto.getImages().isEmpty()){
+            gallery.getImages().clear();
+            List<GalleryImage> newImages = dto.getImages().stream().map(i->
+                    convertImageDtoToEntity(i)).toList();
+            for(GalleryImage newImage: newImages ){
+                gallery.addImage(newImage);
+            };
+        }
+    }
 
+    @Override
+    public void delete(Long id) {
+        if(!galleryrepository.existsById(id)){
+            throw new IllegalArgumentException("삭제할 게시물이 없습니다.");
+        }
+        galleryrepository.deleteById(id);
+    }
+
+    private GalleryImage convertImageDtoToEntity(GalleryImageDTO dto){
+        return GalleryImage.builder()
+                .imageUrl(dto.getImageUrl())
+                .thumbnailUrl(dto.getThumbnailUrl())
+                .build();
+    } //수정할때 이미지를 제외한 나머지 내용은 프론트엔드에서 보내준 데이터로 하면 되서 없음
+    private GalleryDTO convertEntityToDTO(Gallery gallery) {
         // 1. 자식(GalleryImage) 리스트를 ImageInfoDTO 리스트로 변환
         List<GalleryImageDTO> imageInfos = gallery.getImages().stream()
                 .map(image -> {

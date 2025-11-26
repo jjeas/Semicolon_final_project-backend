@@ -5,6 +5,7 @@ import com.semicolon.backend.domain.gallery.service.GalleryService;
 import com.semicolon.backend.global.file.service.FileUploadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +31,7 @@ public class GalleryController {
         return ResponseEntity.ok(galleryService.getOne(id));
     }
 
-    @PostMapping("")
+    @PostMapping("/admin")
     public ResponseEntity<String> register(@RequestBody GalleryDTO dto){
         log.info("gallery 등록 컨트롤러 실행");
         galleryService.register(dto);
@@ -41,6 +42,18 @@ public class GalleryController {
     public ResponseEntity<String> addViewCount(@PathVariable long id){
         galleryService.increaseViewCount(id);
         return ResponseEntity.ok("조회수 1 증가 완료");
+    }
+
+    @PutMapping("/admin/update")
+    public ResponseEntity<String> update(Long id, @RequestBody GalleryDTO dto){
+        galleryService.update(id, dto);
+        return ResponseEntity.ok("갤러리 수정 완료");
+    }
+
+    @DeleteMapping("/admin/{id}")
+    public ResponseEntity<String> delete(@PathVariable Long id){
+        galleryService.delete(id);
+        return ResponseEntity.ok("갤러리 삭제 완료");
     }
 
 }
