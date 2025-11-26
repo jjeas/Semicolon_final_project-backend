@@ -1,13 +1,17 @@
 package com.semicolon.backend.domain.schedule.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "tbl_schedule")
 @Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Schedule {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
