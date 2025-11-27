@@ -34,7 +34,7 @@ public class FileUploadServiceImpl implements FileUploadService{
                 if(file.isEmpty()) continue;//파일이 비어있으면 넘기기
                 String originalName = file.getOriginalFilename(); // 업로드파일 원본 이름
                 String extension = originalName.substring(originalName.lastIndexOf(".")); //파일 형식 ex) .jpg .xlm 등
-                String uniqueName = UUID.randomUUID().toString()+extension; //" 파일별 고유 이름 설정을 위한 UUID
+                String uniqueName = UUID.randomUUID().toString(); //" 파일별 고유 이름 설정을 위한 UUID
                 String originalFileName = uniqueName+extension; //원본파일 저장경로
                 File originalFile = new File(subDirPath+File.separator+originalFileName);
                 String thumbnailFileName ="s_"+uniqueName+extension;//썸네일파일 저장경로
@@ -47,7 +47,6 @@ public class FileUploadServiceImpl implements FileUploadService{
                                 .toOutputStream(thumbnailOS);
                     }
                 }
-
                 Map<String, String> urls=new HashMap<>();
                 urls.put("imageUrl","/upload/"+domain+"/"+originalFileName);
                 urls.put("thumbnailUrl","/upload/"+domain+"/"+thumbnailFileName);

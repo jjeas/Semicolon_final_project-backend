@@ -30,62 +30,42 @@ public class SecurityConfig {
     private final JwtCheckFilter jwtCheckFilter;
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    } //패스워드 엔코딩을 위해 빈 주입
+    }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         log.info("--------필터체인 시작--------");
         httpSecurity
-                .csrf(csrf->csrf.disable())
+                .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
-                .formLogin(form->form.disable())
-                .httpBasic(basic->basic.disable())
-                //스프링 시큐리티의 기본 설정이 아닌 사용자 설정으로 사용하겠다
-                .sessionManagement(session->session.sessionCreationPolicy((SessionCreationPolicy.STATELESS)))
-                //쿠키 방식을 사용하기 때문에 세션 방식은 비활성화
-                .authorizeHttpRequests(auth->auth
-                .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
-                //회원가입과 로그인에 대한 요청은 필터체인에서 제외한다(permitAll())
-                .requestMatchers(HttpMethod.POST,"/api/community/notice/{id}/view").permitAll()
-                .requestMatchers(HttpMethod.POST,"/api/community/gallery/{id}/view").permitAll()
-                //클릭시 조회수 1 증가 로직 허용
-                .requestMatchers(HttpMethod.GET,"/api/community/**").permitAll()
-                //커뮤니티 GET 로직 모두 허용
-                .requestMatchers(HttpMethod.POST, "/api/member/findId").permitAll()
-                //아이디 찾기 허용
-                .requestMatchers("/api/auth/sendCode").permitAll()
-                .requestMatchers("/api/auth/checkCode").permitAll()
-                .requestMatchers("/api/auth/sendCodePw").permitAll()
-                .requestMatchers("/api/auth/checkCodePw").permitAll()
-                .requestMatchers("/api/auth/resetPassword").permitAll()
-                //아이디, 비밀번호 찾기 허용
-                .requestMatchers("/api/auth/check/**").permitAll()
-                .requestMatchers("/api/program/**").permitAll()
-                .requestMatchers("/upload/**", "/download/**").permitAll()
-                .requestMatchers(HttpMethod.GET,"/upload/**").permitAll()
-                .requestMatchers(HttpMethod.GET,"/gallery/**").permitAll()
-                //갤러리 이미지+콘텐트 조회 요청 허용
-                .requestMatchers(HttpMethod.GET, "/api/program/**").permitAll()
-                //프로그램 안내 조회 요청 허용
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                //options 방식 요청 모두 허용
-                //여기까지 비회원 요청 가능한 링크 설정
-                .requestMatchers(regexMatcher(".*admin.*")).hasRole("ADMIN")
-                //관리자 컨트롤러에 대한 요청은 ROLE 이 ADMIN 인 경우에만 허용한다
-                .anyRequest().authenticated()
-                //그 외의 모든 요청은 로그인된 사람만 가능
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/upload/**", "/api/upload/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/member/findId").permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/community/**",
+                                "/api/program/**",
+                                "/api/guide/**"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/community/notice/*/view",
+                                "/api/community/gallery/*/view"
+                        ).permitAll()
+                        .requestMatchers(regexMatcher(".*admin.*")).hasRole("ADMIN")
+                        .anyRequest().authenticated()
                 );
 
         httpSecurity.addFilterBefore(jwtCheckFilter, UsernamePasswordAuthenticationFilter.class);
-        //스프링 시큐리티의 기본 로그인 필터보다 커스텀한 JwtFilterCheck 를 먼저 쓰겠다(내가 만든거 쓰고싶다)
         return httpSecurity.build();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception{
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
-        //AuthenticationManager 를 공개적으로 사용하도록 Bean 주입
     }
 }
