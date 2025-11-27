@@ -44,8 +44,8 @@ public class GalleryController {
         return ResponseEntity.ok("조회수 1 증가 완료");
     }
 
-    @PutMapping("/admin/update")
-    public ResponseEntity<String> update(Long id, @RequestBody GalleryDTO dto){
+    @PutMapping("/admin/{id}")
+    public ResponseEntity<String> update(@PathVariable Long id, @RequestBody GalleryDTO dto){
         galleryService.update(id, dto);
         return ResponseEntity.ok("갤러리 수정 완료");
     }

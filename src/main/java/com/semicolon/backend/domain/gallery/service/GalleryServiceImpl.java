@@ -5,6 +5,7 @@ import com.semicolon.backend.domain.gallery.dto.GalleryImageDTO;
 import com.semicolon.backend.domain.gallery.entity.Gallery;
 import com.semicolon.backend.domain.gallery.entity.GalleryImage;
 import com.semicolon.backend.domain.gallery.repository.GalleryRepository;
+import com.semicolon.backend.global.file.service.FileUploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ import java.util.List;
 public class GalleryServiceImpl implements GalleryService {
 
     private final GalleryRepository galleryrepository;
+    private final FileUploadService fileUploadService;
 
     @Override
     @Transactional
@@ -59,25 +61,33 @@ public class GalleryServiceImpl implements GalleryService {
     }
 
     @Override
+    @Transactional
     public void update(Long id, GalleryDTO dto) {
         Gallery gallery = galleryrepository.findById(id).orElseThrow();
         gallery.setUpdatedAt(LocalDateTime.now());
         gallery.setTitle(dto.getTitle());
         gallery.setContent(dto.getContent());
-        if(dto.getImages()!=null && !dto.getImages().isEmpty()){
-            gallery.getImages().clear();
-            List<GalleryImage> newImages = dto.getImages().stream().map(i->
-                    convertImageDtoToEntity(i)).toList();
-            for(GalleryImage newImage: newImages ){
-                gallery.addImage(newImage);
-            };
+        List<String> newUrls = dto.getImages().stream().map(i -> i.getImageUrl()).toList();
+        gallery.getImages().removeIf(oldImg -> {
+            if (!newUrls.contains(oldImg.getImageUrl())) {
+                fileUploadService.deleteFile(oldImg.getImageUrl(), oldImg.getThumbnailUrl());
+                return true;
+            }
+            return false;
+        });
+        for (GalleryImageDTO newImage : dto.getImages()) {
+            boolean exists = gallery.getImages().stream().anyMatch(i -> i.getImageUrl().equals(newImage.getImageUrl()));
+            if (!exists) {
+                gallery.addImage(convertImageDtoToEntity(newImage));
+            }
         }
     }
 
     @Override
     public void delete(Long id) {
-        if(!galleryrepository.existsById(id)){
-            throw new IllegalArgumentException("삭제할 게시물이 없습니다.");
+        Gallery gallery = galleryrepository.findById(id).orElseThrow(()->new IllegalArgumentException("삭제할 게시물이 없습니다."));
+        for(GalleryImage image : gallery.getImages()){
+            fileUploadService.deleteFile(image.getImageUrl(), image.getThumbnailUrl());
         }
         galleryrepository.deleteById(id);
     }
