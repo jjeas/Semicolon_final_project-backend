@@ -5,6 +5,7 @@ import com.semicolon.backend.domain.dailyUse.entity.DailyUseStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -53,7 +54,7 @@ public class Member {
     private String memberGender;
 
     @Column(name = "birth_date", nullable = false)
-    private LocalDateTime memberBirthDate;
+    private LocalDate memberBirthDate;
 
     @Column(name = "join_date", nullable = false)
     private LocalDateTime memberJoinDate;

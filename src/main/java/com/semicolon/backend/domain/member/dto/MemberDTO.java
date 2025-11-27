@@ -3,6 +3,7 @@ package com.semicolon.backend.domain.member.dto;
 import com.semicolon.backend.domain.member.entity.MemberRole;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +26,6 @@ public class MemberDTO {
     private String memberPhoneNumber;
     private String memberGender;
 
-    private LocalDateTime memberBirthDate;
+    private LocalDate memberBirthDate;
     private LocalDateTime memberJoinDate;
 }
