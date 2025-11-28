@@ -63,6 +63,10 @@ public class SecurityConfig {
                 //아이디, 비밀번호 찾기 허용
                 .requestMatchers("/api/auth/check/**").permitAll()
                 .requestMatchers("/api/program/**").permitAll()
+                .requestMatchers("/upload/**", "/download/**").permitAll()
+                .requestMatchers(HttpMethod.GET,"/upload/**").permitAll()
+                .requestMatchers(HttpMethod.GET,"/gallery/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/guide/view/**").permitAll()
                 .requestMatchers("/api/guide/**").permitAll()
 //                .requestMatchers(HttpMethod.GET,"/upload/**").permitAll() 갤러리 등록을 위해 임시 주석 지우면 안됩니다!!
                 .requestMatchers("/api/upload/**").permitAll()
