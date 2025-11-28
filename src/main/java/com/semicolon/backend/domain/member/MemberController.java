@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @Slf4j
 @RequestMapping("/api/member")
@@ -42,6 +44,21 @@ public class MemberController {
     public ResponseEntity<String> changePassword(@AuthenticationPrincipal String loginIdFromToken, @RequestBody PasswordChangeDTO passwordChangeDTO) {
         service.changePassword(loginIdFromToken, passwordChangeDTO);
         return ResponseEntity.ok("password 수정 중");
+    }
+
+    @PutMapping("/admin/memberEdit")
+    public ResponseEntity<String> modifyMemberByAdmin (@RequestBody MemberDTO requestDTO) {
+        service.modifyByAdmin(requestDTO);
+        return ResponseEntity.ok("Member 수정 완료");
+    }
+    
+    @GetMapping("/admin/search")
+    public ResponseEntity<List<MemberDTO>> searchMember(
+            @RequestParam String category,
+            @RequestParam String keyword,
+            @RequestParam(required = false) String role
+    ) {
+        return ResponseEntity.ok(service.searchMembers(category, keyword, role));
     }
 
 }

@@ -38,7 +38,6 @@ public class CustomFileUtil {
 
     public List<String> saveFiles(MultipartFile[] files, String category) throws RuntimeException {
         if (files == null || files.length == 0) return null;
-
         Path categoryPath  = Paths.get(uploadPath, category);
         File categoryFolder = categoryPath.toFile();
         if(!categoryFolder.exists()) categoryFolder.mkdirs();
