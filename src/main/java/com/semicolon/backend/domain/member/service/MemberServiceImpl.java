@@ -4,6 +4,7 @@ import com.semicolon.backend.domain.auth.dto.FindIdRequestDTO;
 import com.semicolon.backend.domain.member.dto.MemberDTO;
 import com.semicolon.backend.domain.member.dto.PasswordChangeDTO;
 import com.semicolon.backend.domain.member.entity.Member;
+import com.semicolon.backend.domain.member.entity.MemberRole;
 import com.semicolon.backend.domain.member.repository.MemberRepository;
 import com.semicolon.backend.domain.partner.dto.PartnerDTO;
 import com.semicolon.backend.domain.partner.entity.PartnerStatus;
@@ -15,6 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder; // 1. (추�
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional; // 2. (추가)
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -104,6 +107,68 @@ public class MemberServiceImpl implements MemberService {
     }
 
 
+    @Override
+    public void modifyByAdmin(MemberDTO requestDTO) {
+        Member member = repository.findById(requestDTO.getMemberId()).orElseThrow(()->new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
+        member.setMemberEmail(requestDTO.getMemberEmail());
+        member.setMemberPhoneNumber(requestDTO.getMemberPhoneNumber());
+        member.setMemberAddress(requestDTO.getMemberAddress());
+        member.setMemberGender(requestDTO.getMemberGender());
+        member.setMemberBirthDate(requestDTO.getMemberBirthDate());
+        member.setMemberRole(requestDTO.getMemberRole());
 
+        repository.save(member);
+    }
+
+    @Override
+    public List<MemberDTO> searchMembers(String category, String keyword, String role) {
+
+        List<Member> members = new ArrayList<>();
+
+        boolean isKeywordEmpty = keyword.isBlank();
+        boolean isRoleEmpty = role == null || role.isBlank();
+
+        MemberRole memberRoleEnum = null;
+        if (!isRoleEmpty) {
+            try {
+                memberRoleEnum = MemberRole.valueOf(role);
+            } catch (IllegalArgumentException e) {
+                log.error("유효하지 않은 MemberRole 값: {}", role);
+                return new ArrayList<>();
+            }
+        }
+
+        if (!isRoleEmpty) {
+            if (isKeywordEmpty) {
+                members = repository.findByMemberRole(memberRoleEnum);
+            } else {
+                switch (category) {
+                    case "id":
+                        members = repository.findByMemberLoginIdContainsAndMemberRole(keyword, memberRoleEnum);
+                        break;
+                    case "name":
+                        members = repository.findByMemberNameContainsAndMemberRole(keyword, memberRoleEnum);
+                        break;
+                }
+            }
+        } else {
+            if (isKeywordEmpty) {
+                members = repository.findAll();
+            } else {
+                switch (category) {
+                    case "id":
+                        members = repository.findByMemberLoginIdContains(keyword);
+                        break;
+                    case "name":
+                        members = repository.findByMemberNameContains(keyword);
+                        break;
+                }
+            }
+        }
+
+        return members.stream()
+                .map(m -> mapper.map(m, MemberDTO.class))
+                .toList();
+    }
 
 }
