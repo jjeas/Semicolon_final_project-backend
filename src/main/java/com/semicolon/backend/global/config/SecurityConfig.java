@@ -66,6 +66,7 @@ public class SecurityConfig {
                 .requestMatchers("/upload/**", "/download/**").permitAll()
                 .requestMatchers(HttpMethod.GET,"/upload/**").permitAll()
                 .requestMatchers(HttpMethod.GET,"/gallery/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/guide/view/**").permitAll()
                 //갤러리 이미지+콘텐트 조회 요청 허용
                 .requestMatchers(HttpMethod.GET, "/api/program/**").permitAll()
                 //프로그램 안내 조회 요청 허용
