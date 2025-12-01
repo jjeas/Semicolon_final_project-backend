@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "tbl_daily_use")
-@ToString(exclude = {"facility", "member", "space"})
+@ToString(exclude = { "space"})
 @Getter
 @Setter
 @Builder
@@ -24,23 +24,11 @@ public class DailyUse {
     @Column(name = "dailyUse_id")
     private Long id;
 
-    @Column(name = "dailyUse_date", nullable = false)
-    private LocalDate useDate;
-
     @Column(name = "start_time")
     private LocalDateTime startTime;
 
     @Column(name = "end_time")
     private LocalDateTime endTime;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", length = 10)
-    @Builder.Default
-    private DailyUseStatus useStatus = DailyUseStatus.PENDING;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "facility_id", nullable = false)
-    private Facility facility;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)

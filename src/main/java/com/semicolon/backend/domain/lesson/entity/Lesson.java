@@ -55,7 +55,7 @@ public class Lesson {
     private LessonStatus lessonStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "facilitySpace_id")
+    @JoinColumn(name = "FACILITY_SPACE_ID")
     private FacilitySpace facilitySpace;
 
     @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL)
