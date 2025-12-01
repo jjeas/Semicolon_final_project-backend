@@ -1,16 +1,13 @@
 package com.semicolon.backend.domain.member.entity;
 
 import com.semicolon.backend.domain.dailyUse.entity.DailyUse;
-import com.semicolon.backend.domain.dailyUse.entity.DailyUseStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -58,9 +55,5 @@ public class Member {
 
     @Column(name = "join_date", nullable = false)
     private LocalDateTime memberJoinDate;
-
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<DailyUse> dailyUses = new ArrayList<>();
 
 }
