@@ -1,6 +1,5 @@
-package com.semicolon.backend.domain.dailyUse.dto;
+package com.semicolon.backend.domain.rental.dto;
 
-import com.semicolon.backend.domain.facility.dto.FacilitySpaceDTO;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -11,11 +10,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
-public class DailyUseDTO {
-
+public class RentalDTO {
     private Long id;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private Long spaceId;
-
 }
