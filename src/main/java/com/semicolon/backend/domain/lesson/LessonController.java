@@ -6,10 +6,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -20,8 +19,13 @@ public class LessonController {
 
     @PostMapping("/lessonRequest")
     public ResponseEntity<String> lessonRequest(@AuthenticationPrincipal String loginIdFromToken, @RequestBody LessonReqDTO lessonReqDTO){
-        log.info("lessondto=>{}", lessonReqDTO);
         lessonService.lessonReq(loginIdFromToken, lessonReqDTO);
         return ResponseEntity.ok("신청서 폼 받음");
+    }
+
+    @GetMapping("/myLessons")
+    public ResponseEntity<List<LessonReqDTO>> getMyLessonList(@AuthenticationPrincipal String loginIdFromToken) {
+        List<LessonReqDTO> dto = lessonService.getMyLessonList(loginIdFromToken);
+        return ResponseEntity.ok(dto);
     }
 }
