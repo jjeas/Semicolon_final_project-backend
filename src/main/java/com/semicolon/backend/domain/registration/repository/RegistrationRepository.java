@@ -15,5 +15,4 @@ public interface RegistrationRepository extends JpaRepository<Registration,Long>
 
     @Query("select r from Registration r join fetch r.lesson where r.member.memberId=:memberId")
     List<Registration> findByMemberId(@Param("memberId") Long memberId);
-
 }

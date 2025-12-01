@@ -29,8 +29,8 @@ public class RegistrationController {
         return ResponseEntity.ok("수강 신청이 완료되었습니다.");
     }
 
-    @DeleteMapping("/cancel")
-    public ResponseEntity<String> cancel(@AuthenticationPrincipal String loginIdFromToken, Long registrationId){
+    @DeleteMapping("/cancel/{registrationId}")
+    public ResponseEntity<String> cancel(@AuthenticationPrincipal String loginIdFromToken, @PathVariable("registrationId") Long registrationId){
         service.cancel(loginIdFromToken, registrationId);
         return ResponseEntity.ok("수강 신청 취소가 완료되었습니다.");
     }
