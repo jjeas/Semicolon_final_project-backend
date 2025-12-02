@@ -1,0 +1,10 @@
+package com.semicolon.backend.domain.registration.service;
+
+import com.semicolon.backend.domain.registration.dto.RegistrationDTO;
+import java.util.List;
+
+public interface RegistrationService {
+     void register(Long registrationId, String loginId);
+     void cancel(String loginId, Long registrationId);
+     List<RegistrationDTO> getList(String loginId);
+}
