@@ -13,6 +13,7 @@ import com.semicolon.backend.domain.lesson.repository.LessonScheduleRepository;
 import com.semicolon.backend.domain.member.entity.Member;
 import com.semicolon.backend.domain.member.repository.MemberRepository;
 import com.semicolon.backend.domain.schedule.entity.Schedule;
+import com.semicolon.backend.global.reservationFilter.ReservationFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -20,6 +21,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -36,20 +40,43 @@ public class LessonServiceImpl implements LessonService{
     private final LessonRepository lessonRepository;
     private final MemberRepository memberRepository;
     private final FacilitySpaceRepository facilitySpaceRepository;
+    private final ReservationFilter reservationFilter;
 
     @Override
     public void lessonReq(String loginIdFromToken, LessonReqDTO lessonReqDTO) {
         Member member = memberRepository.findByMemberLoginId(loginIdFromToken).orElseThrow();
         FacilitySpace facilitySpace = facilitySpaceRepository.findBySpaceRoomType(lessonReqDTO.getFacilityRoomType());
 
+        LocalDate startDate = lessonReqDTO.getStartDate();
+        LocalDate endDate = lessonReqDTO.getEndDate();
+
         List<LessonDay> days = lessonReqDTO.getDays().stream()
-                .map(label -> {
-                    return Arrays.stream(LessonDay.values())
-                            .filter(i -> i.getLabel().equals(label)) // 한글 label과 매칭
-                            .findFirst()
-                            .orElseThrow(() -> new IllegalArgumentException("잘못된 요일: " + label));
-                })
+                .map(label ->
+                        Arrays.stream(LessonDay.values())
+                                .filter(i -> i.getLabel().equals(label))
+                                .findFirst()
+                                .orElseThrow(() -> new IllegalArgumentException("잘못된 요일: " + label))
+                )
                 .toList();
+
+        // ★ 기간 전체에서 선택된 요일만 추출
+        List<LocalDate> targetDays = new ArrayList<>();
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+            LessonDay current = LessonDay.fromDayOfWeek(date.getDayOfWeek());
+            if (days.contains(current)) {
+                targetDays.add(date);
+            }
+        }
+
+    // ★ targetDays 의 모든 날짜에 대해 예약 가능 여부 검사
+        for (LocalDate d : targetDays) {
+            LocalDateTime s = LocalDateTime.of(d, lessonReqDTO.getStartTime());
+            LocalDateTime e = LocalDateTime.of(d, lessonReqDTO.getEndTime());
+
+            if (!reservationFilter.isAvailable(facilitySpace.getId(), s, e)) {
+                throw new IllegalArgumentException("해당 요일/시간에 공간이 비어있지 않습니다: " + d);
+            }
+        }
 
         LessonSchedule lessonSchedule = LessonSchedule.builder()
                 .lessonDay(days)

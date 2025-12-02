@@ -7,6 +7,7 @@ import com.semicolon.backend.domain.lesson.entity.LessonStatus;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -37,7 +38,6 @@ public class LessonReqDTO {
     private String curriculum;
 
     private String LessonStatus;
-
 
     private long minPeople;
     private long maxPeople;
