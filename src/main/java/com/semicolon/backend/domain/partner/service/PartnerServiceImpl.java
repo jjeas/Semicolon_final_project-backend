@@ -13,6 +13,7 @@ import com.semicolon.backend.domain.partner.entity.PartnerStatus;
 import com.semicolon.backend.domain.partner.repository.PartnerFileRepository;
 import com.semicolon.backend.domain.partner.repository.PartnerRepository;
 import com.semicolon.backend.global.file.uploadFile.CustomFileUtil;
+import com.semicolon.backend.global.reservationFilter.ReservationFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
