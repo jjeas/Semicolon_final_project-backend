@@ -12,6 +12,14 @@ import java.time.LocalDateTime;
 @Builder
 public class RentalDTO {
     private Long id;
+    private Long spaceId;
+
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+
+    private String name;
+    private String phoneNumber;
+    private String memo;
+
+    private String status;
 }
