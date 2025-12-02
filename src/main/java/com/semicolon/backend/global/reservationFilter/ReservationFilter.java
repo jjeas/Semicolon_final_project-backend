@@ -47,7 +47,7 @@ public class ReservationFilter {
     public List<LocalTime> getAvailableTimes(Long spaceId, LocalDate date) {
         List<LocalTime> availableTimes = new ArrayList<>();
         LocalTime start = LocalTime.of(6, 0);
-        LocalTime end = LocalTime.of(22, 0); // 마지막 시작 시간 18:00
+        LocalTime end = LocalTime.of(22, 0);
 
         while (!start.isAfter(end.minusHours(1))) {
             LocalDateTime startDateTime = LocalDateTime.of(date, start);
