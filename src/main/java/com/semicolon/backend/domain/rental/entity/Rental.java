@@ -37,4 +37,15 @@ public class Rental {
         @JoinColumn(name = "space_id", nullable = false)
         private FacilitySpace space;
 
+        @Column(name = "rental_name", nullable = false)
+        private String name;
+
+        @Column(name = "rental_phoneNumber", nullable = false)
+        private String phoneNumber;
+
+        @Column(name = "rental_memo", nullable = false)
+        private String memo;
+
+        @Enumerated(EnumType.STRING)
+        private RentalStatus status;
 }
