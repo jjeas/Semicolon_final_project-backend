@@ -1,23 +1,27 @@
 package com.semicolon.backend.domain.lesson.service;
 
 import com.semicolon.backend.domain.facility.entity.FacilitySpace;
-import com.semicolon.backend.domain.facility.repository.FacilityRepository;
 import com.semicolon.backend.domain.facility.repository.FacilitySpaceRepository;
+import com.semicolon.backend.domain.lesson.dto.LessonListResDTO;
 import com.semicolon.backend.domain.lesson.dto.LessonReqDTO;
 import com.semicolon.backend.domain.lesson.entity.Lesson;
 import com.semicolon.backend.domain.lesson.entity.LessonDay;
 import com.semicolon.backend.domain.lesson.entity.LessonSchedule;
 import com.semicolon.backend.domain.lesson.entity.LessonStatus;
 import com.semicolon.backend.domain.lesson.repository.LessonRepository;
-import com.semicolon.backend.domain.lesson.repository.LessonScheduleRepository;
 import com.semicolon.backend.domain.member.entity.Member;
 import com.semicolon.backend.domain.member.repository.MemberRepository;
-import com.semicolon.backend.domain.schedule.entity.Schedule;
+import com.semicolon.backend.global.pageable.PageRequestDTO;
+import com.semicolon.backend.global.pageable.PageResponseDTO;
 import com.semicolon.backend.global.reservationFilter.ReservationFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -136,26 +140,70 @@ public class LessonServiceImpl implements LessonService{
     }
 
     @Override
-    public List<LessonReqDTO> getAllLessonList() {
-        return lessonRepository.findAll().stream().map(lesson -> LessonReqDTO.builder()
-                .partnerId(lesson.getPartnerId().getMemberId())
-                .partnerName(lesson.getPartnerId().getMemberName())
-                .title(lesson.getTitle())
+    public PageResponseDTO<LessonListResDTO> getAllLessonList(PageRequestDTO dto) {
+        Sort sort = Sort.by("id").descending();
+        if(dto.getSort()!=null){
+            switch (dto.getSort()){
+                case "LATEST" : sort = Sort.by("startDate").ascending();
+                break;
+                case "FASTEST" : sort = Sort.by("startDate").descending();
+            }
+        }
+        Pageable pageable = PageRequest.of(dto.getPage()-1, dto.getSize(), sort);
+        String keyword = dto.getKeyword();
+        String type = dto.getType();
+        Page<Lesson> result;
+        if(keyword==null || keyword.isEmpty()){
+            result=lessonRepository.findAll(pageable);
+        }else {
+            if("t".equals(type)){
+                result=lessonRepository.findByTitleContaining(keyword,pageable);
+            } else if ("c".equals(type)) {
+                result=lessonRepository.findByPartnerId_memberNameContaining(keyword, pageable);
+            }else{
+                result=lessonRepository.findByDescriptionContainingOrTitleContaining(keyword,keyword,pageable);
+            }
+        }
+        List<LessonListResDTO> dtoList=result.getContent().stream().map(lesson -> LessonListResDTO.builder()
+                        .lessonId(lesson.getId())
+                        .status(lesson.getLessonStatus())
+                        .level(lesson.getLevel())
+                        .category(lesson.getFacilitySpace().getFacility().getFacilityName())
+                        .startDate(lesson.getStartDate())
+                        .endDate(lesson.getEndDate())
+                        .title(lesson.getTitle())
+                        .partnerName(lesson.getPartnerId().getMemberName())
+                        .facilityType(lesson.getFacilitySpace().getSpaceName())
+                        .startTime(lesson.getSchedules().get(0).getStartTime())
+                        .endTime(lesson.getSchedules().get(0).getEndTime())
+                        .days(lesson.getSchedules().get(0).getLessonDay().stream().map(
+                                lessonDay -> lessonDay.getLabel()).toList())
+                        .build())
+                        .toList();
+        return PageResponseDTO.<LessonListResDTO>withAll()
+                .dtoList(dtoList)
+                .pageRequestDTO(dto)
+                .totalCnt(result.getTotalElements())
+                .build();
+    }
+
+    @Override
+    public LessonListResDTO getOneLesson(Long id) {
+        Lesson lesson =lessonRepository.findById(id).orElseThrow(()->new IllegalArgumentException("해당 id에 일치하는 강의가 없습니다."));
+        return LessonListResDTO.builder()
+                .lessonId(lesson.getId())
+                .status(lesson.getLessonStatus())
+                .level(lesson.getLevel())
+                .category(lesson.getFacilitySpace().getFacility().getFacilityName())
                 .startDate(lesson.getStartDate())
                 .endDate(lesson.getEndDate())
-                .days(lesson.getSchedules().stream().flatMap(j -> j.getLessonDay().stream()).map(LessonDay::getLabel).toList())
+                .title(lesson.getTitle())
+                .partnerName(lesson.getPartnerId().getMemberName())
+                .facilityType(lesson.getFacilitySpace().getSpaceName())
                 .startTime(lesson.getSchedules().get(0).getStartTime())
                 .endTime(lesson.getSchedules().get(0).getEndTime())
-                .level(lesson.getLevel())
-                .description(lesson.getDescription())
-                .tools(lesson.getTools())
-                .memo(lesson.getMemo())
-                .curriculum(lesson.getCurriculum())
-                .minPeople(lesson.getMinPeople())
-                .maxPeople(lesson.getMaxPeople())
-                .LessonStatus(lesson.getLessonStatus().name())
-                .facilityType(lesson.getFacilitySpace().getFacility().getFacilityType())
-                .facilityRoomType(lesson.getFacilitySpace().getSpaceRoomType()).build())
-                .toList();
+                .days(lesson.getSchedules().get(0).getLessonDay().stream().map(
+                        lessonDay -> lessonDay.getLabel()).toList())
+                .build();
     }
 }

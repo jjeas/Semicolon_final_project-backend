@@ -68,6 +68,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET,"/gallery/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/guide/view/**").permitAll()
                 .requestMatchers("/api/guide/**").permitAll()
+                .requestMatchers("/api/lesson/check/**").permitAll()
 //                .requestMatchers(HttpMethod.GET,"/upload/**").permitAll() 갤러리 등록을 위해 임시 주석 지우면 안됩니다!!
                 .requestMatchers("/api/upload/**").permitAll()
                 .requestMatchers(HttpMethod.GET,"/api/community/gallery/**").permitAll() //                .requestMatchers("/api/community/gallery/**").permitAll()
