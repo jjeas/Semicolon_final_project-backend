@@ -9,10 +9,11 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 public interface PartnerService {
-    public ResponseEntity<?> requestPartnerForm(Long id,PartnerDTO dto);
+    public void requestPartnerForm(Long id,PartnerDTO dto);
     public List<PartnerUploadDTO> getList();
     public PartnerUploadDTO getOne(Long id);
     public List<PartnerFile> changeStatus(Long id, PartnerStatus status);
     public void deleteFiles(List<PartnerFile> files);
+    public List<String> getPartnerClassList(String loginIdFromToken);
 }
 

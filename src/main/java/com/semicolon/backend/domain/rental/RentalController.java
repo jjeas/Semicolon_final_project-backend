@@ -9,10 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -27,5 +26,19 @@ public class RentalController {
         service.register(loginIdFromToken, rentalDTO);
         return ResponseEntity.ok("예약 완료");
     }
+
+    @GetMapping("")
+    public ResponseEntity<List<RentalDTO>> rentalList (@AuthenticationPrincipal String loginIdFromToken) {
+        List<RentalDTO> DTOList = service.getList(loginIdFromToken);
+        return ResponseEntity.ok(DTOList);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteRental (@AuthenticationPrincipal String loginIdFromToken, @PathVariable("id") Long rentalId){
+        log.info("몇번이 들어옴? {}", rentalId);
+        service.deleteOne(loginIdFromToken, rentalId);
+        return ResponseEntity.ok("삭제 완료");
+    }
+
 
 }
