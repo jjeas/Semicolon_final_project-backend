@@ -8,18 +8,20 @@ import com.semicolon.backend.domain.member.entity.MemberRole;
 import com.semicolon.backend.domain.member.repository.MemberRepository;
 import com.semicolon.backend.domain.partner.dto.PartnerDTO;
 import com.semicolon.backend.domain.partner.entity.PartnerStatus;
+import com.semicolon.backend.global.pageable.PageRequestDTO;
+import com.semicolon.backend.global.pageable.PageResponseDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.internal.bytebuddy.implementation.bytecode.Throw;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder; // 1. (추가)
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional; // 2. (추가)
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -91,14 +93,14 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public void changePassword(String loginIdFromToken, PasswordChangeDTO passwordChangeDTO) {
-        Long memberId =repository.findByMemberLoginId(loginIdFromToken).orElseThrow().getMemberId();
+        Long memberId = repository.findByMemberLoginId(loginIdFromToken).orElseThrow().getMemberId();
         Member member = repository.findById(memberId).orElseThrow(() -> new NoSuchElementException("해당 ID에 해당되는 회원이 없습니다."));
 
-        if(!passwordChangeDTO.getMemberCurrentPassword().equals(member.getMemberPassword())) {
+        if (!passwordChangeDTO.getMemberCurrentPassword().equals(member.getMemberPassword())) {
             throw new NoSuchElementException("기존 비밀번호가 일치하지 않습니다");
         }
 
-        if(!passwordChangeDTO.getMemberPassword().equals(passwordChangeDTO.getMemberPasswordCheck())){
+        if (!passwordChangeDTO.getMemberPassword().equals(passwordChangeDTO.getMemberPasswordCheck())) {
             throw new IllegalArgumentException("새 비밀번호 확인이 일치하지 않습니다");
         }
 
@@ -109,7 +111,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public void modifyByAdmin(MemberDTO requestDTO) {
-        Member member = repository.findById(requestDTO.getMemberId()).orElseThrow(()->new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
+        Member member = repository.findById(requestDTO.getMemberId()).orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
         member.setMemberEmail(requestDTO.getMemberEmail());
         member.setMemberPhoneNumber(requestDTO.getMemberPhoneNumber());
         member.setMemberAddress(requestDTO.getMemberAddress());
@@ -121,12 +123,16 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public List<MemberDTO> searchMembers(String category, String keyword, String role) {
+    public PageResponseDTO<MemberDTO> searchMembers(PageRequestDTO pageRequestDTO) {
 
-        List<Member> members = new ArrayList<>();
+        Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize());
 
-        boolean isKeywordEmpty = keyword.isBlank();
-        boolean isRoleEmpty = role == null || role.isBlank();
+        String keyword = pageRequestDTO.getKeyword();
+        String type = pageRequestDTO.getType();
+        String role = pageRequestDTO.getRole();
+
+        boolean isKeywordEmpty = (keyword == null || keyword.isBlank());
+        boolean isRoleEmpty = (role == null || role.isBlank());
 
         MemberRole memberRoleEnum = null;
         if (!isRoleEmpty) {
@@ -134,41 +140,48 @@ public class MemberServiceImpl implements MemberService {
                 memberRoleEnum = MemberRole.valueOf(role);
             } catch (IllegalArgumentException e) {
                 log.error("유효하지 않은 MemberRole 값: {}", role);
-                return new ArrayList<>();
+                return new PageResponseDTO<>(Collections.emptyList(), pageRequestDTO, 0);
             }
         }
 
+        Page<Member> resultPage;
+
         if (!isRoleEmpty) {
             if (isKeywordEmpty) {
-                members = repository.findByMemberRole(memberRoleEnum);
+                resultPage = repository.findByMemberRole(memberRoleEnum, pageable);
             } else {
-                switch (category) {
+                switch (type) {
                     case "id":
-                        members = repository.findByMemberLoginIdContainsAndMemberRole(keyword, memberRoleEnum);
+                        resultPage = repository.findByMemberLoginIdContainsAndMemberRole(keyword, memberRoleEnum, pageable);
                         break;
                     case "name":
-                        members = repository.findByMemberNameContainsAndMemberRole(keyword, memberRoleEnum);
+                        resultPage = repository.findByMemberNameContainsAndMemberRole(keyword, memberRoleEnum, pageable);
                         break;
+                    default:
+                        resultPage = Page.empty(pageable);
                 }
             }
         } else {
             if (isKeywordEmpty) {
-                members = repository.findAll();
+                resultPage = repository.findAll(pageable);
             } else {
-                switch (category) {
+                switch (type) {
                     case "id":
-                        members = repository.findByMemberLoginIdContains(keyword);
+                        resultPage = repository.findByMemberLoginIdContains(keyword, pageable);
                         break;
                     case "name":
-                        members = repository.findByMemberNameContains(keyword);
+                        resultPage = repository.findByMemberNameContains(keyword, pageable);
                         break;
+                    default:
+                        resultPage = Page.empty(pageable);
                 }
             }
         }
 
-        return members.stream()
-                .map(m -> mapper.map(m, MemberDTO.class))
-                .toList();
+        Page<MemberDTO> dtoPage = resultPage.map(m -> mapper.map(m, MemberDTO.class));
+
+        return new PageResponseDTO<>(dtoPage.getContent(), pageRequestDTO, dtoPage.getTotalElements());
     }
 
 }
+
