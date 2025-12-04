@@ -28,4 +28,9 @@ public class LessonController {
         List<LessonReqDTO> dto = lessonService.getMyLessonList(loginIdFromToken);
         return ResponseEntity.ok(dto);
     }
+
+    @GetMapping("")
+    public ResponseEntity<List<LessonReqDTO>> getList(){
+        return ResponseEntity.ok(lessonService.getAllLessonList());
+    }
 }
