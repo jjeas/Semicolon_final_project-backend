@@ -17,6 +17,8 @@ public class RentalDTO {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
+    private String price;
+
     private String name;
     private String phoneNumber;
     private String memo;

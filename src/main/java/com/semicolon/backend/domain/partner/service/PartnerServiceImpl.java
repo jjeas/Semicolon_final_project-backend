@@ -12,11 +12,19 @@ import com.semicolon.backend.domain.partner.entity.PartnerFile;
 import com.semicolon.backend.domain.partner.entity.PartnerStatus;
 import com.semicolon.backend.domain.partner.repository.PartnerFileRepository;
 import com.semicolon.backend.domain.partner.repository.PartnerRepository;
+import com.semicolon.backend.domain.support.dto.SupportUploadDTO;
+import com.semicolon.backend.domain.support.entity.Support;
 import com.semicolon.backend.global.file.uploadFile.CustomFileUtil;
+import com.semicolon.backend.global.pageable.PageRequestDTO;
+import com.semicolon.backend.global.pageable.PageResponseDTO;
 import com.semicolon.backend.global.reservationFilter.ReservationFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +46,7 @@ public class PartnerServiceImpl implements PartnerService{
     private final ModelMapper mapper;
 
     @Override
-    public ResponseEntity<?> requestPartnerForm(Long id, PartnerDTO dto) {
+    public void requestPartnerForm(Long id, PartnerDTO dto) {
         Member member = memberRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다. memberId=" + id));
 
         Partner partner = Partner.builder()
@@ -110,15 +118,19 @@ public class PartnerServiceImpl implements PartnerService{
             }
         }
         log.info("파트너 신청 완료 => {}{}{}", partner.getMember(), partner.getFiles(), partner.getPartnerClass());
-
-        return ResponseEntity.ok("파트너 신청 완료");
     }
 
     @Override
-    public List<PartnerUploadDTO> getList() {
-        List<Partner> list = partnerRepository.findAll();
-        List<PartnerUploadDTO> uploadDTOList = list.stream().map(i->entityToDto(i)).toList();
-        return uploadDTOList;
+    public PageResponseDTO<PartnerUploadDTO> getList(PageRequestDTO pageRequestDTO) {
+        Pageable pageable = PageRequest.of(pageRequestDTO.getPage()-1,pageRequestDTO.getSize()
+                , Sort.by("requestDate").descending());
+        Page<Partner> result = partnerRepository.findAll(pageable);
+        List<PartnerUploadDTO> dtoList = result.getContent().stream().map(i->entityToDto(i)).toList();
+        return PageResponseDTO.<PartnerUploadDTO>withAll()
+                .dtoList(dtoList)
+                .pageRequestDTO(pageRequestDTO)
+                .totalCnt(result.getTotalElements())
+                .build();
     }
 
     @Override
@@ -129,12 +141,10 @@ public class PartnerServiceImpl implements PartnerService{
 
     @Override
     @Transactional
-    public List<PartnerFile> changeStatus(Long id, PartnerStatus status) {
+    public void changeStatus(Long id, PartnerStatus status) {
 
         Partner partner = partnerRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("파트너 승급 신청서를 찾을 수 없습니다."));
-
-        List<PartnerFile> deleteFiles = new ArrayList<>();
 
         switch (status) {
 
@@ -144,19 +154,20 @@ public class PartnerServiceImpl implements PartnerService{
                 member.setMemberRole(MemberRole.ROLE_PARTNER);
             }
             case REJECTED -> {
-                deleteFiles.addAll(partner.getFiles());
+                partner.getFiles().forEach(i-> log.info("이게무엇엇일일까까까요요요??? => {}",i.getFilePath()));
+                partner.getFiles().forEach(i->customFileUtil.deleteFile(i.getFilePath()));
                 partner.getFiles().clear();
             }
         }
         partner.setStatus(status);
-        return deleteFiles;
     }
 
     @Override
-    public void deleteFiles(List<PartnerFile> files) {
-        for (PartnerFile file : files) {
-            customFileUtil.deleteFile(file.getFilePath());
-        }
+    public List<String> getPartnerClassList(String loginIdFromToken) {
+        Member member = memberRepository.findByMemberLoginId(loginIdFromToken).orElseThrow(()-> new IllegalArgumentException("회원 정보가 없습니다"));
+        Partner partner = partnerRepository.findByMember(member).orElseThrow(()-> new IllegalArgumentException("회원 정보가 없습니다"));
+
+        return partner.getPartnerClass();
     }
 
     public PartnerUploadDTO entityToDto(Partner partner){
