@@ -68,7 +68,20 @@ public class NoticeServiceImpl implements NoticeService{
         Pageable pageable = PageRequest.of(pageRequestDTO.getPage()-1,pageRequestDTO.getSize()
         , Sort.by("noticeId").descending()
         );
-        Page<Notice> result = repository.findAll(pageable);
+        String keyword = pageRequestDTO.getKeyword();
+        String type = pageRequestDTO.getType();
+        Page<Notice> result;
+        if(keyword==null || keyword.isEmpty()){
+            result = repository.findAll(pageable);
+        } else {
+            if ("c".equals(type)) {
+            result=repository.findByContentContaining(keyword, pageable);
+        } else if ("t".equals(type)) {
+            result=repository.findByTitleContaining(keyword, pageable);
+        } else {
+            result=repository.findByContentContainingOrTitleContaining(keyword,keyword,pageable);
+        }
+        }
         List<NoticeDTO> dtoList = result.getContent().stream().map(ent->toDto(ent)).collect(Collectors.toList());
         return PageResponseDTO.<NoticeDTO>withAll()
                 .dtoList(dtoList)

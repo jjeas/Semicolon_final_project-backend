@@ -3,6 +3,8 @@ package com.semicolon.backend.domain.schedule;
 import com.semicolon.backend.domain.faq.dto.FaqDTO;
 import com.semicolon.backend.domain.schedule.dto.ScheduleDTO;
 import com.semicolon.backend.domain.schedule.service.ScheduleService;
+import com.semicolon.backend.global.pageable.PageRequestDTO;
+import com.semicolon.backend.global.pageable.PageResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,8 +25,8 @@ public class ScheduleController {
     }
 
     @GetMapping("/admin")
-    public ResponseEntity<List<ScheduleDTO>> getAllList(){
-        return ResponseEntity.ok(service.getList());
+    public ResponseEntity<PageResponseDTO<ScheduleDTO>> getAllList(PageRequestDTO pageRequestDTO){
+        return ResponseEntity.ok(service.getList(pageRequestDTO));
     }
 
     @PutMapping("/admin/{id}")

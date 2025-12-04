@@ -4,6 +4,8 @@ import com.semicolon.backend.domain.member.dto.MemberDTO;
 import com.semicolon.backend.domain.member.dto.PasswordChangeDTO;
 import com.semicolon.backend.domain.member.service.MemberService;
 import com.semicolon.backend.domain.partner.dto.PartnerDTO;
+import com.semicolon.backend.global.pageable.PageRequestDTO;
+import com.semicolon.backend.global.pageable.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -53,12 +55,8 @@ public class MemberController {
     }
     
     @GetMapping("/admin/search")
-    public ResponseEntity<List<MemberDTO>> searchMember(
-            @RequestParam String category,
-            @RequestParam String keyword,
-            @RequestParam(required = false) String role
-    ) {
-        return ResponseEntity.ok(service.searchMembers(category, keyword, role));
+    public ResponseEntity<PageResponseDTO<MemberDTO>> searchMember(PageRequestDTO pageRequestDTO) {
+        return ResponseEntity.ok(service.searchMembers(pageRequestDTO));
     }
 
 }
