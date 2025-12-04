@@ -6,7 +6,13 @@ import com.semicolon.backend.domain.gallery.entity.Gallery;
 import com.semicolon.backend.domain.gallery.entity.GalleryImage;
 import com.semicolon.backend.domain.gallery.repository.GalleryRepository;
 import com.semicolon.backend.global.file.service.FileUploadService;
+import com.semicolon.backend.global.pageable.PageRequestDTO;
+import com.semicolon.backend.global.pageable.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,10 +47,32 @@ public class GalleryServiceImpl implements GalleryService {
     }
 
     @Override
-    public List<GalleryDTO> getList() {
-        return galleryrepository.findAll().stream().map(gal ->
-                convertEntityToDTO(gal)
-        ).toList();
+    public PageResponseDTO<GalleryDTO> getList(PageRequestDTO pageRequestDTO) {
+        Pageable pageable = PageRequest.of(pageRequestDTO.getPage()-1,pageRequestDTO.getSize()
+                , Sort.by("galleryId").descending()
+        );
+        String keyword = pageRequestDTO.getKeyword();
+        String type = pageRequestDTO.getType();
+        Page<Gallery> result;
+        if(keyword==null || keyword.isEmpty()){
+            result=galleryrepository.findAll(pageable);
+        }else {
+            if("t".equals(type)){
+                result=galleryrepository.findByTitleContaining(keyword,pageable);
+            } else if ("c".equals(type)) {
+                result=galleryrepository.findByContentContaining(keyword, pageable);
+            }else{
+                result=galleryrepository.findByContentContainingOrTitleContaining(keyword,keyword,pageable);
+            }
+        }
+        List<GalleryDTO> dtoList = result.getContent().stream()
+                .map(gal -> convertEntityToDTO(gal))
+                .toList();
+        return PageResponseDTO.<GalleryDTO>withAll()
+                .dtoList(dtoList)
+                .pageRequestDTO(pageRequestDTO)
+                .totalCnt(result.getTotalElements())
+                .build();
     }
 
     @Override

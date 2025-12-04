@@ -34,4 +34,14 @@ public class RegistrationController {
         service.cancel(loginIdFromToken, registrationId);
         return ResponseEntity.ok("수강 신청 취소가 완료되었습니다.");
     }
+
+    @GetMapping("/check/{lessonId}")
+    public ResponseEntity<Boolean> checkStatus(
+            @AuthenticationPrincipal String loginIdFromToken,
+            @PathVariable("lessonId") Long lessonId
+    ) {
+        log.info("들어오냐?");
+        boolean isRegistered = service.checkRegistrationStatus(loginIdFromToken, lessonId);
+        return ResponseEntity.ok(isRegistered);
+    }
 }

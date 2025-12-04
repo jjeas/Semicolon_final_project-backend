@@ -3,6 +3,8 @@ package com.semicolon.backend.domain.gallery;
 import com.semicolon.backend.domain.gallery.dto.GalleryDTO;
 import com.semicolon.backend.domain.gallery.service.GalleryService;
 import com.semicolon.backend.global.file.service.FileUploadService;
+import com.semicolon.backend.global.pageable.PageRequestDTO;
+import com.semicolon.backend.global.pageable.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.Response;
@@ -20,9 +22,9 @@ public class GalleryController {
 //    private final FileUploadService fileUploadService;
 
     @GetMapping("")
-    public ResponseEntity<List<GalleryDTO>> getList(){
+    public ResponseEntity<PageResponseDTO<GalleryDTO>> getList(PageRequestDTO dto){
         log.info("gallery 전체 조회 컨트롤러 실행");
-        return ResponseEntity.ok(galleryService.getList());
+        return ResponseEntity.ok(galleryService.getList(dto));
     }
 
     @GetMapping("/{id}")

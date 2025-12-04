@@ -7,4 +7,5 @@ public interface RegistrationService {
      void register(Long registrationId, String loginId);
      void cancel(String loginId, Long registrationId);
      List<RegistrationDTO> getList(String loginId);
+    boolean checkRegistrationStatus(String loginId, Long lessonId);
 }
