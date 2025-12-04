@@ -46,5 +46,9 @@ public class PartnerController {
         return ResponseEntity.ok("상태 변경 완료");
     }
 
+    @GetMapping("/class")
+    public ResponseEntity<List<String>> getPartnerClassList(@AuthenticationPrincipal String loginIdFromToken){
+        return ResponseEntity.ok(service.getPartnerClassList(loginIdFromToken));
+    }
 }
 

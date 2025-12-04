@@ -38,7 +38,7 @@ public class PartnerServiceImpl implements PartnerService{
     private final ModelMapper mapper;
 
     @Override
-    public ResponseEntity<?> requestPartnerForm(Long id, PartnerDTO dto) {
+    public void requestPartnerForm(Long id, PartnerDTO dto) {
         Member member = memberRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다. memberId=" + id));
 
         Partner partner = Partner.builder()
@@ -110,8 +110,6 @@ public class PartnerServiceImpl implements PartnerService{
             }
         }
         log.info("파트너 신청 완료 => {}{}{}", partner.getMember(), partner.getFiles(), partner.getPartnerClass());
-
-        return ResponseEntity.ok("파트너 신청 완료");
     }
 
     @Override
@@ -157,6 +155,14 @@ public class PartnerServiceImpl implements PartnerService{
         for (PartnerFile file : files) {
             customFileUtil.deleteFile(file.getFilePath());
         }
+    }
+
+    @Override
+    public List<String> getPartnerClassList(String loginIdFromToken) {
+        Member member = memberRepository.findByMemberLoginId(loginIdFromToken).orElseThrow(()-> new IllegalArgumentException("회원 정보가 없습니다"));
+        Partner partner = partnerRepository.findByMember(member).orElseThrow(()-> new IllegalArgumentException("회원 정보가 없습니다"));
+
+        return partner.getPartnerClass();
     }
 
     public PartnerUploadDTO entityToDto(Partner partner){
