@@ -66,4 +66,11 @@ public class RegistrationServiceImpl implements RegistrationService{
         }
         return regList.stream().map(i-> RegistrationDTO.toDto(i)).toList();
     }
+
+    @Override
+    public boolean checkRegistrationStatus(String loginId, Long lessonId) {
+        Lesson lesson = lessonRepository.findById(lessonId).orElseThrow(()->new IllegalArgumentException("해당하는 강의가 없습니다."));
+        Member member = memberRepository.findByMemberLoginId(loginId).orElseThrow(()->new IllegalArgumentException("해당하는 유저가 없습니다."));
+        return registrationRepository.existsByMemberAndLessonAndStatus(member, lesson, RegistrationStatus.APPLIED);
+    }
 }

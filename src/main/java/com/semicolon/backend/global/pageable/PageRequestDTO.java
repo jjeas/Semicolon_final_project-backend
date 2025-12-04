@@ -3,6 +3,7 @@ package com.semicolon.backend.global.pageable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,5 +14,5 @@ public class PageRequestDTO {
     private String keyword;
     private String type;
     private String role;
-
+    private String sort;
 }

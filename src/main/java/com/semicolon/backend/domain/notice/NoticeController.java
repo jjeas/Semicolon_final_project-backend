@@ -39,6 +39,11 @@ public class NoticeController {
     }
     @GetMapping("/list")
     public ResponseEntity<PageResponseDTO<NoticeDTO>> getList(PageRequestDTO pageRequestDTO){
+        log.info("컨트롤러 요청 파라미터 확인: page={}, size={}, type={}, keyword={}",
+                pageRequestDTO.getPage(),
+                pageRequestDTO.getSize(),
+                pageRequestDTO.getType(),
+                pageRequestDTO.getKeyword());
         return ResponseEntity.ok(service.list(pageRequestDTO));
     }
 

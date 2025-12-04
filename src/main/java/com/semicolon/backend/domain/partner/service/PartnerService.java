@@ -11,9 +11,12 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 public interface PartnerService {
-    public ResponseEntity<?> requestPartnerForm(Long id,PartnerDTO dto);
+
     public PageResponseDTO<PartnerUploadDTO> getList(PageRequestDTO pageRequestDTO);
     public PartnerUploadDTO getOne(Long id);
     public void changeStatus(Long id, PartnerStatus status);
+    public void requestPartnerForm(Long id,PartnerDTO dto);
+    public List<String> getPartnerClassList(String loginIdFromToken);
+
 }
 
