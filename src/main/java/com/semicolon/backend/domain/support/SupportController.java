@@ -5,6 +5,8 @@ import com.semicolon.backend.domain.support.dto.SupportDTO;
 import com.semicolon.backend.domain.support.dto.SupportResponseDTO;
 import com.semicolon.backend.domain.support.dto.SupportUploadDTO;
 import com.semicolon.backend.domain.support.service.SupportService;
+import com.semicolon.backend.global.pageable.PageRequestDTO;
+import com.semicolon.backend.global.pageable.PageResponseDTO;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.FileSystemResource;
 import lombok.RequiredArgsConstructor;
@@ -49,12 +51,12 @@ public class SupportController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<SupportUploadDTO>> getAll(){
-        return ResponseEntity.ok(service.getSupportAllList());
+    public ResponseEntity<PageResponseDTO<SupportUploadDTO>> getAll(PageRequestDTO pageRequestDTO){
+        return ResponseEntity.ok(service.getSupportAllList(pageRequestDTO));
     }
 
     @PostMapping("/{no}")
-    public ResponseEntity<List<SupportResponseDTO>> registerResponse(@PathVariable("no") Long no, @RequestBody SupportResponseDTO dto){
+    public List<SupportResponseDTO> registerResponse(@PathVariable("no") Long no, @RequestBody SupportResponseDTO dto){
         return service.registerResponse(no, dto);
     }
 }

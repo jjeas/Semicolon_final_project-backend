@@ -5,6 +5,8 @@ import com.semicolon.backend.domain.member.dto.MemberDTO;
 import com.semicolon.backend.domain.member.dto.PasswordChangeDTO;
 import com.semicolon.backend.domain.member.entity.Member;
 import com.semicolon.backend.domain.partner.dto.PartnerDTO;
+import com.semicolon.backend.global.pageable.PageRequestDTO;
+import com.semicolon.backend.global.pageable.PageResponseDTO;
 
 import java.util.List;
 
@@ -14,5 +16,5 @@ public interface MemberService {
     public MemberDTO getOneByLoginId(String loginId);
     public void changePassword(String loginIdFromToken,PasswordChangeDTO passwordChangeDTO);
     public void modifyByAdmin(MemberDTO requestDTO);
-    public List<MemberDTO> searchMembers(String category, String keyword, String role);
+    public PageResponseDTO<MemberDTO> searchMembers(PageRequestDTO pageRequestDTO);
 }

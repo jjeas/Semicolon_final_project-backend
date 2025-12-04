@@ -5,6 +5,8 @@ import com.semicolon.backend.domain.partner.dto.PartnerDTO;
 import com.semicolon.backend.domain.partner.dto.PartnerUploadDTO;
 import com.semicolon.backend.domain.partner.entity.PartnerStatus;
 import com.semicolon.backend.domain.partner.service.PartnerService;
+import com.semicolon.backend.global.pageable.PageRequestDTO;
+import com.semicolon.backend.global.pageable.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -31,8 +33,8 @@ public class PartnerController {
     }
 
     @GetMapping("/partnerRequest")
-    public ResponseEntity<List<PartnerUploadDTO>> getList(){
-        return ResponseEntity.ok(service.getList());
+    public ResponseEntity<PageResponseDTO<PartnerUploadDTO>> getList(PageRequestDTO pageRequestDTO){
+        return ResponseEntity.ok(service.getList(pageRequestDTO));
     }
 
     @GetMapping("/partnerRequest/{id}")

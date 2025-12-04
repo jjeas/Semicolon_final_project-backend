@@ -3,6 +3,8 @@ package com.semicolon.backend.domain.support.service;
 import com.semicolon.backend.domain.member.dto.MemberDTO;
 import com.semicolon.backend.domain.member.entity.Member;
 import com.semicolon.backend.domain.member.repository.MemberRepository;
+import com.semicolon.backend.domain.schedule.dto.ScheduleDTO;
+import com.semicolon.backend.domain.schedule.entity.Schedule;
 import com.semicolon.backend.domain.support.dto.SupportDTO;
 import com.semicolon.backend.domain.support.dto.SupportResponseDTO;
 import com.semicolon.backend.domain.support.dto.SupportUploadDTO;
@@ -13,9 +15,15 @@ import com.semicolon.backend.domain.support.entity.SupportStatus;
 import com.semicolon.backend.domain.support.repository.SupportFileRepository;
 import com.semicolon.backend.domain.support.repository.SupportRepository;
 import com.semicolon.backend.global.file.uploadFile.CustomFileUtil;
+import com.semicolon.backend.global.pageable.PageRequestDTO;
+import com.semicolon.backend.global.pageable.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -91,13 +99,47 @@ public class SupportServiceImpl implements SupportService {
     }
 
     @Override
-    public List<SupportUploadDTO> getSupportAllList() {
-        List<SupportUploadDTO> list = supportRepository.findAll().stream().map(i->entityToDTO(i)).toList();
-        return list;
+    public PageResponseDTO<SupportUploadDTO> getSupportAllList(PageRequestDTO pageRequestDTO) {
+
+        Sort sort = Sort.by(Sort.Order.desc("status"), Sort.Order.desc("createdDate"));
+        Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), sort);
+
+        String keyword = pageRequestDTO.getKeyword();
+        String type = pageRequestDTO.getType();
+        boolean isKeywordEmpty = (keyword == null || keyword.isBlank());
+
+        Page<Support> resultPage;
+
+        if (!isKeywordEmpty) {
+            switch (type) {
+                case "name":
+                    resultPage = supportRepository.findByMemberMemberNameContains(keyword, pageable);
+                    break;
+                case "title":
+                    resultPage = supportRepository.findBySupportTitleContains(keyword, pageable);
+                    break;
+                default:
+                    resultPage = Page.empty(pageable);
+            }
+        }
+        else {
+            resultPage = supportRepository.findAllOrderByStatusAndDate(pageable);
+        }
+
+        List<SupportUploadDTO> dtoList = resultPage.getContent()
+                .stream()
+                .map(i -> entityToDTO(i))
+                .toList();
+
+        return PageResponseDTO.<SupportUploadDTO>withAll()
+                .dtoList(dtoList)
+                .pageRequestDTO(pageRequestDTO)
+                .totalCnt(resultPage.getTotalElements())
+                .build();
     }
 
     @Override
-    public ResponseEntity<List<SupportResponseDTO>> registerResponse(Long no, SupportResponseDTO dto) {
+    public List<SupportResponseDTO> registerResponse(Long no, SupportResponseDTO dto) {
         Support support = supportRepository.findById(no)
                 .orElseThrow(() -> new RuntimeException("문의 내역을 찾을 수 없습니다."));
 
@@ -111,15 +153,12 @@ public class SupportServiceImpl implements SupportService {
         support.setStatus(SupportStatus.ANSWERED);
         supportRepository.save(support);
 
-
-        List<SupportResponseDTO> responses = support.getResponse().stream()
+        return support.getResponse().stream()
                 .map(r -> SupportResponseDTO.builder()
                         .content(r.getContent())
                         .createdAt(r.getCreatedAt())
                         .build())
                 .toList();
-
-        return ResponseEntity.ok(responses);
     }
 
     public SupportUploadDTO entityToDTO(Support support){
