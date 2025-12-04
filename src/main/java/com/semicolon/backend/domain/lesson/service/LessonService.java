@@ -7,4 +7,5 @@ import java.util.List;
 public interface LessonService {
     public void lessonReq(String loginIdFromToken, LessonReqDTO lessonReqDTO);
     public List<LessonReqDTO> getMyLessonList(String loginIdFromToken);
+    List<LessonReqDTO> getAllLessonList();
 }
