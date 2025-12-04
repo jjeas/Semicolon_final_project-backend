@@ -134,4 +134,28 @@ public class LessonServiceImpl implements LessonService{
                         .facilityRoomType(i.getFacilitySpace().getSpaceRoomType())
                         .build()).toList();
     }
+
+    @Override
+    public List<LessonReqDTO> getAllLessonList() {
+        return lessonRepository.findAll().stream().map(lesson -> LessonReqDTO.builder()
+                .partnerId(lesson.getPartnerId().getMemberId())
+                .partnerName(lesson.getPartnerId().getMemberName())
+                .title(lesson.getTitle())
+                .startDate(lesson.getStartDate())
+                .endDate(lesson.getEndDate())
+                .days(lesson.getSchedules().stream().flatMap(j -> j.getLessonDay().stream()).map(LessonDay::getLabel).toList())
+                .startTime(lesson.getSchedules().get(0).getStartTime())
+                .endTime(lesson.getSchedules().get(0).getEndTime())
+                .level(lesson.getLevel())
+                .description(lesson.getDescription())
+                .tools(lesson.getTools())
+                .memo(lesson.getMemo())
+                .curriculum(lesson.getCurriculum())
+                .minPeople(lesson.getMinPeople())
+                .maxPeople(lesson.getMaxPeople())
+                .LessonStatus(lesson.getLessonStatus().name())
+                .facilityType(lesson.getFacilitySpace().getFacility().getFacilityType())
+                .facilityRoomType(lesson.getFacilitySpace().getSpaceRoomType()).build())
+                .toList();
+    }
 }

@@ -2,6 +2,8 @@ package com.semicolon.backend.domain.notice;
 
 import com.semicolon.backend.domain.notice.dto.NoticeDTO;
 import com.semicolon.backend.domain.notice.service.NoticeService;
+import com.semicolon.backend.global.pageable.PageRequestDTO;
+import com.semicolon.backend.global.pageable.PageResponseDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -36,8 +38,8 @@ public class NoticeController {
         return ResponseEntity.ok("공지 수정이 완료되었습니다.");
     }
     @GetMapping("/list")
-    public ResponseEntity<List<NoticeDTO>> getList(){
-        return ResponseEntity.ok(service.list());
+    public ResponseEntity<PageResponseDTO<NoticeDTO>> getList(PageRequestDTO pageRequestDTO){
+        return ResponseEntity.ok(service.list(pageRequestDTO));
     }
 
     @PostMapping("/{no}/view")

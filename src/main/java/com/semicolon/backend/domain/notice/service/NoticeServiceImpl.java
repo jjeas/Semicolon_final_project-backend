@@ -6,16 +6,23 @@ import com.semicolon.backend.domain.notice.entity.Notice;
 import com.semicolon.backend.domain.notice.entity.NoticeFile;
 import com.semicolon.backend.domain.notice.repository.NoticeRepository;
 import com.semicolon.backend.global.file.service.FileUploadService;
+import com.semicolon.backend.global.pageable.PageRequestDTO;
+import com.semicolon.backend.global.pageable.PageResponseDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -57,8 +64,17 @@ public class NoticeServiceImpl implements NoticeService{
     }
 
     @Override
-    public List<NoticeDTO> list() {
-        return repository.findAll().stream().map(notice->toDto(notice)).toList();
+    public PageResponseDTO<NoticeDTO> list(PageRequestDTO pageRequestDTO) {
+        Pageable pageable = PageRequest.of(pageRequestDTO.getPage()-1,pageRequestDTO.getSize()
+        , Sort.by("noticeId").descending()
+        );
+        Page<Notice> result = repository.findAll(pageable);
+        List<NoticeDTO> dtoList = result.getContent().stream().map(ent->toDto(ent)).collect(Collectors.toList());
+        return PageResponseDTO.<NoticeDTO>withAll()
+                .dtoList(dtoList)
+                .pageRequestDTO(pageRequestDTO)
+                .totalCnt(result.getTotalElements())
+                .build();
     }
 
 
