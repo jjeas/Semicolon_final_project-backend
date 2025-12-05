@@ -19,9 +19,9 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
             "where (:category is null or f.facilityName = :category ) and " +
             " (:titleKeyword is null or l.title like %:titleKeyword% ) and " +
             " (:partnerKeyword is null or p.memberName like %:partnerKeyword% ) and " +
-            " (:days is null or d in :days) and " +
-            " (:startTime is null or s.startTime>=:startTime) and " +
-            " (:endTime is null or s.endTime<=:endTime) and " +
+            " (d in (:days)) and " +
+            " (:startTime is null or TO_CHAR(s.startTime, 'HH24:MI') >= :startTime) and " +
+            " (:endTime is null or TO_CHAR(s.endTime, 'HH24:MI') <= :endTime) and " +
             " (:availableOnly is null or :availableOnly =false or l.lessonStatus=com.semicolon.backend.domain.lesson.entity.LessonStatus.ACCEPTED)"
     )
     Page<Lesson> searchLesson(
@@ -29,8 +29,8 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
             @Param("titleKeyword") String titleKeyword,
             @Param("partnerKeyword") String partnerKeyword,
             @Param("days") List<LessonDay> days,
-            @Param("startTime") LocalTime startTime,
-            @Param("endTime") LocalTime endTime,
+            @Param("startTime") String startTime,
+            @Param("endTime") String endTime,
             @Param("availableOnly") Boolean availableOnly,
             Pageable pageable
     );

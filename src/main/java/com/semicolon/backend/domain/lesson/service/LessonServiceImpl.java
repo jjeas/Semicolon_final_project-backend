@@ -157,7 +157,7 @@ public class LessonServiceImpl implements LessonService{
         String titleKeyword = null;
         String partnerKeyword = null;
         String keyword = dto.getKeyword();
-        if(keyword==null || keyword.isEmpty()){
+        if(keyword!=null && !keyword.isEmpty()){
             if("t".equals(dto.getType())){
                 titleKeyword=dto.getKeyword();
             } else if ("c".equals(dto.getType())) {
@@ -167,17 +167,29 @@ public class LessonServiceImpl implements LessonService{
                 partnerKeyword = dto.getKeyword();
             }
         }
-        List<LessonDay> targetDays = null;
+        List<LessonDay> targetDays = new ArrayList<>();
         if(dto.getDays()!=null && !dto.getDays().isEmpty()){
             targetDays = dto.getDays().stream().map(i->LessonDay.valueOf(i)).toList();
+        }else{
+            targetDays=Arrays.asList(LessonDay.values());
+        }
+
+        String startTimeStr = null;
+        String endTimeStr = null;
+
+        if (dto.getStartTime() != null) {
+            startTimeStr = dto.getStartTime().toString(); // "10:00" 문자열이 됨
+        }
+        if (dto.getEndTime() != null) {
+            endTimeStr = dto.getEndTime().toString();     // "13:00" 문자열이 됨
         }
         Page<Lesson> result = lessonRepository.searchLesson(
                 dto.getCategory(),
                 titleKeyword,
                 partnerKeyword,
                 targetDays,
-                dto.getStartTime(), // DTO 값 그대로 전달
-                dto.getEndTime(),   // DTO 값 그대로 전달
+                startTimeStr, // DTO 값 그대로 전달
+                endTimeStr,   // DTO 값 그대로 전달
                 dto.getAvailable(),
                 pageable
         );
