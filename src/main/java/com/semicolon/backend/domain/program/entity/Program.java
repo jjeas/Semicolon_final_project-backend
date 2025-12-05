@@ -1,7 +1,12 @@
 package com.semicolon.backend.domain.program.entity;
 
+import com.semicolon.backend.domain.guide.entity.GuideUpload;
+import com.semicolon.backend.domain.notice.entity.NoticeFile;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "tbl_program")
@@ -22,4 +27,13 @@ public class Program {
 
     @Column(name = "program_name",nullable = false)
     private String programName;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "program", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProgramUpload> uploads = new ArrayList<>();
+
+    public void removeFile(ProgramUpload file) {
+        this.uploads.remove(file);
+        file.setProgram(null);
+    }
 }

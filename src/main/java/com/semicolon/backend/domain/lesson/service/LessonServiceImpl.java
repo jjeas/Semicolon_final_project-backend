@@ -188,6 +188,54 @@ public class LessonServiceImpl implements LessonService{
     }
 
     @Override
+    public PageResponseDTO<LessonListResDTO> adminGetAllLessonList(PageRequestDTO dto) {
+        Sort sort = Sort.by("id").descending();
+        if(dto.getSort()!=null){
+            switch (dto.getSort()){
+                case "LATEST" : sort = Sort.by("startDate").ascending();
+                    break;
+                case "FASTEST" : sort = Sort.by("startDate").descending();
+            }
+        }
+        Pageable pageable = PageRequest.of(dto.getPage()-1, dto.getSize(), sort);
+        String keyword = dto.getKeyword();
+        String type = dto.getType();
+        Page<Lesson> result;
+        if(keyword==null || keyword.isEmpty()){
+            result=lessonRepository.findAll(pageable);
+        }else {
+            if("t".equals(type)){
+                result=lessonRepository.findByTitleContaining(keyword,pageable);
+            } else if ("c".equals(type)) {
+                result=lessonRepository.findByPartnerId_memberNameContaining(keyword, pageable);
+            }else{
+                result=lessonRepository.findByDescriptionContainingOrTitleContaining(keyword,keyword,pageable);
+            }
+        }
+        List<LessonListResDTO> dtoList=result.getContent().stream().map(lesson -> LessonListResDTO.builder()
+                        .lessonId(lesson.getId())
+                        .status(lesson.getLessonStatus())
+                        .level(lesson.getLevel())
+                        .category(lesson.getFacilitySpace().getFacility().getFacilityName())
+                        .startDate(lesson.getStartDate())
+                        .endDate(lesson.getEndDate())
+                        .title(lesson.getTitle())
+                        .partnerName(lesson.getPartnerId().getMemberName())
+                        .facilityType(lesson.getFacilitySpace().getSpaceName())
+                        .startTime(lesson.getSchedules().get(0).getStartTime())
+                        .endTime(lesson.getSchedules().get(0).getEndTime())
+                        .days(lesson.getSchedules().get(0).getLessonDay().stream().map(
+                                lessonDay -> lessonDay.getLabel()).toList())
+                        .build())
+                .toList();
+        return PageResponseDTO.<LessonListResDTO>withAll()
+                .dtoList(dtoList)
+                .pageRequestDTO(dto)
+                .totalCnt(result.getTotalElements())
+                .build();
+    }
+
+    @Override
     public LessonListResDTO getOneLesson(Long id) {
         Lesson lesson =lessonRepository.findById(id).orElseThrow(()->new IllegalArgumentException("해당 id에 일치하는 강의가 없습니다."));
         return LessonListResDTO.builder()
@@ -205,5 +253,12 @@ public class LessonServiceImpl implements LessonService{
                 .days(lesson.getSchedules().get(0).getLessonDay().stream().map(
                         lessonDay -> lessonDay.getLabel()).toList())
                 .build();
+    }
+
+    @Override
+    public void changeStatus(Long id, LessonStatus status) {
+        Lesson lesson = lessonRepository.findById(id).orElseThrow(()->new IllegalArgumentException("존재하지 않는 강의입니다."));
+        lesson.setLessonStatus(status);
+        lessonRepository.save(lesson);
     }
 }

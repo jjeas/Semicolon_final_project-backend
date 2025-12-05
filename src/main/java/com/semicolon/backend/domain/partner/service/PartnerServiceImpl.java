@@ -122,10 +122,28 @@ public class PartnerServiceImpl implements PartnerService{
 
     @Override
     public PageResponseDTO<PartnerUploadDTO> getList(PageRequestDTO pageRequestDTO) {
-        Pageable pageable = PageRequest.of(pageRequestDTO.getPage()-1,pageRequestDTO.getSize()
-                , Sort.by("requestDate").descending());
-        Page<Partner> result = partnerRepository.findAll(pageable);
-        List<PartnerUploadDTO> dtoList = result.getContent().stream().map(i->entityToDto(i)).toList();
+
+        Pageable pageable = PageRequest.of(
+                pageRequestDTO.getPage() - 1,
+                pageRequestDTO.getSize(),
+                Sort.by("requestDate").descending()
+        );
+
+        Page<Partner> result;
+
+        if (pageRequestDTO.getRole() == null || pageRequestDTO.getRole().isBlank()) {
+            result = partnerRepository.findAll(pageable);
+        }
+        else {
+            PartnerStatus status = PartnerStatus.valueOf(pageRequestDTO.getRole());
+            result = partnerRepository.findByStatus(status, pageable);
+        }
+
+        List<PartnerUploadDTO> dtoList = result.getContent()
+                .stream()
+                .map(i->entityToDto(i))
+                .toList();
+
         return PageResponseDTO.<PartnerUploadDTO>withAll()
                 .dtoList(dtoList)
                 .pageRequestDTO(pageRequestDTO)
