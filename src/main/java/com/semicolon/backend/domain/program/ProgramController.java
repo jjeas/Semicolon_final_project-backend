@@ -1,6 +1,7 @@
 package com.semicolon.backend.domain.program;
 
 import com.semicolon.backend.domain.program.dto.ProgramDTO;
+import com.semicolon.backend.domain.program.dto.ProgramReqDTO;
 import com.semicolon.backend.domain.program.entity.Program;
 import com.semicolon.backend.domain.program.service.ProgramService;
 import lombok.RequiredArgsConstructor;
@@ -29,11 +30,11 @@ public class ProgramController {
     }
 
     @PutMapping("/{programId}")
-    public ResponseEntity<String> register(@PathVariable("programId") long programId,@RequestBody ProgramDTO programDTO ){
+    public ResponseEntity<String> update(@PathVariable("programId") long programId, @ModelAttribute ProgramReqDTO programDTO ){
         log.info("수정 ID확인 = > {}",programId);
         ProgramDTO dto = service.getOne(programId);
-        if(dto.getPno()==programDTO.getPno()) service.register(programDTO);
-        return ResponseEntity.ok(service.register(programDTO)+"번 수정성공");
+        if(dto.getPno()==programDTO.getPno()) service.update(programDTO);
+        return ResponseEntity.ok("수정 성공");
     }
 
     @GetMapping("/")
