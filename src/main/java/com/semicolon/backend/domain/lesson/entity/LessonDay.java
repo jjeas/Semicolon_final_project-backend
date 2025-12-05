@@ -33,4 +33,17 @@ public enum LessonDay {
         }
     }
 
+    public static LessonDay fromKorean(String day) {
+        return switch (day) {
+            case "월요일" -> MON;
+            case "화요일" -> TUE;
+            case "수요일" -> WED;
+            case "목요일" -> THU;
+            case "금요일" -> FRI;
+            case "토요일" -> SAT;
+            case "일요일" -> SUN;
+            default -> throw new IllegalArgumentException("불가능한 변경입니다");
+        };
+    }
+
 }
