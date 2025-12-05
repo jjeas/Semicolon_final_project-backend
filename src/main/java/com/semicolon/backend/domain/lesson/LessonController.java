@@ -2,6 +2,7 @@ package com.semicolon.backend.domain.lesson;
 
 import com.semicolon.backend.domain.lesson.dto.LessonListResDTO;
 import com.semicolon.backend.domain.lesson.dto.LessonReqDTO;
+import com.semicolon.backend.domain.lesson.entity.LessonStatus;
 import com.semicolon.backend.domain.lesson.service.LessonService;
 import com.semicolon.backend.global.pageable.PageRequestDTO;
 import com.semicolon.backend.global.pageable.PageResponseDTO;
@@ -38,8 +39,19 @@ public class LessonController {
         return ResponseEntity.ok(lessonService.getAllLessonList(dto));
     }
 
+    @GetMapping("/admin")
+    public ResponseEntity<PageResponseDTO<LessonListResDTO>> adminGetList(PageRequestDTO dto){
+        return ResponseEntity.ok(lessonService.adminGetAllLessonList(dto));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<LessonListResDTO> getOne(@PathVariable("id") Long id){
         return ResponseEntity.ok(lessonService.getOneLesson(id));
+    }
+
+    @PostMapping("/status/{lessonId}")
+    public ResponseEntity<String> changeStatus(@PathVariable("lessonId") Long lessonId, @RequestBody LessonStatus lessonStatus){
+        lessonService.changeStatus(lessonId,lessonStatus);
+        return ResponseEntity.ok("성공");
     }
 }
