@@ -39,10 +39,10 @@ public class LessonController {
         return ResponseEntity.ok(lessonService.getAllLessonList(dto,loginId));
     }
 
-    @GetMapping("/admin")
-    public ResponseEntity<PageResponseDTO<LessonListResDTO>> adminGetList(PageRequestDTO dto){
-        return ResponseEntity.ok(lessonService.adminGetAllLessonList(dto));
-    }
+//    @GetMapping("/admin")
+//    public ResponseEntity<PageResponseDTO<LessonListResDTO>> adminGetList(PageRequestDTO dto){
+//        return ResponseEntity.ok(lessonService.adminGetAllLessonList(dto));
+//    }
 
     @GetMapping("/{id}")
     public ResponseEntity<LessonListResDTO> getOne(@PathVariable("id") Long id, @AuthenticationPrincipal String loginId){
