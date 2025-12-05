@@ -83,6 +83,7 @@ public class SecurityConfig {
                 //여기까지 비회원 요청 가능한 링크 설정
                 .requestMatchers(regexMatcher(".*admin.*")).hasRole("ADMIN")
                 //관리자 컨트롤러에 대한 요청은 ROLE 이 ADMIN 인 경우에만 허용한다
+                .requestMatchers(HttpMethod.POST, "/api/availableSpace/**").permitAll()
                 .anyRequest().authenticated()
                 //그 외의 모든 요청은 로그인된 사람만 가능
                 );

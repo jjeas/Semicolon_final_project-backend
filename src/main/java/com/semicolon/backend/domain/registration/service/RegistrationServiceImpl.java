@@ -25,9 +25,11 @@ public class RegistrationServiceImpl implements RegistrationService{
     private final RegistrationRepository registrationRepository;
 
     @Override
+    @Transactional
     public void register(Long lessonId, String loginId) {
         Lesson lesson = lessonRepository.findById(lessonId).orElseThrow(()->new IllegalArgumentException("해당하는 강의가 없습니다."));
         Member member = memberRepository.findByMemberLoginId(loginId).orElseThrow(()->new IllegalArgumentException("해당하는 유저가 없습니다."));
+        Long currentPeople = registrationRepository.countByLesson_IdAndStatus(lessonId, RegistrationStatus.APPLIED);
         if(lesson.getLessonStatus()!= LessonStatus.ACCEPTED){
             throw new IllegalStateException("현재 모집중인 강의가 아닙니다.");
         }
@@ -40,6 +42,8 @@ public class RegistrationServiceImpl implements RegistrationService{
                 .createdAt(LocalDateTime.now())
                 .status(RegistrationStatus.APPLIED)
                 .build();
+        if(currentPeople>=lesson.getMaxPeople()) throw new IllegalArgumentException("정원이 가득 찼습니다.");
+        if(currentPeople+1>=lesson.getMaxPeople()) registration.getLesson().setLessonStatus(LessonStatus.CLOSED);
         registrationRepository.save(registration);
     }
 

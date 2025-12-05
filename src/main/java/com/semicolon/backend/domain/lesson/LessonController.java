@@ -2,6 +2,7 @@ package com.semicolon.backend.domain.lesson;
 
 import com.semicolon.backend.domain.lesson.dto.LessonListResDTO;
 import com.semicolon.backend.domain.lesson.dto.LessonReqDTO;
+import com.semicolon.backend.domain.lesson.entity.LessonStatus;
 import com.semicolon.backend.domain.lesson.service.LessonService;
 import com.semicolon.backend.global.pageable.PageRequestDTO;
 import com.semicolon.backend.global.pageable.PageResponseDTO;
@@ -33,13 +34,24 @@ public class LessonController {
     }
 
     @GetMapping("")
-    public ResponseEntity<PageResponseDTO<LessonListResDTO>> getList(PageRequestDTO dto){
+    public ResponseEntity<PageResponseDTO<LessonListResDTO>> getList(@AuthenticationPrincipal String loginId, PageRequestDTO dto){
         log.info("검색어 ={}, 검색종류={}, 정렬기준={}", dto.getKeyword(),dto.getType(), dto.getSort());
-        return ResponseEntity.ok(lessonService.getAllLessonList(dto));
+        return ResponseEntity.ok(lessonService.getAllLessonList(dto,loginId));
+    }
+
+    @GetMapping("/admin")
+    public ResponseEntity<PageResponseDTO<LessonListResDTO>> adminGetList(PageRequestDTO dto){
+        return ResponseEntity.ok(lessonService.adminGetAllLessonList(dto));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<LessonListResDTO> getOne(@PathVariable("id") Long id){
-        return ResponseEntity.ok(lessonService.getOneLesson(id));
+    public ResponseEntity<LessonListResDTO> getOne(@PathVariable("id") Long id, @AuthenticationPrincipal String loginId){
+        return ResponseEntity.ok(lessonService.getOneLesson(id,loginId));
+    }
+
+    @PostMapping("/status/{lessonId}")
+    public ResponseEntity<String> changeStatus(@PathVariable("lessonId") Long lessonId, @RequestBody LessonStatus lessonStatus){
+        lessonService.changeStatus(lessonId,lessonStatus);
+        return ResponseEntity.ok("성공");
     }
 }
