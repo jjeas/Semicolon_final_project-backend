@@ -64,8 +64,10 @@ public class RentalServiceImpl implements RentalService {
                 .endTime(i.getEndTime())
                 .name(i.getName())
                 .price(i.getPrice())
+                .spaceName(i.getSpace().getSpaceName())
                 .phoneNumber(i.getPhoneNumber())
                 .memo(i.getMemo())
+
                 .status(i.getStatus().name())
                 .build()).toList();
 
