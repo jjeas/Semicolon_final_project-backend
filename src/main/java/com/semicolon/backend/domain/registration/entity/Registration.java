@@ -1,6 +1,7 @@
 package com.semicolon.backend.domain.registration.entity;
 
 import com.semicolon.backend.domain.lesson.entity.Lesson;
+import com.semicolon.backend.domain.lesson.entity.LessonStatus;
 import com.semicolon.backend.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "tbl_registration")
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -36,6 +38,9 @@ public class Registration {
     @Enumerated(EnumType.STRING)
     public void cancel(){ //신청 취소 시
         this.status=RegistrationStatus.CANCELED;
+        if(this.lesson.getLessonStatus()==LessonStatus.CLOSED)
+            this.lesson.setLessonStatus(LessonStatus.ACCEPTED);
+
     }
 
 }

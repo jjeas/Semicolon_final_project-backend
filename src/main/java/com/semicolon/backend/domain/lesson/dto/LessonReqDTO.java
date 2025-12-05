@@ -20,28 +20,20 @@ import java.util.List;
 public class LessonReqDTO {
     private long partnerId;
     private String partnerName;
-
     private String title;
-
     private LocalDate startDate;
     private LocalDate endDate;
-
     private List<String> days;
-
     private LocalTime startTime;
     private LocalTime endTime;
     private String level;
-
     private String description;
     private String tools;
     private String memo;
     private String curriculum;
-
     private String LessonStatus;
-
     private long minPeople;
     private long maxPeople;
-
     private FacilityType facilityType;
     private SpaceRoomType facilityRoomType;
 
