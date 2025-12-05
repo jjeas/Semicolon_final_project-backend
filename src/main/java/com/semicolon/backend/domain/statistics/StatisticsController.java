@@ -20,6 +20,12 @@ public class StatisticsController {
     @GetMapping("/ageGender")
     public ResponseEntity<Map<String, Object>> getAgeGenderStats(){
         log.info("연령대별 성비 가져오기");
-        return ResponseEntity.ok(service.getStats());
+        return ResponseEntity.ok(service.getAgeGenderStats());
+    }
+
+    @GetMapping("/lesson")
+    public ResponseEntity<Map<String, Object>> getLessonStats(){
+        log.info("강의 카테고리 별 수강신청 현황 가져오기");
+        return ResponseEntity.ok(service.getRegistrationLessonStats());
     }
 }
