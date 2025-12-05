@@ -66,7 +66,7 @@ public class NoticeServiceImpl implements NoticeService{
     @Override
     public PageResponseDTO<NoticeDTO> list(PageRequestDTO pageRequestDTO) {
         Pageable pageable = PageRequest.of(pageRequestDTO.getPage()-1,pageRequestDTO.getSize()
-        , Sort.by("noticeId").descending()
+        , Sort.by("createdAt").descending()
         );
         String keyword = pageRequestDTO.getKeyword();
         String type = pageRequestDTO.getType();
