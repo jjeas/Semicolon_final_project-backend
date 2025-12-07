@@ -22,7 +22,8 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
             " (d in (:days)) and " +
             " (:startTime is null or TO_CHAR(s.startTime, 'HH24:MI') >= :startTime) and " +
             " (:endTime is null or TO_CHAR(s.endTime, 'HH24:MI') <= :endTime) and " +
-            " (:availableOnly is null or :availableOnly =false or l.lessonStatus=com.semicolon.backend.domain.lesson.entity.LessonStatus.ACCEPTED)"
+            " ((:availableOnly is null or :availableOnly = false ) or (l.lessonStatus=com.semicolon.backend.domain.lesson.entity.LessonStatus.ACCEPTED and "+
+            "not exists(select r from Registration r where r.lesson=l and r.member.memberLoginId=:loginId and r.status=com.semicolon.backend.domain.registration.entity.RegistrationStatus.APPLIED)))"
     )
     Page<Lesson> searchLesson(
             @Param("category") String category,
@@ -32,10 +33,10 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
             @Param("startTime") String startTime,
             @Param("endTime") String endTime,
             @Param("availableOnly") Boolean availableOnly,
+            @Param("loginId") String loginId,
             Pageable pageable
     );
 
     @Query("select f.facilityName, count(r) from Registration r join r.lesson l join l.facilitySpace fs join fs.facility f group by f.facilityName")
     List<Object[]> findPopularityStats();
-
 }

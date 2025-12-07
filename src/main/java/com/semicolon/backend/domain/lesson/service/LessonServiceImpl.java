@@ -191,6 +191,7 @@ public class LessonServiceImpl implements LessonService{
                 startTimeStr, // DTO 값 그대로 전달
                 endTimeStr,   // DTO 값 그대로 전달
                 dto.getAvailable(),
+                loginId,
                 pageable
         );
         List<Long> myRegisteredIds = new ArrayList<>();
