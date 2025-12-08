@@ -1,5 +1,7 @@
 package com.semicolon.backend.domain.statistics.service;
 
+import com.semicolon.backend.domain.dailyUse.repository.DailyUseRepository;
+import com.semicolon.backend.domain.dailyUse.repository.GymDailyUseRepository;
 import com.semicolon.backend.domain.lesson.repository.LessonRepository;
 import com.semicolon.backend.domain.member.dto.MemberGenderAgeDTO;
 import com.semicolon.backend.domain.member.entity.MemberRole;
@@ -20,6 +22,8 @@ public class StatisticsServiceImpl implements StatisticsService{
 
     private final MemberRepository memberRepository;
     private final LessonRepository lessonRepository;
+    private final DailyUseRepository dailyUseRepository;
+    private final GymDailyUseRepository gymDailyUseRepository;
 
     @Override
     public Map<String, Object> getAgeGenderStats() {
@@ -52,5 +56,10 @@ public class StatisticsServiceImpl implements StatisticsService{
         result.put("totalCount",totalCnt);
         result.put("stats",stats);
         return result;
+    }
+
+    @Override
+    public Map<String, Object> getDailyUseStats() {
+        return Map.of();
     }
 }
