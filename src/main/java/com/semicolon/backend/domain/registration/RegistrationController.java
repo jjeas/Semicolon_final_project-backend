@@ -25,7 +25,11 @@ public class RegistrationController {
 
     @PostMapping("/{lessonId}")
     public ResponseEntity<String> register(@AuthenticationPrincipal String loginIdFromToken, @PathVariable("lessonId") Long id){
-        service.register(id,loginIdFromToken);
+        try {
+            service.register(id,loginIdFromToken);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return ResponseEntity.ok("수강 신청이 완료되었습니다.");
     }
 

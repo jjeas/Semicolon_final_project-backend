@@ -20,7 +20,6 @@ public class PartnerFile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long fileId;
-
     private String fileCategory;
     private String originalName;
     private String savedName;

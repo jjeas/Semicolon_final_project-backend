@@ -4,6 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalTime;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,4 +19,12 @@ public class PageRequestDTO {
     private String type;
     private String role;
     private String sort;
+    private String category;
+    private List<String> days;
+
+    @DateTimeFormat(pattern = "HH:mm")
+    private LocalTime startTime;
+    @DateTimeFormat(pattern = "HH:mm")
+    private LocalTime endTime;
+    private Boolean available;
 }

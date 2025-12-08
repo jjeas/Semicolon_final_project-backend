@@ -50,6 +50,7 @@ public class PartnerController {
 
     @GetMapping("/class")
     public ResponseEntity<List<String>> getPartnerClassList(@AuthenticationPrincipal String loginIdFromToken){
+        log.info("파트너 클래스 리스트 컨트롤러 실행 로그인id={}",loginIdFromToken);
         return ResponseEntity.ok(service.getPartnerClassList(loginIdFromToken));
     }
 }

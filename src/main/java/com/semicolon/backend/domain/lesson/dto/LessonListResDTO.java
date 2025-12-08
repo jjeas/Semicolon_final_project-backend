@@ -25,5 +25,9 @@ public class LessonListResDTO {
     private String level;
     private String facilityType;
     private LessonStatus status;
+    private boolean isRegistered;
+    private String description;
 
+    private Long maxPeople;
+    private Long currentPeople;
 }
