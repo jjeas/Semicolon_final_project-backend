@@ -36,4 +36,7 @@ public class Attendance {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AttendanceStatus status;
+
+    @Column(name = "attendance_memo", nullable = false)
+    private String memo;
 }

@@ -22,4 +22,7 @@ public interface RegistrationRepository extends JpaRepository<Registration,Long>
 
     long countByLesson_IdAndStatus(Long lessonId, RegistrationStatus status);
 
+    @Query("select r from Registration r WHERE r.lesson.id = :lessonId AND r.lesson.partnerId.id = :partnerId")
+    List<Registration> findAllByLessonId(@Param("partnerId") Long partnerId,
+            @Param("lessonId") Long lessonId);
 }
