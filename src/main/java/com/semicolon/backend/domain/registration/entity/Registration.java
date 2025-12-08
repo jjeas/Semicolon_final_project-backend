@@ -40,7 +40,6 @@ public class Registration {
         this.status=RegistrationStatus.CANCELED;
         if(this.lesson.getLessonStatus()==LessonStatus.CLOSED)
             this.lesson.setLessonStatus(LessonStatus.ACCEPTED);
-
     }
 
 }

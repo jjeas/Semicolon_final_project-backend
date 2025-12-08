@@ -140,6 +140,8 @@ public class LessonServiceImpl implements LessonService{
                         .LessonStatus(i.getLessonStatus().name())
                         .facilityType(i.getFacilitySpace().getFacility().getFacilityType())
                         .facilityRoomType(i.getFacilitySpace().getSpaceRoomType())
+                        .currentPeople(i.getCurrentPeople())
+                        .lessonNo(i.getId())
                         .build()).toList();
     }
 
@@ -306,6 +308,75 @@ public class LessonServiceImpl implements LessonService{
                 .maxPeople(lesson.getMaxPeople())
                 .currentPeople(current)
                 .build();
+    }
+
+    @Override
+    public List<LessonReqDTO> searchLessonsByTitle(String loginIdFromToken, String title) {
+        Member member = memberRepository.findByMemberLoginId(loginIdFromToken)
+                .orElseThrow(() -> new NoSuchElementException("해당 ID에 해당되는 회원이 없습니다."));
+
+        List<Lesson> lesson = lessonRepository.searchByTitle(loginIdFromToken, title);
+
+        return lesson.stream()
+                .map((i) -> LessonReqDTO.builder()
+                        .partnerId(member.getMemberId())
+                        .partnerName(member.getMemberName())
+                        .title(i.getTitle())
+                        .startDate(i.getStartDate())
+                        .endDate(i.getEndDate())
+                        .days(i.getSchedules().stream().flatMap(j -> j.getLessonDay().stream()).map(LessonDay::getLabel).toList())
+                        .startTime(i.getSchedules().get(0).getStartTime())
+                        .endTime(i.getSchedules().get(0).getEndTime())
+                        .level(i.getLevel())
+                        .description(i.getDescription())
+                        .tools(i.getTools())
+                        .memo(i.getMemo())
+                        .curriculum(i.getCurriculum())
+                        .minPeople(i.getMinPeople())
+                        .maxPeople(i.getMaxPeople())
+                        .LessonStatus(i.getLessonStatus().name())
+                        .facilityType(i.getFacilitySpace().getFacility().getFacilityType())
+                        .facilityRoomType(i.getFacilitySpace().getSpaceRoomType())
+                        .currentPeople(i.getCurrentPeople())
+                        .lessonNo(i.getId())
+                        .build()).toList();
+    }
+
+    @Override
+    public LessonReqDTO getMyOneLesson(String loginIdFromToken, Long lessonId) {
+        Member member = memberRepository.findByMemberLoginId(loginIdFromToken)
+                .orElseThrow(() -> new NoSuchElementException("해당 ID에 해당되는 회원이 없습니다."));
+
+        Lesson lesson = lessonRepository.findLessonByPartnerAndId(loginIdFromToken, lessonId);
+
+        if (lesson == null) {
+            throw new NoSuchElementException("없는 강좌입니다.");
+        }
+
+        return LessonReqDTO.builder()
+                .partnerId(lesson.getPartnerId().getMemberId())
+                .partnerName(lesson.getPartnerId().getMemberName())
+                .title(lesson.getTitle())
+                .startDate(lesson.getStartDate())
+                .endDate(lesson.getEndDate())
+                .days(lesson.getSchedules().stream().flatMap(j -> j.getLessonDay().stream()).map(LessonDay::getLabel).toList())
+                .startTime(lesson.getSchedules().get(0).getStartTime())
+                .endTime(lesson.getSchedules().get(0).getEndTime())
+                .level(lesson.getLevel())
+                .description(lesson.getDescription())
+                .tools(lesson.getTools())
+                .memo(lesson.getMemo())
+                .curriculum(lesson.getCurriculum())
+                .minPeople(lesson.getMinPeople())
+                .maxPeople(lesson.getMaxPeople())
+                .LessonStatus(lesson.getLessonStatus().name())
+                .facilityType(lesson.getFacilitySpace().getFacility().getFacilityType())
+                .facilityRoomType(lesson.getFacilitySpace().getSpaceRoomType())
+                .currentPeople(lesson.getCurrentPeople())
+                .lessonNo(lesson.getId())
+                .build();
+
+
     }
 
     @Override

@@ -12,7 +12,9 @@ import java.time.LocalDate;
 @Builder
 public class AttendanceDTO {
     private Long lessonId;
-    private Long memberId;
+    private Long studentNo;
+    private Long attendanceId;
+    private String name;
     private LocalDate attendanceDate;
     private AttendanceStatus status;
     private String memo;
