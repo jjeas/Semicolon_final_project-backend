@@ -12,8 +12,9 @@ import java.util.List;
 public interface LessonService {
     public void lessonReq(String loginIdFromToken, LessonReqDTO lessonReqDTO);
     public List<LessonReqDTO> getMyLessonList(String loginIdFromToken);
-    PageResponseDTO<LessonListResDTO> getAllLessonList(PageRequestDTO dto);
-    PageResponseDTO<LessonListResDTO> adminGetAllLessonList(PageRequestDTO dto);
-    LessonListResDTO getOneLesson(Long id);
+//    PageResponseDTO<LessonListResDTO> adminGetAllLessonList(PageRequestDTO dto);
+//    LessonListResDTO getOneLesson(Long id);
     public void changeStatus(Long id, LessonStatus status);
+    PageResponseDTO<LessonListResDTO> getAllLessonList(PageRequestDTO dto, String loginId);
+    LessonListResDTO getOneLesson(Long id,String loginId);
 }

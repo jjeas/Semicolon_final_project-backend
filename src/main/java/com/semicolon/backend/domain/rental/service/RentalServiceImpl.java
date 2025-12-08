@@ -56,7 +56,6 @@ public class RentalServiceImpl implements RentalService {
     public List<RentalDTO> getList(String loginIdFromToken) {
         Member member = memberRepository.findByMemberLoginId(loginIdFromToken).orElseThrow(() -> new IllegalArgumentException("회원 정보가 없습니다."));
         List<Rental> rentals = rentalRepository.findByMember(member).stream().toList();
-
         return rentals.stream().map((i) -> RentalDTO.builder()
                 .id(i.getId())
                 .spaceId(i.getSpace().getId())
