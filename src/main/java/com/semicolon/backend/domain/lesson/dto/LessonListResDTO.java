@@ -4,6 +4,7 @@ import com.semicolon.backend.domain.lesson.entity.LessonStatus;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -27,7 +28,20 @@ public class LessonListResDTO {
     private LessonStatus status;
     private boolean isRegistered;
     private String description;
-
+    private Long minPeople;
     private Long maxPeople;
     private Long currentPeople;
+    private LocalDateTime regEndDate;
+
+    public void checkEndDate(){
+        LocalDateTime now = LocalDateTime.now();
+        if(now.isBefore(this.regEndDate)){ //아직 신청마감 시간 아니면 함수 종료
+            return;
+        }
+        if(this.currentPeople<minPeople){ //마감일이 지났는데 최소 인원 미달성시
+            this.status=LessonStatus.CANCELED; //취소로 바꿈
+        }else{
+            this.status=LessonStatus.ACCEPTED; //아니면 자동으로 허용됨으로 바꿈
+        }
+    }
 }
