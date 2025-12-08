@@ -32,5 +32,4 @@ public class PageResponseDTO<E> {
         this.current = pageRequestDTO.getPage();
     }
 
-
 }

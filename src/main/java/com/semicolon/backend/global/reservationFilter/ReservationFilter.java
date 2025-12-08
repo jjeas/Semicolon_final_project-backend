@@ -33,16 +33,13 @@ public class ReservationFilter {
 
     public boolean isAvailable(Long spaceId, LocalDateTime start, LocalDateTime end){
 
-        // 1. 대관이랑 겹쳐?
         if (rentalRepository.isReserved(spaceId, start, end)>0) return false;
 
-        // 2. 일일이용이랑 겹쳐?
         if (dailyUseRepository.isReserved(spaceId, start, end)>0) return false;
 
         LessonDay lessonDayEnum = LessonDay.fromDayOfWeek(start.getDayOfWeek());
         String lessonDay = lessonDayEnum.name();
 
-        // 3. 강의랑 겹쳐? (날짜/요일/시간 분해해서 전달)
         if (lessonScheduleRepository.isLessonScheduled(
                 spaceId,
                 start.toLocalDate(),
