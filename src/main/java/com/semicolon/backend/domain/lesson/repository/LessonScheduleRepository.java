@@ -19,7 +19,8 @@ public interface LessonScheduleRepository extends JpaRepository<LessonSchedule, 
             "AND :targetDate BETWEEN l.lesson_start_date AND l.lesson_end_date " +
             "AND lsd.lesson_day = :lessonDay " +
             "AND ls.lesson_Schedule_start_Time < :endTime " +
-            "AND ls.lesson_Schedule_end_Time > :startTime",
+            "AND ls.lesson_Schedule_end_Time > :startTime " +
+            "AND l.lesson_status <> 'REJECTED'",
             nativeQuery = true)
     Long isLessonScheduled(@Param("spaceId") Long spaceId,
                            @Param("targetDate") LocalDate targetDate,

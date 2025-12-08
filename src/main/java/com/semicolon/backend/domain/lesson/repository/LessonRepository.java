@@ -2,6 +2,7 @@ package com.semicolon.backend.domain.lesson.repository;
 
 import com.semicolon.backend.domain.lesson.entity.Lesson;
 import com.semicolon.backend.domain.lesson.entity.LessonDay;
+import com.semicolon.backend.domain.lesson.entity.LessonStatus;
 import com.semicolon.backend.domain.member.entity.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,4 +40,16 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
 
     @Query("select f.facilityName, count(r) from Registration r join r.lesson l join l.facilitySpace fs join fs.facility f group by f.facilityName")
     List<Object[]> findPopularityStats();
+
+    @Query("select l from Lesson l join l.partnerId p where (:status is null or l.lessonStatus = :status) " +
+            "and (:titleKeyword is null or LOWER(l.title) like LOWER(CONCAT('%', :titleKeyword, '%'))) " +
+            "and (:partnerKeyword is null or LOWER(p.memberName) like LOWER(CONCAT('%', :partnerKeyword, '%'))) " +
+            "order by case l.lessonStatus when 'PENDING' then 0 when 'ACCEPTED' then 1 when 'REJECTED' then 2 else 3 end, l.startDate asc")
+    Page<Lesson> searchAdminLessonWithSort(
+            @Param("status") LessonStatus status,
+            @Param("titleKeyword") String titleKeyword,
+            @Param("partnerKeyword") String partnerKeyword,
+            Pageable pageable
+    );
+
 }

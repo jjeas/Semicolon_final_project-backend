@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class RentalDTO {
     private Long id;
     private Long spaceId;
+    private String facilityName;
     private String spaceName;
 
     private LocalDateTime startTime;
