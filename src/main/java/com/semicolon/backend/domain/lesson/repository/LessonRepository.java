@@ -51,5 +51,20 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
             @Param("partnerKeyword") String partnerKeyword,
             Pageable pageable
     );
+    @Query("""
+  SELECT l FROM Lesson l 
+  WHERE l.partnerId.memberLoginId = :loginId 
+    AND l.title LIKE %:title%
+""")
+    List<Lesson> searchByTitle(@Param("loginId") String loginId,
+                               @Param("title") String title);
+
+    @Query("""
+    SELECT l FROM Lesson l 
+    WHERE l.partnerId.memberLoginId = :loginId 
+    AND l.id = :lessonId
+""")
+    Lesson findLessonByPartnerAndId(@Param("loginId") String loginId,
+                                    @Param("lessonId") Long lessonId);
 
 }
