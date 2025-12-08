@@ -19,7 +19,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GalleryController {
     private final GalleryService galleryService;
-//    private final FileUploadService fileUploadService;
 
     @GetMapping("")
     public ResponseEntity<PageResponseDTO<GalleryDTO>> getList(PageRequestDTO dto){
