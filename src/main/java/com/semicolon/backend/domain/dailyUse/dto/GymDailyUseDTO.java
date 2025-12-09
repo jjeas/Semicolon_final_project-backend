@@ -10,5 +10,7 @@ import java.time.LocalDate;
 @Setter
 @Builder
 public class GymDailyUseDTO {
+    private Long id;
     private LocalDate date;
+    private String price;
 }

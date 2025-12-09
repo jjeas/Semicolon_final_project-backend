@@ -6,10 +6,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -23,6 +22,17 @@ public class DailyUseController {
     public ResponseEntity<String> register(@AuthenticationPrincipal String loginIdFromToken, @RequestBody DailyUseDTO dto){
         service.register(loginIdFromToken,dto);
         return ResponseEntity.ok("일일이용예약 성공");
+    }
+
+    @GetMapping("")
+    public ResponseEntity<List<DailyUseDTO>> getList(@AuthenticationPrincipal String loginIdFromToken){
+        return ResponseEntity.ok(service.getList(loginIdFromToken));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteOne(@PathVariable("id") Long id){
+        service.delete(id);
+        return ResponseEntity.ok("삭제 성공");
     }
 
 }

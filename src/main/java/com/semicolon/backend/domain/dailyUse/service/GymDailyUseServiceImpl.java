@@ -1,5 +1,6 @@
 package com.semicolon.backend.domain.dailyUse.service;
 
+import com.semicolon.backend.domain.dailyUse.dto.DailyUseDTO;
 import com.semicolon.backend.domain.dailyUse.dto.GymDailyUseDTO;
 import com.semicolon.backend.domain.dailyUse.entity.GymDailyUse;
 import com.semicolon.backend.domain.dailyUse.entity.GymDailyUseStatus;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -39,10 +41,31 @@ public class GymDailyUseServiceImpl implements GymDailyUseService{
         GymDailyUse gymDailyUse = GymDailyUse.builder()
                 .date(dto.getDate())
                 .createdAt(LocalDateTime.now())
+                .price(dto.getPrice())
                 .status(GymDailyUseStatus.RESERVED)
                 .member(member)
                 .build();
 
         return gymDailyUseRepository.save(gymDailyUse);
+    }
+
+    @Override
+    public List<GymDailyUseDTO> getList(String loginIdFromToken) {
+        Member member = memberRepository.findByMemberLoginId(loginIdFromToken)
+                .orElseThrow(()->new IllegalArgumentException("존재하지 않는 회원입니다."));
+        return gymDailyUseRepository.findByMemberMemberId(member.getMemberId()).stream()
+                .map(i-> GymDailyUseDTO.builder()
+                        .id(i.getId())
+                        .date(i.getDate())
+                        .price(i.getPrice())
+                        .build()).toList();
+    }
+
+    @Override
+    public void delete(Long id) {
+        GymDailyUse gym = gymDailyUseRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("예약이 존재하지 않습니다."));
+
+        gymDailyUseRepository.delete(gym);
     }
 }
