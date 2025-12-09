@@ -50,6 +50,7 @@ public class SecurityConfig {
                 //회원가입과 로그인에 대한 요청은 필터체인에서 제외한다(permitAll())
                 .requestMatchers(HttpMethod.POST,"/api/community/notice/{id}/view").permitAll()
                 .requestMatchers(HttpMethod.POST,"/api/community/gallery/{id}/view").permitAll()
+                .requestMatchers("/ws-chat/**").permitAll()
                 //클릭시 조회수 1 증가 로직 허용
                 .requestMatchers(HttpMethod.GET,"/api/community/**").permitAll()
                 //커뮤니티 GET 로직 모두 허용
