@@ -221,7 +221,9 @@ public class LessonServiceImpl implements LessonService{
                 lessonDay -> lessonDay.getLabel()).toList())
                         .isRegistered(finalList.contains(lesson.getId()))
                         .maxPeople(lesson.getMaxPeople())
+                        .minPeople(lesson.getMinPeople())
                         .currentPeople(current)
+//                        .regEndDate(lesson.getEndDate())
                         .build();
         })
                         .toList();

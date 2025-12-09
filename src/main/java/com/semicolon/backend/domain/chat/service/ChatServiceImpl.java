@@ -1,6 +1,7 @@
 package com.semicolon.backend.domain.chat.service;
 
 import com.semicolon.backend.domain.chat.dto.ChatDTO;
+import com.semicolon.backend.domain.chat.dto.ChatResDTO;
 import com.semicolon.backend.domain.chat.entity.Chat;
 import com.semicolon.backend.domain.chat.repository.ChatRepository;
 import com.semicolon.backend.domain.member.entity.Member;
@@ -26,7 +27,7 @@ public class ChatServiceImpl implements ChatService{
         Chat chat = Chat.builder()
                 .sender(sender)
                 .message(dto.getMessage())
-                .isRead(false)
+                .isRead(sender.getMemberRole().name().equals("ROLE_ADMIN"))
                 .roomId(dto.getRoomId())
                 .sendAt(LocalDateTime.now())
                 .build();
@@ -34,8 +35,19 @@ public class ChatServiceImpl implements ChatService{
     }
 
     @Override
-    public List<Long> getRoomList() {
-        return chatRepository.findRoomList();
+    public List<ChatResDTO> getRoomList() {
+        List<Chat> chats = chatRepository.findRoomList();
+        return chats.stream().map(chat->{
+            boolean isAdmin = chat.getSender().getMemberRole().name().equals("ROLE_ADMIN");
+            ChatResDTO dto = ChatResDTO.builder()
+                .roomId(chat.getRoomId())
+                .isReplied(isAdmin)
+                .lastMessage(chat.getMessage())
+                .lastSendAt(chat.getSendAt())
+                .memberName(chat.getSender().getMemberLoginId())
+                .build();
+            return dto;
+        }).toList();
     }
 
     @Override
