@@ -140,6 +140,8 @@ public class LessonServiceImpl implements LessonService{
                         .LessonStatus(i.getLessonStatus().name())
                         .facilityType(i.getFacilitySpace().getFacility().getFacilityType())
                         .facilityRoomType(i.getFacilitySpace().getSpaceRoomType())
+                        .currentPeople(i.getCurrentPeople())
+                        .lessonNo(i.getId())
                         .build()).toList();
     }
 
@@ -230,53 +232,87 @@ public class LessonServiceImpl implements LessonService{
                 .build();
     }
 
-//    @Override
-//    public PageResponseDTO<LessonListResDTO> adminGetAllLessonList(PageRequestDTO dto) {
-//        Sort sort = Sort.by("id").descending();
-//        if(dto.getSort()!=null){
-//            switch (dto.getSort()){
-//                case "LATEST" : sort = Sort.by("startDate").ascending();
-//                    break;
-//                case "FASTEST" : sort = Sort.by("startDate").descending();
-//            }
-//        }
-//        Pageable pageable = PageRequest.of(dto.getPage()-1, dto.getSize(), sort);
-//        String keyword = dto.getKeyword();
-//        String type = dto.getType();
-//        Page<Lesson> result;
-//        if(keyword==null || keyword.isEmpty()){
-//            result=lessonRepository.findAll(pageable);
-//        }else {
-//            if("t".equals(type)){
-//                result=lessonRepository.findByTitleContaining(keyword,pageable);
-//            } else if ("c".equals(type)) {
-//                result=lessonRepository.findByPartnerId_memberNameContaining(keyword, pageable);
-//            }else{
-//                result=lessonRepository.findByDescriptionContainingOrTitleContaining(keyword,keyword,pageable);
-//            }
-//        }
-//        List<LessonListResDTO> dtoList=result.getContent().stream().map(lesson -> LessonListResDTO.builder()
-//                        .lessonId(lesson.getId())
-//                        .status(lesson.getLessonStatus())
-//                        .level(lesson.getLevel())
-//                        .category(lesson.getFacilitySpace().getFacility().getFacilityName())
-//                        .startDate(lesson.getStartDate())
-//                        .endDate(lesson.getEndDate())
-//                        .title(lesson.getTitle())
-//                        .partnerName(lesson.getPartnerId().getMemberName())
-//                        .facilityType(lesson.getFacilitySpace().getSpaceName())
-//                        .startTime(lesson.getSchedules().get(0).getStartTime())
-//                        .endTime(lesson.getSchedules().get(0).getEndTime())
-//                        .days(lesson.getSchedules().get(0).getLessonDay().stream().map(
-//                                lessonDay -> lessonDay.getLabel()).toList())
-//                        .build())
-//                .toList();
-//        return PageResponseDTO.<LessonListResDTO>withAll()
-//                .dtoList(dtoList)
-//                .pageRequestDTO(dto)
-//                .totalCnt(result.getTotalElements())
-//                .build();
-//    }
+    @Override
+    public PageResponseDTO<LessonListResDTO> adminGetAllLessonList(PageRequestDTO dto) {
+
+        Pageable pageable = PageRequest.of(dto.getPage() - 1, dto.getSize());
+
+        String keyword = dto.getKeyword();
+        String type = dto.getType();
+        String role = dto.getRole();
+
+        LessonStatus status = null;
+        if (role != null && !role.isEmpty()) {
+            status = LessonStatus.valueOf(role);
+        }
+
+        String titleKeyword = null;
+        String partnerKeyword = null;
+
+        if (keyword != null && !keyword.isEmpty()) {
+            if ("lessonName".equals(type)) {
+                titleKeyword = keyword;
+            } else if ("name".equals(type)) {
+                partnerKeyword = keyword;
+            } else {
+                titleKeyword = keyword;
+                partnerKeyword = keyword;
+            }
+        }
+
+        Page<Lesson> result = lessonRepository.searchAdminLessonWithSort(
+                status,
+                titleKeyword,
+                partnerKeyword,
+                pageable
+        );
+
+        List<LessonListResDTO> dtoList = result.getContent().stream().map(lesson ->
+                LessonListResDTO.builder()
+                        .lessonId(lesson.getId())
+                        .status(lesson.getLessonStatus())
+                        .level(lesson.getLevel())
+                        .category(lesson.getFacilitySpace().getFacility().getFacilityName())
+                        .startDate(lesson.getStartDate())
+                        .endDate(lesson.getEndDate())
+                        .title(lesson.getTitle())
+                        .partnerName(lesson.getPartnerId().getMemberName())
+                        .facilityType(lesson.getFacilitySpace().getSpaceName())
+                        .startTime(lesson.getSchedules().get(0).getStartTime())
+                        .endTime(lesson.getSchedules().get(0).getEndTime())
+                        .days(lesson.getSchedules().get(0).getLessonDay()
+                                .stream()
+                                .map(day -> day.getLabel()).toList())
+                        .build()
+        ).toList();
+
+        return PageResponseDTO.<LessonListResDTO>withAll()
+                .dtoList(dtoList)
+                .pageRequestDTO(dto)
+                .totalCnt(result.getTotalElements())
+                .build();
+    }
+
+
+    @Override
+    public LessonListResDTO adminGetOneLesson(Long id) {
+        Lesson lesson =lessonRepository.findById(id).orElseThrow(()->new IllegalArgumentException("해당 id에 일치하는 강의가 없습니다."));
+        return LessonListResDTO.builder()
+                .lessonId(lesson.getId())
+                .status(lesson.getLessonStatus())
+                .level(lesson.getLevel())
+                .category(lesson.getFacilitySpace().getFacility().getFacilityName())
+                .startDate(lesson.getStartDate())
+                .endDate(lesson.getEndDate())
+                .title(lesson.getTitle())
+                .partnerName(lesson.getPartnerId().getMemberName())
+                .facilityType(lesson.getFacilitySpace().getSpaceName())
+                .startTime(lesson.getSchedules().get(0).getStartTime())
+                .endTime(lesson.getSchedules().get(0).getEndTime())
+                .days(lesson.getSchedules().get(0).getLessonDay().stream().map(
+                        lessonDay -> lessonDay.getLabel()).toList())
+                .build();
+    }
 
     @Override
     public LessonListResDTO getOneLesson(Long id, String loginId) {
@@ -306,6 +342,75 @@ public class LessonServiceImpl implements LessonService{
                 .maxPeople(lesson.getMaxPeople())
                 .currentPeople(current)
                 .build();
+    }
+
+    @Override
+    public List<LessonReqDTO> searchLessonsByTitle(String loginIdFromToken, String title) {
+        Member member = memberRepository.findByMemberLoginId(loginIdFromToken)
+                .orElseThrow(() -> new NoSuchElementException("해당 ID에 해당되는 회원이 없습니다."));
+
+        List<Lesson> lesson = lessonRepository.searchByTitle(loginIdFromToken, title);
+
+        return lesson.stream()
+                .map((i) -> LessonReqDTO.builder()
+                        .partnerId(member.getMemberId())
+                        .partnerName(member.getMemberName())
+                        .title(i.getTitle())
+                        .startDate(i.getStartDate())
+                        .endDate(i.getEndDate())
+                        .days(i.getSchedules().stream().flatMap(j -> j.getLessonDay().stream()).map(LessonDay::getLabel).toList())
+                        .startTime(i.getSchedules().get(0).getStartTime())
+                        .endTime(i.getSchedules().get(0).getEndTime())
+                        .level(i.getLevel())
+                        .description(i.getDescription())
+                        .tools(i.getTools())
+                        .memo(i.getMemo())
+                        .curriculum(i.getCurriculum())
+                        .minPeople(i.getMinPeople())
+                        .maxPeople(i.getMaxPeople())
+                        .LessonStatus(i.getLessonStatus().name())
+                        .facilityType(i.getFacilitySpace().getFacility().getFacilityType())
+                        .facilityRoomType(i.getFacilitySpace().getSpaceRoomType())
+                        .currentPeople(i.getCurrentPeople())
+                        .lessonNo(i.getId())
+                        .build()).toList();
+    }
+
+    @Override
+    public LessonReqDTO getMyOneLesson(String loginIdFromToken, Long lessonId) {
+        Member member = memberRepository.findByMemberLoginId(loginIdFromToken)
+                .orElseThrow(() -> new NoSuchElementException("해당 ID에 해당되는 회원이 없습니다."));
+
+        Lesson lesson = lessonRepository.findLessonByPartnerAndId(loginIdFromToken, lessonId);
+
+        if (lesson == null) {
+            throw new NoSuchElementException("없는 강좌입니다.");
+        }
+
+        return LessonReqDTO.builder()
+                .partnerId(lesson.getPartnerId().getMemberId())
+                .partnerName(lesson.getPartnerId().getMemberName())
+                .title(lesson.getTitle())
+                .startDate(lesson.getStartDate())
+                .endDate(lesson.getEndDate())
+                .days(lesson.getSchedules().stream().flatMap(j -> j.getLessonDay().stream()).map(LessonDay::getLabel).toList())
+                .startTime(lesson.getSchedules().get(0).getStartTime())
+                .endTime(lesson.getSchedules().get(0).getEndTime())
+                .level(lesson.getLevel())
+                .description(lesson.getDescription())
+                .tools(lesson.getTools())
+                .memo(lesson.getMemo())
+                .curriculum(lesson.getCurriculum())
+                .minPeople(lesson.getMinPeople())
+                .maxPeople(lesson.getMaxPeople())
+                .LessonStatus(lesson.getLessonStatus().name())
+                .facilityType(lesson.getFacilitySpace().getFacility().getFacilityType())
+                .facilityRoomType(lesson.getFacilitySpace().getSpaceRoomType())
+                .currentPeople(lesson.getCurrentPeople())
+                .lessonNo(lesson.getId())
+                .build();
+
+
     }
 
     @Override

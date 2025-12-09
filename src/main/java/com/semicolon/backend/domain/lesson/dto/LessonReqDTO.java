@@ -19,6 +19,7 @@ import java.util.List;
 @ToString
 public class LessonReqDTO {
     private long partnerId;
+    private long lessonNo;
     private String partnerName;
     private String title;
     private LocalDate startDate;
@@ -36,5 +37,6 @@ public class LessonReqDTO {
     private long maxPeople;
     private FacilityType facilityType;
     private SpaceRoomType facilityRoomType;
+    private long currentPeople;
 
 }

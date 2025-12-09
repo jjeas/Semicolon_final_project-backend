@@ -2,19 +2,30 @@ package com.semicolon.backend.domain.rental.service;
 
 import com.semicolon.backend.domain.facility.entity.FacilitySpace;
 import com.semicolon.backend.domain.facility.repository.FacilitySpaceRepository;
+import com.semicolon.backend.domain.lesson.entity.LessonStatus;
 import com.semicolon.backend.domain.member.entity.Member;
 import com.semicolon.backend.domain.member.repository.MemberRepository;
 import com.semicolon.backend.domain.rental.dto.RentalDTO;
 import com.semicolon.backend.domain.rental.entity.Rental;
 import com.semicolon.backend.domain.rental.entity.RentalStatus;
 import com.semicolon.backend.domain.rental.repository.RentalRepository;
+import com.semicolon.backend.global.pageable.PageRequestDTO;
+import com.semicolon.backend.global.pageable.PageResponseDTO;
 import com.semicolon.backend.global.reservationFilter.ReservationFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +36,7 @@ public class RentalServiceImpl implements RentalService {
     private final MemberRepository memberRepository;
     private final FacilitySpaceRepository facilitySpaceRepository;
     private final RentalRepository rentalRepository;
+    private final ModelMapper mapper;
 
     @Override
     public Rental register(String loginIdFromToken, RentalDTO rentalDTO) {
@@ -82,4 +94,56 @@ public class RentalServiceImpl implements RentalService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 예약 정보가 없습니다."));
         rentalRepository.delete(rental);
     }
+
+    @Override
+    public PageResponseDTO<RentalDTO> getAllList(PageRequestDTO dto) {
+
+        Pageable pageable = PageRequest.of(dto.getPage() - 1, dto.getSize());
+
+        Page<Rental> result = rentalRepository.searchAll(
+                dto.getStatus() == null || dto.getStatus().isEmpty() ? null : RentalStatus.valueOf(dto.getStatus().toUpperCase()),
+                dto.getKeyword() == null || dto.getKeyword().trim().isEmpty() ? null : dto.getKeyword().trim(),
+                dto.getStartDate() != null ? dto.getStartDate().atStartOfDay() : null,
+                dto.getEndDate() != null ? dto.getEndDate().atTime(23, 59, 59) : null,
+                pageable
+        );
+
+        List<RentalDTO> dtoList = result.getContent().stream()
+                .map(r -> RentalDTO.builder()
+                        .id(r.getId())
+                        .spaceId(r.getSpace().getId())
+                        .facilityName(r.getSpace().getFacility().getFacilityName())
+                        .spaceName(r.getSpace().getSpaceName())
+                        .startTime(r.getStartTime())
+                        .endTime(r.getEndTime())
+                        .price(r.getPrice())
+                        .name(r.getName())
+                        .phoneNumber(r.getPhoneNumber())
+                        .memo(r.getMemo())
+                        .status(r.getStatus().name())
+                        .build())
+                .toList();
+
+        return PageResponseDTO.<RentalDTO>withAll()
+                .dtoList(dtoList)
+                .pageRequestDTO(dto)
+                .totalCnt(result.getTotalElements())
+                .build();
+    }
+
+    @Override
+    public RentalDTO getOne(Long id) {
+        Rental rental = rentalRepository.findById(id).orElseThrow(()->new IllegalArgumentException("해당 대관 내역이 존재하지 않습니다."));
+        RentalDTO dto = mapper.map(rental, RentalDTO.class);
+        dto.setFacilityName(rental.getSpace().getFacility().getFacilityName());
+        return dto;
+    }
+
+    @Override
+    public void statusChange(Long id, RentalStatus status) {
+        Rental rental = rentalRepository.findById(id).orElseThrow(()->new IllegalArgumentException("해당 대관 내역이 존재하지 않습니다."));
+        rental.setStatus(status);
+        rentalRepository.save(rental);
+    }
+
 }
