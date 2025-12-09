@@ -2,6 +2,7 @@ package com.semicolon.backend.domain.dailyUse.service;
 
 import com.semicolon.backend.domain.dailyUse.dto.DailyUseDTO;
 import com.semicolon.backend.domain.dailyUse.entity.DailyUse;
+import com.semicolon.backend.domain.dailyUse.entity.GymDailyUse;
 import com.semicolon.backend.domain.dailyUse.repository.DailyUseRepository;
 import com.semicolon.backend.domain.facility.entity.FacilitySpace;
 import com.semicolon.backend.domain.facility.repository.FacilitySpaceRepository;
@@ -11,6 +12,8 @@ import com.semicolon.backend.global.reservationFilter.ReservationFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -41,9 +44,32 @@ public class DailyUseServiceImpl implements DailyUseService{
                 .member(member)
                 .startTime(dto.getStartTime())
                 .endTime(dto.getEndTime())
+                .price(dto.getPrice())
                 .build();
 
         return dailyUseRepository.save(dailyUse);
 
+    }
+
+    @Override
+    public List<DailyUseDTO> getList(String loginIdFromToken) {
+        Member member = memberRepository.findByMemberLoginId(loginIdFromToken)
+                .orElseThrow(()->new IllegalArgumentException("존재하지 않는 회원입니다."));
+        return dailyUseRepository.findByMemberMemberId(member.getMemberId()).stream()
+                .map(i->DailyUseDTO.builder()
+                        .id(i.getId())
+                        .facilityName(i.getSpace().getFacility().getFacilityName())
+                        .spaceName(i.getSpace().getSpaceName())
+                        .startTime(i.getStartTime())
+                        .endTime(i.getEndTime())
+                        .price(i.getPrice())
+                        .build()).toList();
+    }
+
+    @Override
+    public void delete(Long id) {
+        DailyUse gym = dailyUseRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("예약이 존재하지 않습니다."));
+        dailyUseRepository.delete(gym);
     }
 }
