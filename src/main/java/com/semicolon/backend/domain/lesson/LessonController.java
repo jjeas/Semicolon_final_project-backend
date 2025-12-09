@@ -39,10 +39,10 @@ public class LessonController {
         return ResponseEntity.ok(lessonService.getAllLessonList(dto,loginId));
     }
 
-//    @GetMapping("/admin")
-//    public ResponseEntity<PageResponseDTO<LessonListResDTO>> adminGetList(PageRequestDTO dto){
-//        return ResponseEntity.ok(lessonService.adminGetAllLessonList(dto));
-//    }
+    @GetMapping("/admin")
+    public ResponseEntity<PageResponseDTO<LessonListResDTO>> adminGetList(PageRequestDTO dto){
+        return ResponseEntity.ok(lessonService.adminGetAllLessonList(dto));
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<LessonListResDTO> getOne(@PathVariable("id") Long id, @AuthenticationPrincipal String loginId){
@@ -53,5 +53,21 @@ public class LessonController {
     public ResponseEntity<String> changeStatus(@PathVariable("lessonId") Long lessonId, @RequestBody LessonStatus lessonStatus){
         lessonService.changeStatus(lessonId,lessonStatus);
         return ResponseEntity.ok("성공");
+    }
+
+    @GetMapping("/admin/{id}")
+    public ResponseEntity<LessonListResDTO> getOne(@PathVariable("id") Long id){
+        return ResponseEntity.ok(lessonService.adminGetOneLesson(id));
+      
+    @GetMapping("/myLessons/search")
+    public ResponseEntity<List<LessonReqDTO>> searchLessons(@AuthenticationPrincipal String loginIdFromToken, @RequestParam String title){
+        List<LessonReqDTO> dto = lessonService.searchLessonsByTitle(loginIdFromToken, title);
+        return ResponseEntity.ok(dto);
+    }
+
+    @GetMapping("/myLessons/{lessonNo}")
+    public ResponseEntity<LessonReqDTO> getMyOneLesson(@AuthenticationPrincipal String loginIdFromToken, @PathVariable("lessonNo") Long lessonId) {
+        LessonReqDTO dto = lessonService.getMyOneLesson(loginIdFromToken, lessonId);
+        return ResponseEntity.ok(dto);
     }
 }

@@ -62,6 +62,9 @@ public class Lesson {
     @Builder.Default
     private List<LessonSchedule> schedules = new ArrayList<>();
 
+    @Column(name = "lesson_current_people")
+    private long currentPeople;
+
     public void toList (LessonSchedule lessonSchedule){
         schedules.add(lessonSchedule);
         lessonSchedule.setLesson(this);

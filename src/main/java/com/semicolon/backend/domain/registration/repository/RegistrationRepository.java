@@ -17,9 +17,12 @@ public interface RegistrationRepository extends JpaRepository<Registration,Long>
     List<Registration> findByMemberId(@Param("memberId") Long memberId);
 
 
-    @Query("select r.lesson.id from Registration r where r.member.memberLoginId=:loginId")
+    @Query("select r.lesson.id from Registration r where r.member.memberLoginId=:loginId and r.status=com.semicolon.backend.domain.registration.entity.RegistrationStatus.APPLIED")
     List<Long> findRegisteredLessonId(@Param("loginId") String loginId);
 
     long countByLesson_IdAndStatus(Long lessonId, RegistrationStatus status);
 
+    @Query("select r from Registration r WHERE r.lesson.id = :lessonId AND r.lesson.partnerId.id = :partnerId")
+    List<Registration> findAllByLessonId(@Param("partnerId") Long partnerId,
+            @Param("lessonId") Long lessonId);
 }
