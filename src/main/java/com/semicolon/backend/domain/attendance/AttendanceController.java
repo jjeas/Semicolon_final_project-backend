@@ -22,8 +22,7 @@ public class AttendanceController {
 
     @GetMapping("/getMemberList/{lessonNo}")
     public ResponseEntity<List<AttendanceDTO>> getLessonMember(@AuthenticationPrincipal String loginIdFromToken, @PathVariable("lessonNo") Long lessonNo,
-                                                               @RequestParam LocalDate date){
-        log.info("제발요=>{}{}", lessonNo, date);
+                                                               @RequestParam LocalDate date){ // 레슨 번호와 출석체크에 필요한 특정 날짜를 받음
         return ResponseEntity.ok(attendanceService.getList(loginIdFromToken, lessonNo, date));
     }
 
