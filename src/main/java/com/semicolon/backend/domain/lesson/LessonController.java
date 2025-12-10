@@ -56,7 +56,7 @@ public class LessonController {
     }
 
     @GetMapping("/admin/{id}")
-    public ResponseEntity<LessonListResDTO> getOne(@PathVariable("id") Long id){
+    public ResponseEntity<LessonListResDTO> getOne(@PathVariable("id") Long id) {
         return ResponseEntity.ok(lessonService.adminGetOneLesson(id));
     }
       

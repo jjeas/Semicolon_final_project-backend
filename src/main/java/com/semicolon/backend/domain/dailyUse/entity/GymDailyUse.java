@@ -24,6 +24,9 @@ public class GymDailyUse {
     @Column(name = "gym_date")
     private LocalDate date;
 
+    @Column(name = "price", nullable = false)
+    private String price;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 

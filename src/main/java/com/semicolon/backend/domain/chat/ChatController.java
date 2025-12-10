@@ -1,6 +1,7 @@
 package com.semicolon.backend.domain.chat;
 
 import com.semicolon.backend.domain.chat.dto.ChatDTO;
+import com.semicolon.backend.domain.chat.dto.ChatResDTO;
 import com.semicolon.backend.domain.chat.repository.ChatRepository;
 import com.semicolon.backend.domain.chat.service.ChatService;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class ChatController {
     }
 
     @GetMapping("/chat/list/admin")
-    public List<Long> getChatList(){
+    public List<ChatResDTO> getChatList(){
         log.info("채팅 리스트 컨트롤러 접속");
         return service.getRoomList();
     }

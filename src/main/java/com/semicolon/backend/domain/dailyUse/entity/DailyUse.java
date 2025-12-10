@@ -30,6 +30,9 @@ public class DailyUse {
     @Column(name = "end_time")
     private LocalDateTime endTime;
 
+    @Column(name = "price", nullable = false)
+    private String price;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
