@@ -9,7 +9,10 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
-    @Query("SELECT a FROM Attendance a WHERE a.lesson.id = :lessonId AND a.member.id = :memberId AND a.attendanceDate = :attendanceDate")
+    @Query("SELECT a FROM Attendance a " +
+            "WHERE a.lesson.id = :lessonId " +
+            "AND a.member.memberId = :memberId " +
+            "AND a.attendanceDate = :attendanceDate")
     Optional<Attendance> findAttendance(
             @Param("lessonId") Long lessonId,
             @Param("memberId") Long memberId,

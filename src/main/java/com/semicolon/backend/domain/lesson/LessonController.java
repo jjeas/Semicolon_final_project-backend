@@ -58,6 +58,7 @@ public class LessonController {
     @GetMapping("/admin/{id}")
     public ResponseEntity<LessonListResDTO> getOne(@PathVariable("id") Long id){
         return ResponseEntity.ok(lessonService.adminGetOneLesson(id));
+    }
       
     @GetMapping("/myLessons/search")
     public ResponseEntity<List<LessonReqDTO>> searchLessons(@AuthenticationPrincipal String loginIdFromToken, @RequestParam String title){

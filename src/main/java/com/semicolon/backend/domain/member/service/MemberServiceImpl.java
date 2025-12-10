@@ -30,23 +30,16 @@ public class MemberServiceImpl implements MemberService {
     private MemberRepository repository;
     @Autowired
     private ModelMapper mapper;
-
-    // 3. (추가) 비밀번호 암호화를 위해 PasswordEncoder 주입
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // 4. (★핵심 수정★) "수정"을 위한 modify 메서드
     @Override
-    @Transactional // 5. (추가) 이 메서드가 끝나면 JPA가 "자동"으로 변경을 감지하고 UPDATE
+    @Transactional
     public void modify(String loginIdFromToken, MemberDTO requestDTO) {
 
-        // 6. (수정) "loginId"로 "진짜" Member 엔티티를 DB에서 조회합니다.
         Member member = repository.findByMemberLoginId(loginIdFromToken)
                 .orElseThrow(() -> new NoSuchElementException("해당 로그인 ID의 회원이 없습니다."));
 
-        // 7. (수정) Builder가 아니라 "Setter"로 엔티티의 값을 "직접" 변경합니다.
-        //    (Member 엔티티에 @Setter가 있거나, setXxx() 메서드들이 있어야 합니다.)
-        //    (null이 아닐 때만 변경하도록 방어 로직 추가)
         if (requestDTO.getMemberEmail() != null) {
             member.setMemberEmail(requestDTO.getMemberEmail());
         }
@@ -59,17 +52,6 @@ public class MemberServiceImpl implements MemberService {
         if (requestDTO.getMemberName() != null) {
             member.setMemberName(requestDTO.getMemberName());
         }
-
-        // 8. (주의!) 비밀번호는 "항상" 암호화해서 저장해야 합니다.
-        if (requestDTO.getMemberPassword() != null && !requestDTO.getMemberPassword().isEmpty()) {
-            member.setMemberPassword(passwordEncoder.encode(requestDTO.getMemberPassword()));
-        }
-
-        // 9. (주의!) ID, LoginId, Role, JoinDate는 "수정"하면 안 되므로
-        //    여기 Setter 로직에 없습니다. (보안)
-
-        // 10. @Transactional이 붙어있으므로,
-        //     메서드가 끝나면 "변경된" member 객체를 JPA가 알아서 DB에 UPDATE 쿼리를 날려줍니다.
 
     }
 
@@ -93,18 +75,19 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public void changePassword(String loginIdFromToken, PasswordChangeDTO passwordChangeDTO) {
-        Long memberId = repository.findByMemberLoginId(loginIdFromToken).orElseThrow().getMemberId();
-        Member member = repository.findById(memberId).orElseThrow(() -> new NoSuchElementException("해당 ID에 해당되는 회원이 없습니다."));
+        Member member = repository.findByMemberLoginId(loginIdFromToken)
+                .orElseThrow(() -> new NoSuchElementException("해당 로그인 ID의 회원이 없습니다."));
 
-        if (!passwordChangeDTO.getMemberCurrentPassword().equals(member.getMemberPassword())) {
-            throw new NoSuchElementException("기존 비밀번호가 일치하지 않습니다");
+        if (!passwordEncoder.matches(passwordChangeDTO.getMemberCurrentPassword(), member.getMemberPassword())) {
+            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
         }
 
         if (!passwordChangeDTO.getMemberPassword().equals(passwordChangeDTO.getMemberPasswordCheck())) {
-            throw new IllegalArgumentException("새 비밀번호 확인이 일치하지 않습니다");
+            throw new IllegalArgumentException("새 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
         }
 
-        member.setMemberPassword(passwordChangeDTO.getMemberPassword());
+        member.setMemberPassword(passwordEncoder.encode(passwordChangeDTO.getMemberPassword()));
+
         repository.save(member);
     }
 
