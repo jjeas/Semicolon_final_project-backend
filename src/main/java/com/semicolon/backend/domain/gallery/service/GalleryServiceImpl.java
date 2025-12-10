@@ -48,8 +48,8 @@ public class GalleryServiceImpl implements GalleryService {
 
     @Override
     public PageResponseDTO<GalleryDTO> getList(PageRequestDTO pageRequestDTO) {
-        Pageable pageable = PageRequest.of(pageRequestDTO.getPage()-1,pageRequestDTO.getSize()
-                , Sort.by("galleryId").descending()
+        Pageable pageable = PageRequest.of(pageRequestDTO.getPage()-1,pageRequestDTO.getSize()-1
+                , Sort.by("createdAt").descending()
         );
         String keyword = pageRequestDTO.getKeyword();
         String type = pageRequestDTO.getType();
