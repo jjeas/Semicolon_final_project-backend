@@ -33,7 +33,12 @@ public class GuideServiceImpl implements GuideService{
                 .orElse(null);
 
         if (guide == null) {
-            return new GuideDTO();
+            return GuideDTO.builder()
+                    .category(category)
+                    .html(null)
+                    .updatedDate(LocalDateTime.now())
+                    .uploadFiles(null)
+                    .build();
         }
 
         List<GuideUploadDTO> forUploadFiles = guide.getUploads().stream().map(i->

@@ -32,7 +32,6 @@ public class MemberController {
 
     @PutMapping("/memberEdit")
     public ResponseEntity<String> modifyMember (@AuthenticationPrincipal String loginIdFromToken, @RequestBody MemberDTO requestDTO) {
-        MemberDTO dtoBefore = service.getOneByLoginId(loginIdFromToken);
         service.modify(loginIdFromToken, requestDTO);
         return ResponseEntity.ok("Member 수정 완료");
     }

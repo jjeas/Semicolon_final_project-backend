@@ -60,8 +60,8 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
                                @Param("title") String title);
 
     @Query("""
-    SELECT l FROM Lesson l 
-    WHERE l.partnerId.memberLoginId = :loginId 
+    SELECT l FROM Lesson l
+    WHERE l.partnerId.memberLoginId = :loginId
     AND l.id = :lessonId
 """)
     Lesson findLessonByPartnerAndId(@Param("loginId") String loginId,
