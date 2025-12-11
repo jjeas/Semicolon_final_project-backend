@@ -5,8 +5,10 @@ import com.semicolon.backend.domain.chat.dto.ChatResDTO;
 import com.semicolon.backend.domain.chat.entity.Chat;
 import com.semicolon.backend.domain.chat.repository.ChatRepository;
 import com.semicolon.backend.domain.member.entity.Member;
+import com.semicolon.backend.domain.member.entity.MemberRole;
 import com.semicolon.backend.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,16 +39,34 @@ public class ChatServiceImpl implements ChatService{
     @Override
     public List<ChatResDTO> getRoomList() {
         List<Chat> chats = chatRepository.findRoomList();
-        return chats.stream().map(chat->{
+
+        return chats.stream().map(chat -> {
+            String displaySenderId = chat.getSender().getMemberLoginId(); // 기본값: 보낸 사람
             boolean isAdmin = chat.getSender().getMemberRole().name().equals("ROLE_ADMIN");
-            ChatResDTO dto = ChatResDTO.builder()
-                .roomId(chat.getRoomId())
-                .isReplied(isAdmin)
-                .lastMessage(chat.getMessage())
-                .lastSendAt(chat.getSendAt())
-                .memberName(chat.getSender().getMemberLoginId())
-                .build();
-            return dto;
+
+            // 관리자가 보낸 경우 -> 진짜 유저 ID 찾기
+            if (isAdmin) {
+                // PageRequest.of(0, 1) -> "0페이지에서 1개만 줘" (LIMIT 1 효과)
+                List<String> userIds = chatRepository.findUserLoginId(
+                        chat.getRoomId(),
+                        MemberRole.ROLE_ADMIN,
+                        PageRequest.of(0, 1)
+                );
+
+                // 찾은 유저가 있으면 덮어쓰기
+                if (!userIds.isEmpty()) {
+                    displaySenderId = userIds.get(0);
+                }
+            }
+
+            // 프론트로 나가는 건 기존과 똑같은 ChatResDTO 입니다.
+            return ChatResDTO.builder()
+                    .roomId(chat.getRoomId())
+                    .senderId(displaySenderId) // 여기에 유저 ID가 들어감
+                    .lastMessage(chat.getMessage())
+                    .lastSendAt(chat.getSendAt())
+                    .senderRole(chat.getSender().getMemberRole())
+                    .build();
         }).toList();
     }
 
