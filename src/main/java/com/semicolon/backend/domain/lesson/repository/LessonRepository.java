@@ -1,5 +1,6 @@
 package com.semicolon.backend.domain.lesson.repository;
 
+import com.semicolon.backend.domain.lesson.dto.LessonListResDTO;
 import com.semicolon.backend.domain.lesson.entity.Lesson;
 import com.semicolon.backend.domain.lesson.entity.LessonDay;
 import com.semicolon.backend.domain.lesson.entity.LessonStatus;
@@ -10,6 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -20,7 +22,7 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
             "where (:category is null or f.facilityName = :category ) and " +
             " (:titleKeyword is null or l.title like %:titleKeyword% ) and " +
             " (:partnerKeyword is null or p.memberName like %:partnerKeyword% ) and " +
-            " (d in (:days)) and " +
+            " (d in (:days)) and (not exists(select sc from l.schedules sc join sc.lessonDay le where le not in (:days))) and " +
             " (:startTime is null or TO_CHAR(s.startTime, 'HH24:MI') >= :startTime) and " +
             " (:endTime is null or TO_CHAR(s.endTime, 'HH24:MI') <= :endTime) and " +
             " ((:availableOnly is null or :availableOnly = false ) or (l.lessonStatus=com.semicolon.backend.domain.lesson.entity.LessonStatus.ACCEPTED and "+
@@ -69,5 +71,10 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
 
     @Query("select l from Lesson l where l.lessonStatus = LessonStatus.PENDING")
     List<Lesson> findByStatusIsPending();
+           
+    List<Lesson> findTop7ByStartDateAfterAndLessonStatusOrderByStartDateAsc(
+            LocalDate today,
+            LessonStatus status
+    );
 
 }

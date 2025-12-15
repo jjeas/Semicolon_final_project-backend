@@ -34,7 +34,6 @@ public class ChatController {
         service.saveMessage(dto, principal.getName());
         dto.setSender(principal.getName());
         template.convertAndSend("/sub/chat/room/"+dto.getRoomId(), dto);
-
     }
 
     @GetMapping("/chat/list/admin")

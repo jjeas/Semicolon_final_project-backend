@@ -71,4 +71,9 @@ public class LessonController {
         LessonReqDTO dto = lessonService.getMyOneLesson(loginIdFromToken, lessonId);
         return ResponseEntity.ok(dto);
     }
+
+    @GetMapping("/preview")
+    public ResponseEntity<List<LessonListResDTO>> previewLesson(){
+        return ResponseEntity.ok(lessonService.getPreviewLesson());
+    }
 }
