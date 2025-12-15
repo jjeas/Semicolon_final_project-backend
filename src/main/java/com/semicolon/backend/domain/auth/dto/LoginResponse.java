@@ -13,7 +13,7 @@ import lombok.Setter;
 public class LoginResponse {
     private String accessToken;
     private Long memberId;
-
+    private String loginId;
     @Enumerated(EnumType.STRING)
     private MemberRole memberRole;
     //로그인 성공 후 반환할 토큰 아이디 권한

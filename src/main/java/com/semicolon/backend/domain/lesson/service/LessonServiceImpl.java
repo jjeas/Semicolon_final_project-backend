@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -204,7 +205,8 @@ public class LessonServiceImpl implements LessonService{
         List<Long> finalList = myRegisteredIds;
         List<LessonListResDTO> dtoList=result.getContent().stream().map(lesson ->{
             Long current=registrationRepository.countByLesson_IdAndStatus(lesson.getId(), RegistrationStatus.APPLIED);
-                return LessonListResDTO.builder()
+            LocalDate end = lesson.getStartDate().minusDays(3);
+                    LessonListResDTO resDTO= LessonListResDTO.builder()
                         .lessonId(lesson.getId())
                         .status(lesson.getLessonStatus())
                         .level(lesson.getLevel())
@@ -223,8 +225,10 @@ public class LessonServiceImpl implements LessonService{
                         .maxPeople(lesson.getMaxPeople())
                         .minPeople(lesson.getMinPeople())
                         .currentPeople(current)
-//                        .regEndDate(lesson.getEndDate())
+                        .regEndDate(end)
                         .build();
+                    resDTO.checkEndDate();
+                    return resDTO;
         })
                         .toList();
         return PageResponseDTO.<LessonListResDTO>withAll()
@@ -416,9 +420,36 @@ public class LessonServiceImpl implements LessonService{
     }
 
     @Override
+    public List<LessonListResDTO> getPreviewLesson() {
+        LocalDate today = LocalDate.now();
+        List<Lesson> lessons = lessonRepository.findTop7ByStartDateAfterAndLessonStatusOrderByStartDateAsc(today, LessonStatus.ACCEPTED);
+
+        return lessons.stream().map(lesson -> {
+            LocalDate calculatedRegEndDate = lesson.getStartDate().minusDays(3);
+            Long current = registrationRepository.countByLesson_IdAndStatus(lesson.getId(), RegistrationStatus.APPLIED);
+            return LessonListResDTO.builder()
+                    .lessonId(lesson.getId())
+                    .title(lesson.getTitle())
+                    .partnerName(lesson.getPartnerId().getMemberName())
+                    .category(lesson.getFacilitySpace().getFacility().getFacilityName())
+                    .status(lesson.getLessonStatus())
+                    .startDate(lesson.getStartDate())
+                    .endDate(lesson.getEndDate())
+                    .startTime(lesson.getSchedules().isEmpty() ? null : lesson.getSchedules().get(0).getStartTime())
+                    .endTime(lesson.getSchedules().isEmpty() ? null : lesson.getSchedules().get(0).getEndTime())
+                    .regEndDate(calculatedRegEndDate)
+                    .currentPeople(current)
+                    .maxPeople(lesson.getMaxPeople())
+                    .build();
+        }).toList();
+    }
+
+    @Override
     public void changeStatus(Long id, LessonStatus status) {
         Lesson lesson = lessonRepository.findById(id).orElseThrow(()->new IllegalArgumentException("존재하지 않는 강의입니다."));
         lesson.setLessonStatus(status);
         lessonRepository.save(lesson);
     }
+
+
 }
