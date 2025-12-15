@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -45,6 +46,7 @@ public class DailyUseServiceImpl implements DailyUseService{
                 .startTime(dto.getStartTime())
                 .endTime(dto.getEndTime())
                 .price(dto.getPrice())
+                .createdAt(LocalDateTime.now())
                 .build();
 
         return dailyUseRepository.save(dailyUse);

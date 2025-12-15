@@ -17,4 +17,5 @@ public interface MemberService {
     public void changePassword(String loginIdFromToken,PasswordChangeDTO passwordChangeDTO);
     public void modifyByAdmin(MemberDTO requestDTO);
     public PageResponseDTO<MemberDTO> searchMembers(PageRequestDTO pageRequestDTO);
+    public List<MemberDTO> adminSearchMembers(String keyword);
 }

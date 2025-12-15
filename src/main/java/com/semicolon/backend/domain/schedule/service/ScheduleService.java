@@ -13,4 +13,5 @@ public interface ScheduleService {
     public void update(ScheduleDTO dto, Long id);
     public void register(ScheduleDTO dto);
     public void delete(Long id);
+    public List<ScheduleDTO> getSchedulesCurrentMonth();
 }

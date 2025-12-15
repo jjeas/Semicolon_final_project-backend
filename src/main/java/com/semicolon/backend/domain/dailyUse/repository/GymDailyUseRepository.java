@@ -18,4 +18,7 @@ public interface GymDailyUseRepository extends JpaRepository<GymDailyUse, Long> 
 
     List<GymDailyUse> findByMemberMemberId(Long memberId);
 
+    @Query(value = "SELECT COUNT(*) FROM tbl_gym_daily_use WHERE TRUNC(created_at) = TRUNC(SYSDATE)", nativeQuery = true)
+    long countGymDailyUseToday();
+
 }

@@ -23,6 +23,9 @@ public class Rental {
         @Column(name = "rental_id")
         private Long id;
 
+        @Column(name = "created_at", nullable = false)
+        private LocalDateTime createdAt;
+
         @Column(name = "start_time", nullable = false)
         private LocalDateTime startTime;
 

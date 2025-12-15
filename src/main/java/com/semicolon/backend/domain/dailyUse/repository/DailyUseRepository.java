@@ -19,4 +19,7 @@ public interface DailyUseRepository extends JpaRepository<DailyUse, Long> {
 
     List<DailyUse> findByMemberMemberId(Long memberId);
 
+    @Query(value = "SELECT COUNT(*) FROM tbl_daily_use WHERE TRUNC(created_at) = TRUNC(SYSDATE)", nativeQuery = true)
+    long countDailyUseToday();
+
 }

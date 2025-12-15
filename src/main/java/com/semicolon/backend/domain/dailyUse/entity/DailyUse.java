@@ -24,6 +24,9 @@ public class DailyUse {
     @Column(name = "dailyUse_id")
     private Long id;
 
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+
     @Column(name = "start_time")
     private LocalDateTime startTime;
 
