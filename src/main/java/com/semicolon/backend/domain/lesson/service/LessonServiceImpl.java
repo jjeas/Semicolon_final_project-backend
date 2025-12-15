@@ -205,7 +205,8 @@ public class LessonServiceImpl implements LessonService{
         List<Long> finalList = myRegisteredIds;
         List<LessonListResDTO> dtoList=result.getContent().stream().map(lesson ->{
             Long current=registrationRepository.countByLesson_IdAndStatus(lesson.getId(), RegistrationStatus.APPLIED);
-                return LessonListResDTO.builder()
+            LocalDate end = lesson.getStartDate().minusDays(3);
+                    LessonListResDTO resDTO= LessonListResDTO.builder()
                         .lessonId(lesson.getId())
                         .status(lesson.getLessonStatus())
                         .level(lesson.getLevel())
@@ -224,8 +225,10 @@ public class LessonServiceImpl implements LessonService{
                         .maxPeople(lesson.getMaxPeople())
                         .minPeople(lesson.getMinPeople())
                         .currentPeople(current)
-                        .regEndDate(lesson.getEndDate())
+                        .regEndDate(end)
                         .build();
+                    resDTO.checkEndDate();
+                    return resDTO;
         })
                         .toList();
         return PageResponseDTO.<LessonListResDTO>withAll()
