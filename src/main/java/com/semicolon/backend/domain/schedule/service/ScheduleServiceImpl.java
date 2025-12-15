@@ -44,6 +44,14 @@ public class ScheduleServiceImpl implements ScheduleService{
     }
 
     @Override
+    public List<ScheduleDTO> getSchedulesCurrentMonth() {
+        LocalDate today = LocalDate.now();
+        LocalDate startOfMonth = today.withDayOfMonth(1);
+        LocalDate endOfMonth = today.withDayOfMonth(today.lengthOfMonth());
+        return findScheduleByDate(startOfMonth, endOfMonth);
+    }
+
+    @Override
     public PageResponseDTO<ScheduleDTO> getList(PageRequestDTO pageRequestDTO) {
 
         Pageable pageable = PageRequest.of(pageRequestDTO.getPage()-1,pageRequestDTO.getSize()

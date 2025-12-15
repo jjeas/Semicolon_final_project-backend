@@ -51,6 +51,7 @@ public class RentalServiceImpl implements RentalService {
         Rental rental = Rental.builder()
                 .space(facilitySpace)
                 .member(member)
+                .createdAt(LocalDateTime.now())
                 .status(RentalStatus.PENDING)
                 .startTime(rentalDTO.getStartTime())
                 .endTime(rentalDTO.getEndTime())

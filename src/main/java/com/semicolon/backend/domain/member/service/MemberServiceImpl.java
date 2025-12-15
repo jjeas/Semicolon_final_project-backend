@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional; // 2. (추가)
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -164,6 +165,24 @@ public class MemberServiceImpl implements MemberService {
         Page<MemberDTO> dtoPage = resultPage.map(m -> mapper.map(m, MemberDTO.class));
 
         return new PageResponseDTO<>(dtoPage.getContent(), pageRequestDTO, dtoPage.getTotalElements());
+    }
+
+    @Override
+    public List<MemberDTO> adminSearchMembers(String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return Collections.emptyList();
+        }
+
+        log.info("키워드: {}", keyword);
+
+        List<Member> members = repository.findByMemberNameContainsOrMemberLoginIdContains(keyword, keyword);
+
+        log.info("검색된 회원 수: {}", members.size());
+
+        return members.stream()
+                .map(member -> mapper.map(member, MemberDTO.class))
+                .collect(Collectors.toList());
+
     }
 
 }

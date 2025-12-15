@@ -34,7 +34,7 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
     ORDER BY
       CASE r.status
           WHEN PENDING THEN 1
-          WHEN APPROVED THEN 2
+          WHEN ACCEPTED THEN 2
           WHEN REJECTED THEN 3
           ELSE 4
       END,
@@ -47,5 +47,10 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
             @Param("endDateTime") LocalDateTime endDateTime,
             Pageable pageable
     );
+    @Query("select r from Rental r where r.status = RentalStatus.PENDING")
+    List<Rental> findByStatusIsPending();
+
+    @Query(value = "SELECT COUNT(*) FROM tbl_rental WHERE TRUNC(created_at) = TRUNC(SYSDATE)", nativeQuery = true)
+    long countRentalToday();
 
 }

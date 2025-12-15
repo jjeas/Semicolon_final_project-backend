@@ -35,6 +35,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Page<Member> findByMemberRole(MemberRole role, Pageable pageable);
     Page<Member> findByMemberLoginIdContainsAndMemberRole(String keyword, MemberRole role, Pageable pageable);
     Page<Member> findByMemberNameContainsAndMemberRole(String keyword, MemberRole role, Pageable pageable);
+    List<Member> findByMemberNameContainsOrMemberLoginIdContains(String nameKeyword, String idKeyword);
 
     @Query(value =
             "SELECT T.ageGroup AS ageGroup, T.MEMBER_GENDER AS gender, COUNT(1) AS count " +
@@ -56,4 +57,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
             nativeQuery = true)
     List<MemberGenderAgeDTO> getAgeGenderGroupStats(@Param("currentYear") int currentYear);
     long countByMemberRole(MemberRole memberRole);
+
+    @Query(value = "SELECT COUNT(member_id) FROM tbl_member WHERE TRUNC(join_date) = TRUNC(SYSDATE)", nativeQuery = true)
+    long countMembersJoinToday();
 }

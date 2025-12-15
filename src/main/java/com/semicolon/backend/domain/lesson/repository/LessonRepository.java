@@ -67,4 +67,7 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     Lesson findLessonByPartnerAndId(@Param("loginId") String loginId,
                                     @Param("lessonId") Long lessonId);
 
+    @Query("select l from Lesson l where l.lessonStatus = LessonStatus.PENDING")
+    List<Lesson> findByStatusIsPending();
+
 }
