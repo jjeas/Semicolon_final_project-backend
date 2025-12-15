@@ -58,5 +58,11 @@ public class MemberController {
         return ResponseEntity.ok(service.searchMembers(pageRequestDTO));
     }
 
+    @GetMapping("/admin/mainSearch")
+    public ResponseEntity<List<MemberDTO>> mainSearchMember(@RequestParam("keyword") String keyword) {
+        List<MemberDTO> result = service.adminSearchMembers(keyword);
+        return ResponseEntity.ok(result);
+    }
+
 }
 

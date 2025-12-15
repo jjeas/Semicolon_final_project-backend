@@ -19,4 +19,7 @@ public interface SupportRepository extends JpaRepository<Support, Long> {
     Page<Support> findByMemberMemberNameContains(String keyword, Pageable pageable);
     Page<Support> findBySupportTitleContains(String keyword, Pageable pageable);
 
+    @Query("SELECT COUNT(*) from Support s where s.status = SupportStatus.WAITING")
+    long countStatusIsWaiting();
+
 }
