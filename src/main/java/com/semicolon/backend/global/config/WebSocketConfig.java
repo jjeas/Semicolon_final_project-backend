@@ -14,13 +14,14 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
     private final StompHandler stompHandler;
+
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry){
         registry.addEndpoint("/ws-chat") //프론트에서 연결할 주소
                 .setAllowedOriginPatterns("*") //CORS 허용
                 .withSockJS(); //낮은 브라우저 버전 호환 지원
-        ;
     }
 
     @Override
@@ -31,6 +32,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration){
-        registration.interceptors(stompHandler);
+        registration.interceptors(stompHandler); // 검사 로직을 만든 스톰프핸들러를 웹소켓 입구에 둬서 검사할 수 있도록 함
     }
 }
