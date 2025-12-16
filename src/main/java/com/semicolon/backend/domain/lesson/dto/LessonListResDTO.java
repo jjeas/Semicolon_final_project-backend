@@ -32,6 +32,7 @@ public class LessonListResDTO {
     private Long maxPeople;
     private Long currentPeople;
     private LocalDate regEndDate;
+    private Long price;
 
     public void checkEndDate(){
         LocalDateTime now = LocalDateTime.now();
