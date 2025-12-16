@@ -46,4 +46,9 @@ public class ScheduleController {
         service.delete(id);
         return ResponseEntity.ok("Schedule 삭제 완료");
     }
+
+    @GetMapping("/admin/monthly")
+    public ResponseEntity<List<ScheduleDTO>> getMonthlySchedules() {
+        return ResponseEntity.ok(service.getSchedulesCurrentMonth());
+    }
 }

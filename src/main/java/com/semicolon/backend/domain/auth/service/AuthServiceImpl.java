@@ -51,6 +51,7 @@ public class AuthServiceImpl implements AuthService{
         //클레임 정보를 바탕으로 JWT 를 만들고 유효기간은 1시간으로 설정
         log.info("생성된 토큰={}",accessToken);
         return LoginResponse.builder()
+                .loginId(member.getMemberLoginId())
                 .accessToken(accessToken)
                 .memberId(member.getMemberId())
                 .memberRole(member.getMemberRole())
