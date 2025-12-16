@@ -2,6 +2,7 @@ package com.semicolon.backend.domain.lesson.entity;
 
 import com.semicolon.backend.domain.facility.entity.FacilitySpace;
 import com.semicolon.backend.domain.member.entity.Member;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -64,6 +65,9 @@ public class Lesson {
 
     @Column(name = "lesson_current_people")
     private long currentPeople;
+
+    @Column(name = "lesson_price")
+    private Long price;
 
     public void toList (LessonSchedule lessonSchedule){
         schedules.add(lessonSchedule);

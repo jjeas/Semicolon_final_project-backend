@@ -3,6 +3,7 @@ package com.semicolon.backend.domain.registration.entity;
 import com.semicolon.backend.domain.lesson.entity.Lesson;
 import com.semicolon.backend.domain.lesson.entity.LessonStatus;
 import com.semicolon.backend.domain.member.entity.Member;
+import com.semicolon.backend.domain.payment.entity.Payment;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,6 +35,10 @@ public class Registration {
 
     @Column(name = "status")
     private RegistrationStatus status; // 신청완료, 신청취소, 대기중
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_id")
+    private Payment payment;
 
     @Enumerated(EnumType.STRING)
     public void cancel(){ //신청 취소 시
