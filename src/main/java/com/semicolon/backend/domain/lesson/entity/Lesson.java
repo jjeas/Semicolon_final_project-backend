@@ -65,6 +65,9 @@ public class Lesson {
     @Column(name = "lesson_current_people")
     private long currentPeople;
 
+    @Column(name= "lesson_price")
+    private Long price;
+
     public void toList (LessonSchedule lessonSchedule){
         schedules.add(lessonSchedule);
         lessonSchedule.setLesson(this);
