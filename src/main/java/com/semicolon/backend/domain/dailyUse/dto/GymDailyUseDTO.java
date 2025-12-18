@@ -12,5 +12,5 @@ import java.time.LocalDate;
 public class GymDailyUseDTO {
     private Long id;
     private LocalDate date;
-    private String price;
+    private long price;
 }

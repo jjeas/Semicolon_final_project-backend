@@ -51,7 +51,7 @@ public class JwtCheckFilter extends OncePerRequestFilter { //요청 한번당 �
         String loginId = (String)claim.get("loginId");
         String role = (String)claim.get("memberRole"); //클레임에는 실제 유저에 대한 정보가 담겨있고 이를 꺼내옴
         log.info("클레임에 담긴 정보 아이디={} 권한={}",loginId,role);
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(loginId,null, List.of(new SimpleGrantedAuthority(role)));
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(loginId,null, List.of(new SimpleGrantedAuthority(role))); // <-- 이거땜에 @AuthenticationPrincipal 이 가능
         //UsernamePasswordAuthentication 은 AuthenticationManager 에 인증이 완료된 사용자의 정보를 전달해주는데
         //로그인 아이디와 권한을 전달해준다. credentials 는 패스워드인데 프론트에 전달될거라 패스워드를 담으면 안되기 때문에 null 로 전달
         SecurityContextHolder.getContext().setAuthentication(token);

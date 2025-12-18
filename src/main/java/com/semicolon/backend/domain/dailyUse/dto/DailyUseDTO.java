@@ -18,7 +18,7 @@ public class DailyUseDTO {
     private LocalDateTime endTime;
     private String facilityName;
     private String spaceName;
-    private String price;
+    private long price;
     private Long spaceId;
 
 }

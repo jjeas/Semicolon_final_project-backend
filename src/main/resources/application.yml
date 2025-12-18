@@ -59,3 +59,9 @@ kakao:
     redirect-uri: http://localhost:3000/auth/kakao/callback
     token-url: https://kauth.kakao.com/oauth/token
     user-url: https://kapi.kakao.com/v2/user/me
+
+portone:
+  store-id: "store-b3883a44-ac75-4cff-8df1-e77a3dea43b0"
+  channel-key: "channel-key-69ba4122-ea56-4238-a168-f5026d6b6ba3"
+  api-url: "https://api.portone.io"
+  api-secret: ${PORTONE_API_SECRET}
