@@ -2,6 +2,7 @@ package com.semicolon.backend.domain.lesson;
 
 import com.semicolon.backend.domain.lesson.dto.LessonListResDTO;
 import com.semicolon.backend.domain.lesson.dto.LessonReqDTO;
+import com.semicolon.backend.domain.lesson.dto.LessonStatusDTO;
 import com.semicolon.backend.domain.lesson.entity.LessonStatus;
 import com.semicolon.backend.domain.lesson.service.LessonService;
 import com.semicolon.backend.global.pageable.PageRequestDTO;
@@ -50,8 +51,8 @@ public class LessonController {
     }
 
     @PostMapping("/status/{lessonId}")
-    public ResponseEntity<String> changeStatus(@PathVariable("lessonId") Long lessonId, @RequestBody LessonStatus lessonStatus){
-        lessonService.changeStatus(lessonId,lessonStatus);
+    public ResponseEntity<String> changeStatus(@RequestBody LessonStatusDTO dto){
+        lessonService.changeStatus(dto);
         return ResponseEntity.ok("성공");
     }
 

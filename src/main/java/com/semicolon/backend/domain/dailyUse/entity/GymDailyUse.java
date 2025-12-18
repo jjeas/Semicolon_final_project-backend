@@ -25,7 +25,7 @@ public class GymDailyUse {
     private LocalDate date;
 
     @Column(name = "price", nullable = false)
-    private String price;
+    private long price;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
