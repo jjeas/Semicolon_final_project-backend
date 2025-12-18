@@ -21,7 +21,8 @@ public class JwtCheckFilter extends OncePerRequestFilter { //요청 한번당 �
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String uri = request.getRequestURI(); // 컨트롤러 요청 URI
-        if(uri.equals("/api/auth/login") || uri.equals("/api/auth/register")){
+        if(uri.equals("/api/auth/login") || uri.equals("/api/auth/register")
+            || uri.startsWith("/auth/") || uri.startsWith("/api/auth/")){ // 카카오 로그인 추가 코드 부분
             log.info("회원가입 or 로그인 시도 체인 즉시 통과");
             filterChain.doFilter(request,response); //회원가입 또는 로그인 시도 시 즉시 통과시킴(토큰이 없으니 유효성 검사 불가)
             return;

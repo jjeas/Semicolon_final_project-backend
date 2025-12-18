@@ -41,7 +41,7 @@ public class Rental {
         private FacilitySpace space;
 
         @Column(name = "rental_price", nullable = false)
-        private String price;
+        private Long price;
 
         @Column(name = "rental_name", nullable = false)
         private String name;

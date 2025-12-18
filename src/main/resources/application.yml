@@ -53,3 +53,9 @@ com:
 
 jwt:
     secret:
+
+kakao:
+    client-id: 44a4524cac8771c7c2c454c0038b8e5a
+    redirect-uri: http://localhost:3000/auth/kakao/callback
+    token-url: https://kauth.kakao.com/oauth/token
+    user-url: https://kapi.kakao.com/v2/user/me

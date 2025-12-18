@@ -47,6 +47,10 @@ public class SecurityConfig {
                 //쿠키 방식을 사용하기 때문에 세션 방식은 비활성화
                 .authorizeHttpRequests(auth->auth
                 .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
+
+                .requestMatchers("/api/auth/**").permitAll() // 카카오 로그인 추가 코드 부분
+                .requestMatchers("/auth/**").permitAll()    // 카카오 로그인 추가 코드 부분
+
                 //회원가입과 로그인에 대한 요청은 필터체인에서 제외한다(permitAll())
                 .requestMatchers(HttpMethod.POST,"/api/community/notice/{id}/view").permitAll()
                 .requestMatchers(HttpMethod.POST,"/api/community/gallery/{id}/view").permitAll()
