@@ -17,12 +17,11 @@ spring:
             starttls:
               enable: true
 
-  # DB ?? ??
   datasource:
     driver-class-name: oracle.jdbc.OracleDriver
     url: jdbc:oracle:thin:@localhost:1521/XEPDB1
     username: semicolon
-    password: 1234
+    password: ${DB_PASSWORD}
 
   jpa:
     hibernate:
@@ -52,17 +51,18 @@ com:
           upload: C:/dev/upload
 
 jwt:
-    secret:
+    secret: ${JWT_SECRET}
 
 kakao:
-    client-id: 44a4524cac8771c7c2c454c0038b8e5a
+    client-id: ${KAKAO_CLIENT_ID}
+    client-secret: ${KAKAO_CLIENT_SECRET}
     redirect-uri: http://localhost:3000/auth/kakao/callback
     token-url: https://kauth.kakao.com/oauth/token
     user-url: https://kapi.kakao.com/v2/user/me
 
 naver:
-  client-id: 0nco2BBW529tpuUM0LfV
-  client-secret: EPCIg4_Liq
+  client-id: ${NAVER_CLIENT_ID}
+  client-secret: ${NAVER_CLIENT_SECRET}
   redirect-uri: http://localhost:3000/auth/naver/callback
   token-url: https://nid.naver.com/oauth2.0/token
   user-url: https://openapi.naver.com/v1/nid/me
