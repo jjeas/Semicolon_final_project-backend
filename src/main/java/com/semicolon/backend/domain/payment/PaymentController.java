@@ -32,6 +32,5 @@ public class PaymentController {
             log.error("결제실패 {}",e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
         }
-
     }
 }

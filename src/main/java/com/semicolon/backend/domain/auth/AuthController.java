@@ -5,6 +5,7 @@ import com.semicolon.backend.domain.auth.service.AuthService;
 import com.semicolon.backend.domain.auth.service.MailService;
 import com.semicolon.backend.domain.member.dto.MemberDTO;
 import com.semicolon.backend.domain.member.service.MemberService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.Response;
@@ -33,10 +34,11 @@ public class AuthController {
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody MemberDTO dto){
+    public ResponseEntity<String> register(@RequestBody @Valid MemberDTO dto){
         authService.register(dto);
         return ResponseEntity.ok("신규 회원가입 성공");
     }
+
     @PostMapping("/sendCode")
     public ResponseEntity<String> sendCode(@RequestBody FindIdRequestDTO dto){
         authService.findMemberId(dto);
@@ -48,6 +50,7 @@ public class AuthController {
         // 이메일을 키로, 인증번호를 밸류로 static 선언된 인증코드에 저장
         return ResponseEntity.ok("인증번호가 발송되었습니다.");
     }
+
     @PostMapping("/checkCode")
     public ResponseEntity<String> returnMemerId(@RequestBody IdCheckCodeDTO dto){
         String code = AUTH_CODE_MAP.get(dto.getMemberEmail());
@@ -101,5 +104,25 @@ public class AuthController {
     @GetMapping("/check/loginId")
     public ResponseEntity<Boolean> checkDuplicateLoginId(@RequestParam String loginId){
         return ResponseEntity.ok(authService.checkLoginIdDuplicate(loginId));
+    }
+
+    @GetMapping("/join/email")
+    public ResponseEntity<String> sendJoinMail(@RequestParam String email){
+        if(authService.checkEmailDuplicate(email)){
+            return ResponseEntity.badRequest().body("이미 존재하는 이메일입니다.");
+        }
+        String authCode = mailService.sendJoinEmail(email);
+        AUTH_CODE_MAP.put(email, authCode);
+        return ResponseEntity.ok("인증번호가 발송되었습니다.");
+    }
+
+    @PostMapping("/join/verify")
+    public ResponseEntity<String> verifyJoinCode(@RequestBody EmailCheckDTO dto){
+        String code = AUTH_CODE_MAP.get(dto.getMemberEmail());
+        if(code!=null && code.equals(dto.getAuthCode())){
+            return ResponseEntity.ok("인증이 완료되었습니다.");
+        }else {
+            return ResponseEntity.badRequest().body("인증번호가 일치하지 않습니다.");
+        }
     }
 }
