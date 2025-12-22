@@ -1,7 +1,7 @@
 package com.semicolon.backend.domain.payment.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.semicolon.backend.domain.dailyUse.repository.DailyUseRepository;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.semicolon.backend.domain.facility.repository.FacilitySpaceRepository;
 import com.semicolon.backend.domain.lesson.entity.Lesson;
 import com.semicolon.backend.domain.lesson.entity.LessonStatus;
@@ -14,123 +14,216 @@ import com.semicolon.backend.domain.payment.repository.PaymentRepository;
 import com.semicolon.backend.domain.registration.entity.Registration;
 import com.semicolon.backend.domain.registration.entity.RegistrationStatus;
 import com.semicolon.backend.domain.registration.repository.RegistrationRepository;
-import com.semicolon.backend.domain.rental.repository.RentalRepository;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class PaymentServiceImpl implements PaymentService{
+@Slf4j
+public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final MemberRepository memberRepository;
-
-    private final RentalRepository rentalRepository;
     private final RegistrationRepository registrationRepository;
-    private final DailyUseRepository dailyUseRepository;
     private final LessonRepository lessonRepository;
-
     private final FacilitySpaceRepository facilitySpaceRepository;
 
-    @Value("${PORTONE_API_SECRET}")
+    @Value("${iamport.api.key}")
+    private String apiKey;
+
+    @Value("${iamport.api.secret}")
     private String apiSecret;
 
-    @Override
-    public PaymentResponse verifyPortOne(String paymentId) {
+    // V1 API: 액세스 토큰 발급
+    private String getAccessToken() {
+        RestClient restClient = RestClient.create();
+        try {
+            Map<String, String> body = new HashMap<>();
+            body.put("imp_key", apiKey);
+            body.put("imp_secret", apiSecret);
+
+            IamportTokenResponse response = restClient.post()
+                    .uri("https://api.iamport.kr/users/getToken")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(body)
+                    .retrieve()
+                    .body(IamportTokenResponse.class);
+
+            if (response == null || response.getResponse() == null) {
+                throw new RuntimeException("아임포트 토큰 발급 실패: 응답 없음");
+            }
+            return response.getResponse().getAccessToken();
+        } catch (Exception e) {
+            log.error("토큰 발급 중 오류: {}", e.getMessage());
+            throw new RuntimeException("아임포트 토큰 발급 실패");
+        }
+    }
+
+    // V1 API: 결제 정보 조회
+    public IamportPaymentResponse verifyIamport(String impUid, String accessToken) {
         RestClient restClient = RestClient.create();
         return restClient.get()
-                .uri("https://api.portone.io/payments/"+paymentId)
-                .header("Authorization","PortOne "+apiSecret)
+                .uri("https://api.iamport.kr/payments/" + impUid)
+                .header("Authorization", accessToken) // Bearer 없음
                 .retrieve()
-                .onStatus((HttpStatusCode status) -> status.value()!=200, (req,res)->{
-                    throw new RuntimeException("포트원 결제 조회 실패");
-                })
-                .body(PaymentResponse.class);
+                .body(IamportPaymentResponse.class);
     }
 
-    @Getter
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    static class PaymentResponse {
-        private String status; // "PAID" 등
-        private Amount amount; // 중첩된 JSON 구조 처리
+    // --- 내부 DTO 클래스들 (V1 응답 구조용) ---
+    @Getter @JsonIgnoreProperties(ignoreUnknown = true)
+    static class IamportTokenResponse {
+        private Response response;
+        @Getter @JsonIgnoreProperties(ignoreUnknown = true)
+        static class Response {
+            @JsonProperty("access_token")
+            private String accessToken;
+        }
+    }
+
+    @Getter @JsonIgnoreProperties(ignoreUnknown = true)
+    static class IamportPaymentResponse {
+        private Integer code;
+        private String message;
+        private PaymentData response;
 
         @Getter @JsonIgnoreProperties(ignoreUnknown = true)
-        static class Amount {
-            private Long total;
+        static class PaymentData {
+            private String status; // "paid" (소문자 주의)
+            private Long amount;
+            @JsonProperty("imp_uid")
+            private String impUid;
+            @JsonProperty("merchant_uid")
+            private String merchantUid;
         }
     }
+    // ------------------------------------
 
     @Transactional
-    public void verifyAndRegister(PaymentRequestDTO dto, String loginId){
-        if(paymentRepository.existsByPaymentId(dto.getPaymentId())){
-            throw new RuntimeException("이미 결제된 내역입니다.");
-        }
-        PaymentResponse portOneData = verifyPortOne(dto.getPaymentId());
-        long realAmount = portOneData.getAmount().getTotal();
-        if(!"PAID".equals(portOneData.getStatus())){
-            throw new RuntimeException("결제가 완료되지 않았습니다.");
-        }
-        if(dto.getPrice()!=realAmount){
-            throw new RuntimeException("결제금액 불일치");
-        }
-        Member member = memberRepository.findByMemberLoginId(loginId).orElseThrow(()->new RuntimeException("사용자 없음."));
+    public void verifyAndRegister(PaymentRequestDTO dto, String loginId) {
+        // 1. 아임포트 토큰 발급
+        String accessToken = getAccessToken();
 
+        // 2. 결제 내역 조회 (V1)
+        IamportPaymentResponse apiResponse = verifyIamport(dto.getPaymentId(), accessToken);
+
+        if (apiResponse == null || apiResponse.getResponse() == null) {
+            throw new RuntimeException("결제 정보를 찾을 수 없습니다.");
+        }
+
+        IamportPaymentResponse.PaymentData paymentData = apiResponse.getResponse();
+
+        // 3. 검증 로직
+        if (paymentRepository.existsByPaymentId(paymentData.getImpUid())) {
+            throw new RuntimeException("이미 처리된 결제 건입니다.");
+        }
+        if (!"paid".equals(paymentData.getStatus())) { // V1은 status가 소문자 "paid"
+            throw new RuntimeException("결제가 완료되지 않았습니다. 상태: " + paymentData.getStatus());
+        }
+        if (dto.getPrice().longValue() != paymentData.getAmount().longValue()) {
+            // 가격 불일치 시 취소
+            cancelPayment(paymentData.getImpUid(), "결제 금액 위변조 감지");
+            throw new RuntimeException("결제 금액 불일치");
+        }
+
+        Member member = memberRepository.findByMemberLoginId(loginId)
+                .orElseThrow(() -> new RuntimeException("사용자 없음."));
+
+        // 4. 결제 정보 저장
         Payment payment = Payment.builder()
-                .paymentId(dto.getPaymentId())
+                .paymentId(paymentData.getImpUid()) // imp_uid 저장
                 .orderName(generateOrderName(dto))
                 .buyerName(member.getMemberName())
                 .buyerEmail(member.getMemberEmail())
                 .paidAt(LocalDateTime.now())
-                .price(realAmount)
+                .price(paymentData.getAmount())
                 .type(Payment.ProductType.valueOf(dto.getProductType()))
                 .status(Payment.PaymentStatus.PAID)
                 .member(member)
                 .build();
 
         paymentRepository.save(payment);
-        switch (dto.getProductType()){
-            case "LESSON" :
-                saveRegistration(dto,member,payment);
-                break;
-            default:
-                throw new RuntimeException("알 수 없는 상품 타입입니다.:"+dto.getProductType());
-        }
 
+        // 5. 수강신청 등 로직 실행
+        try {
+            switch (dto.getProductType()) {
+                case "LESSON":
+                    saveRegistration(dto, member, payment);
+                    break;
+                default:
+                    throw new RuntimeException("알 수 없는 상품 타입입니다.:" + dto.getProductType());
+            }
+        } catch (Exception e) {
+            log.error("예약 저장 실패, 결제 취소 진행 imp_uid={}", dto.getPaymentId());
+            this.cancelPayment(dto.getPaymentId(), "시스템 에러 " + e.getMessage());
+            throw new RuntimeException("예약 실패로 자동 환불 처리: " + e.getMessage());
+        }
     }
 
-    private String generateOrderName(PaymentRequestDTO dto){
+    @Override
+    public void cancelPayment(String impUid, String reason) {
+        String accessToken = getAccessToken();
+        RestClient restClient = RestClient.create();
+        try {
+            Map<String, Object> body = new HashMap<>();
+            body.put("imp_uid", impUid);
+            body.put("reason", reason);
+
+            restClient.post()
+                    .uri("https://api.iamport.kr/payments/cancel")
+                    .header("Authorization", accessToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(body)
+                    .retrieve()
+                    .toBodilessEntity();
+
+            log.info("아임포트 결제 취소 성공 {}", impUid);
+        } catch (Exception e) {
+            log.error("아임포트 결제 취소 실패: {}", impUid, e);
+            throw new RuntimeException("환불 요청 중 오류가 발생했습니다.");
+        }
+
+        paymentRepository.findByPaymentId(impUid).ifPresent(payment -> {
+            payment.setStatus(Payment.PaymentStatus.CANCELLED);
+        });
+    }
+
+    // --- 아래 헬퍼 메서드들은 기존 로직 유지 ---
+    private String generateOrderName(PaymentRequestDTO dto) {
         String type = dto.getProductType();
         Long targetId = dto.getTargetId();
-        switch(type){
-            case "RENTAL" :
-            case "DAILY_USE" :
-                String spaceName = facilitySpaceRepository.findById(targetId).map(space->space.getSpaceName()).orElse("시설이용");
-                return (type.equals("RENTAL")?"[대관]":"[일일이용]") + spaceName;
-            case "LESSON" :
-                String lessonTitle = lessonRepository.findById(targetId).map(lesson->lesson.getTitle()).orElse("수강신청");
+        switch (type) {
+            case "RENTAL":
+            case "DAILY_USE":
+                String spaceName = facilitySpaceRepository.findById(targetId).map(s -> s.getSpaceName()).orElse("시설이용");
+                return (type.equals("RENTAL") ? "[대관]" : "[일일이용]") + spaceName;
+            case "LESSON":
+                String lessonTitle = lessonRepository.findById(targetId).map(l -> l.getTitle()).orElse("수강신청");
                 return lessonTitle;
-            default :
+            default:
                 return "기타 결제";
         }
     }
 
-    private void saveRegistration(PaymentRequestDTO dto, Member member, Payment payment){
+    private void saveRegistration(PaymentRequestDTO dto, Member member, Payment payment) {
         Long lessonId = dto.getTargetId();
-        Lesson lesson = lessonRepository.findById(lessonId).orElseThrow(()->new RuntimeException("해당하는 강의가 없습니다."));
-        if(lesson.getLessonStatus()!= LessonStatus.ACCEPTED){
+        Lesson lesson = lessonRepository.findById(lessonId).orElseThrow(() -> new RuntimeException("해당하는 강의가 없습니다."));
+        if (lesson.getLessonStatus() != LessonStatus.ACCEPTED) {
             throw new IllegalStateException("현재 모집중인 강의가 아닙니다.");
         }
-        if(registrationRepository.existsByMemberAndLessonAndStatus(member, lesson, RegistrationStatus.APPLIED)){
+        if (registrationRepository.existsByMemberAndLessonAndStatus(member, lesson, RegistrationStatus.APPLIED)) {
             throw new IllegalStateException("이미 신청한 강의입니다.");
         }
         Long currentPeople = registrationRepository.countByLesson_IdAndStatus(lessonId, RegistrationStatus.APPLIED);
-        if(currentPeople>=lesson.getMaxPeople()){
+        if (currentPeople >= lesson.getMaxPeople()) {
             throw new IllegalArgumentException("정원이 가득 찼습니다.");
         }
 
@@ -141,7 +234,7 @@ public class PaymentServiceImpl implements PaymentService{
                 .createdAt(LocalDateTime.now())
                 .status(RegistrationStatus.APPLIED)
                 .build();
-        if(currentPeople+1>=lesson.getMaxPeople()) lesson.setLessonStatus(LessonStatus.CLOSED);
+        if (currentPeople + 1 >= lesson.getMaxPeople()) lesson.setLessonStatus(LessonStatus.CLOSED);
         registrationRepository.save(registration);
     }
 }
