@@ -34,7 +34,7 @@ public class DailyUse {
     private LocalDateTime endTime;
 
     @Column(name = "price", nullable = false)
-    private String price;
+    private long price;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)

@@ -4,6 +4,7 @@ import com.semicolon.backend.domain.facility.entity.FacilitySpace;
 import com.semicolon.backend.domain.facility.repository.FacilitySpaceRepository;
 import com.semicolon.backend.domain.lesson.dto.LessonListResDTO;
 import com.semicolon.backend.domain.lesson.dto.LessonReqDTO;
+import com.semicolon.backend.domain.lesson.dto.LessonStatusDTO;
 import com.semicolon.backend.domain.lesson.entity.Lesson;
 import com.semicolon.backend.domain.lesson.entity.LessonDay;
 import com.semicolon.backend.domain.lesson.entity.LessonSchedule;
@@ -312,6 +313,7 @@ public class LessonServiceImpl implements LessonService{
                 .startDate(lesson.getStartDate())
                 .endDate(lesson.getEndDate())
                 .title(lesson.getTitle())
+                .price(lesson.getPrice())
                 .partnerName(lesson.getPartnerId().getMemberName())
                 .facilityType(lesson.getFacilitySpace().getSpaceName())
                 .startTime(lesson.getSchedules().get(0).getStartTime())
@@ -447,9 +449,10 @@ public class LessonServiceImpl implements LessonService{
     }
 
     @Override
-    public void changeStatus(Long id, LessonStatus status) {
-        Lesson lesson = lessonRepository.findById(id).orElseThrow(()->new IllegalArgumentException("존재하지 않는 강의입니다."));
-        lesson.setLessonStatus(status);
+    public void changeStatus(LessonStatusDTO dto) {
+        Lesson lesson = lessonRepository.findById(dto.getId()).orElseThrow(()->new IllegalArgumentException("존재하지 않는 강의입니다."));
+        lesson.setPrice(dto.getPrice());
+        lesson.setLessonStatus(dto.getStatus());
         lessonRepository.save(lesson);
     }
 

@@ -32,7 +32,9 @@ public class ScheduleServiceImpl implements ScheduleService{
 
     @Override
     public List<ScheduleDTO> findScheduleByDate(LocalDate start, LocalDate end) {
-        return repository.findDateBetween(start, end).stream().map(schedule ->
+        return repository.findDateBetween(start, end).stream()
+                .sorted(Comparator.comparing(Schedule::getStartDate))
+                .map(schedule ->
                 ScheduleDTO.builder()
                         .scheduleId(schedule.getScheduleId())
                         .title(schedule.getTitle())
