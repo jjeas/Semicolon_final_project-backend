@@ -19,13 +19,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/payment")
 public class PaymentController {
     private final PaymentService service;
-    private final MemberRepository memberRepository;
 
     @PostMapping("/complete")
     public ResponseEntity<?> verifyPayment(@RequestBody PaymentRequestDTO dto, @AuthenticationPrincipal String loginIdFromToken){
         if (loginIdFromToken==null){
             return ResponseEntity.status(401).body("인증 정보가 없음");
         }
-        service.verifyAndRegister(dto,loginIdFromToken);
+        try {
+            service.verifyAndRegister(dto,loginIdFromToken);
+            return ResponseEntity.ok("결제 및 예약 완료");
+        } catch(Exception e){
+            log.error("결제실패 {}",e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
     }
 }

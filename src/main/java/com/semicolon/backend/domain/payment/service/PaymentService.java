@@ -5,4 +5,5 @@ import com.semicolon.backend.domain.payment.dto.PaymentResponseDTO;
 
 public interface PaymentService {
     void verifyAndRegister(PaymentRequestDTO dto, String loginId);
+    void cancelPayment(String paymentId, String reason);
 }

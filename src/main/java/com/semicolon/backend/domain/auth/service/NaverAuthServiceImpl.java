@@ -7,7 +7,6 @@ import com.semicolon.backend.domain.member.repository.MemberRepository;
 import com.semicolon.backend.global.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -22,23 +21,26 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class KakaoAuthServiceImpl implements KakaoAuthService {
+public class NaverAuthServiceImpl implements NaverAuthService {
 
     private final MemberRepository memberRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${kakao.client-id}")
-    private String kakaoClientId;
-    @Value("${kakao.redirect-uri}")
-    private String kakaoRedirectUri;
+    @Value("${naver.client-id}")
+    private String naverClientId;
+    @Value("${naver.client-secret}")
+    private String naverClientSecret;
+    @Value("${naver.redirect-uri}")
+    private String naverRedirectUri;
 
     @Override
-    public TokenResponseDTO kakaoLogin(String code) {
-        String kakaoAccessToken = getKakaoAccessToken(code);
-        KakaoUser kakaoUser = getKakaoUser(kakaoAccessToken);
+    public TokenResponseDTO naverLogin(String code) {
+
+        String naverAccessToken = getNaverAccessToken(code);
+        NaverUser naverUser = getNaverUser(naverAccessToken);
         Member member = memberRepository
-                .findByMemberLoginId(kakaoUser.loginId())
-                .orElseGet(() -> createKakaoMember(kakaoUser));
+                .findByMemberLoginId(naverUser.loginId())
+                .orElseGet(() -> createNaverMember(naverUser));
 
         // JWT 생성 (기존 로직 그대로)
         Map<String, Object> claim = Map.of(
@@ -49,7 +51,7 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
 
         String jwt = JwtUtil.generateToken(claim, 1);
 
-        log.info("카카오 로그인 성공 loginId={}", member.getMemberLoginId());
+        log.info("네이버 로그인 성공 loginId={}", member.getMemberLoginId());
 
         return new TokenResponseDTO(
                 jwt,
@@ -59,92 +61,94 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
     }
 
     // ================= 내부 메서드 =================
-    private String getKakaoAccessToken(String code) {
+    private String getNaverAccessToken(String code) {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
-        params.add("client_id", kakaoClientId);
-        params.add("redirect_uri", kakaoRedirectUri);
+        params.add("client_id", naverClientId);
+        params.add("client_secret", naverClientSecret);
+        params.add("redirect_uri", naverRedirectUri);
         params.add("code", code);
 
         HttpEntity<MultiValueMap<String, String>> request =
                 new HttpEntity<>(params, headers);
 
         ResponseEntity<Map> response = restTemplate.postForEntity(
-                "https://kauth.kakao.com/oauth/token",
+                "https://nid.naver.com/oauth2.0/token",
                 request,
                 Map.class
         );
 
         if (response.getBody() == null || response.getBody().get("access_token") == null) {
-            throw new IllegalStateException("카카오 access_token 발급 실패");
+            throw new IllegalStateException("네이버 access_token 발급 실패");
         }
 
         return response.getBody().get("access_token").toString();
     }
 
-    private KakaoUser getKakaoUser(String accessToken) {
+    private NaverUser getNaverUser(String accessToken) {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
 
         ResponseEntity<Map> response = restTemplate.exchange(
-                "https://kapi.kakao.com/v2/user/me",
+                "https://openapi.naver.com/v1/nid/me",
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 Map.class
         );
 
         if (response.getBody() == null) {
-            throw new IllegalStateException("카카오 사용자 정보 조회 실패");
+            throw new IllegalStateException("네이버 사용자 정보 조회 실패");
         }
 
         Map<String, Object> body = response.getBody();
+        Map<String, Object> responseMap =
+                (Map<String, Object>) body.get("response");
 
-        // 카카오 고유 ID
-        Long kakaoId = Long.valueOf(body.get("id").toString());
-        String loginId = "kakao_" + kakaoId;
-
-        Map<String, Object> kakaoAccount =
-                (Map<String, Object>) body.get("kakao_account");
-
-        if (kakaoAccount == null) {
-            throw new IllegalStateException("kakao_account 없음");
+        if (responseMap == null) {
+            throw new IllegalStateException("네이버 response 없음");
         }
 
+        // 네이버 고유 ID
+        String naverId = responseMap.get("id").toString();
+        String loginId = "naver_" + naverId;
+
         // 이름
-        String name = (String) kakaoAccount.getOrDefault("name", "카카오회원");
+        String name = (String) responseMap.getOrDefault("name", "네이버회원");
 
         // 이메일
-        String email = (String) kakaoAccount.getOrDefault(
-                "email", loginId + "@kakao.com"
+        String email = (String) responseMap.getOrDefault(
+                "email", loginId + "@naver.com"
         );
 
-        // 성별
-        String gender = (String) kakaoAccount.getOrDefault("gender", "U");
+        // 성별 (M / F / U)
+        String gender = (String) responseMap.getOrDefault("gender", "U");
 
-        // 생년월일 (birthyear + birthday → LocalDate)
+        // 생년월일 (yyyy-MM-dd or MM-dd)
         LocalDate birthDate = LocalDate.of(1900, 1, 1);
-        if (kakaoAccount.get("birthyear") != null && kakaoAccount.get("birthday") != null) {
-            int year = Integer.parseInt(kakaoAccount.get("birthyear").toString());
-            String birthday = kakaoAccount.get("birthday").toString(); // MMdd
-            int month = Integer.parseInt(birthday.substring(0, 2));
-            int day = Integer.parseInt(birthday.substring(2, 4));
-            birthDate = LocalDate.of(year, month, day);
+        if (responseMap.get("birthyear") != null && responseMap.get("birthday") != null) {
+            int year = Integer.parseInt(responseMap.get("birthyear").toString());
+            String birthday = responseMap.get("birthday").toString(); // MM-dd
+            String[] parts = birthday.split("-");
+            birthDate = LocalDate.of(
+                    year,
+                    Integer.parseInt(parts[0]),
+                    Integer.parseInt(parts[1])
+            );
         }
 
         // 전화번호
         String phoneNumber =
-                (String) kakaoAccount.getOrDefault("phone_number", "000-0000-0000");
+                (String) responseMap.getOrDefault("mobile", "000-0000-0000");
 
-        // 주소
-        String address =
-                (String) kakaoAccount.getOrDefault("shipping_address", "KAKAO");
+        // 주소 (네이버는 기본 제공 안 함)
+        String address = "NAVER";
 
-        return new KakaoUser(
+        return new NaverUser(
                 loginId,
                 name,
                 email,
@@ -155,13 +159,12 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
         );
     }
 
-
-    private Member createKakaoMember(KakaoUser user) {
+    private Member createNaverMember(NaverUser user) {
 
         return memberRepository.save(
                 Member.builder()
                         .memberLoginId(user.loginId())
-                        .memberPassword("SOCIAL_LOGIN") // 소셜 로그인 표시용
+                        .memberPassword("SOCIAL_LOGIN")
                         .memberName(user.name())
                         .memberEmail(user.email())
                         .memberGender(user.gender())
@@ -175,7 +178,7 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
     }
 
     // 내부 record
-    private record KakaoUser(
+    private record NaverUser(
             String loginId,
             String name,
             String email,
