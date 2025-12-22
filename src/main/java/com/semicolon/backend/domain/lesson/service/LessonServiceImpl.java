@@ -227,7 +227,7 @@ public class LessonServiceImpl implements LessonService{
                         .minPeople(lesson.getMinPeople())
                         .currentPeople(current)
                         .regEndDate(end)
-                            .price(lesson.getPrice())
+                        .price(lesson.getPrice())
                         .build();
                     resDTO.checkEndDate();
                     return resDTO;
@@ -332,6 +332,7 @@ public class LessonServiceImpl implements LessonService{
         }
         List<Long> finalList = myRegisteredIds;
         Long current=registrationRepository.countByLesson_IdAndStatus(lesson.getId(), RegistrationStatus.APPLIED);
+        LocalDate end = lesson.getStartDate().minusDays(3);
         return LessonListResDTO.builder()
                 .price(lesson.getPrice())
                 .description(lesson.getDescription())
@@ -350,6 +351,8 @@ public class LessonServiceImpl implements LessonService{
                         lessonDay -> lessonDay.getLabel()).toList())
                 .isRegistered(finalList.contains(lesson.getId()))
                 .maxPeople(lesson.getMaxPeople())
+                .minPeople(lesson.getMinPeople())
+                .regEndDate(end)
                 .currentPeople(current)
                 .build();
     }
