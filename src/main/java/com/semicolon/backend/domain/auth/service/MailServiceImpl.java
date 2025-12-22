@@ -32,4 +32,22 @@ public class MailServiceImpl implements MailService{
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public String sendJoinEmail(String email) {
+        String authNumber = createNumber();
+        MimeMessage message = sender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setFrom(SENDER_EMAIL);
+            helper.setTo(email);
+            // ▼ 제목 변경
+            helper.setSubject("[semicolon] 회원가입 인증번호입니다.");
+            helper.setText("<h1>인증번호: " + authNumber + "</h1>", true);
+            sender.send(message);
+            return authNumber;
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
