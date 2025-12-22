@@ -227,6 +227,7 @@ public class LessonServiceImpl implements LessonService{
                         .minPeople(lesson.getMinPeople())
                         .currentPeople(current)
                         .regEndDate(end)
+                            .price(lesson.getPrice())
                         .build();
                     resDTO.checkEndDate();
                     return resDTO;
@@ -332,6 +333,7 @@ public class LessonServiceImpl implements LessonService{
         List<Long> finalList = myRegisteredIds;
         Long current=registrationRepository.countByLesson_IdAndStatus(lesson.getId(), RegistrationStatus.APPLIED);
         return LessonListResDTO.builder()
+                .price(lesson.getPrice())
                 .description(lesson.getDescription())
                 .lessonId(lesson.getId())
                 .status(lesson.getLessonStatus())
