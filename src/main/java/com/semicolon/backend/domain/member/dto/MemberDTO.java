@@ -18,6 +18,7 @@ public class MemberDTO {
     private String memberLoginId;
     private String memberName;
     private String memberPassword;
+    private String socialLogin;
 
     private MemberRole memberRole;
 

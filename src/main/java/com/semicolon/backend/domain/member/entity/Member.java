@@ -53,6 +53,9 @@ public class Member {
     @Column(name = "birth_date", nullable = false)
     private LocalDate memberBirthDate;
 
+    @Column(name = "social_login", nullable = false, length = 20)
+    private String socialLogin;
+
     @Column(name = "join_date", nullable = false)
     private LocalDateTime memberJoinDate;
 
