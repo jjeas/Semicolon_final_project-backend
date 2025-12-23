@@ -18,12 +18,6 @@ public class DailyUseController {
 
     private final DailyUseService service;
 
-//    @PostMapping("")
-//    public ResponseEntity<String> register(@AuthenticationPrincipal String loginIdFromToken, @RequestBody DailyUseDTO dto){
-//        service.register(loginIdFromToken,dto);
-//        return ResponseEntity.ok("일일이용예약 성공");
-//    }
-
     @GetMapping("")
     public ResponseEntity<List<DailyUseDTO>> getList(@AuthenticationPrincipal String loginIdFromToken){
         return ResponseEntity.ok(service.getList(loginIdFromToken));

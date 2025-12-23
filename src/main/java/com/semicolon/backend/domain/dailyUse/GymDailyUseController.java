@@ -19,12 +19,6 @@ public class GymDailyUseController {
 
     private final GymDailyUseService service;
 
-//    @PostMapping("")
-//    public ResponseEntity<String> register(@AuthenticationPrincipal String loginIdFromToken, @RequestBody GymDailyUseDTO dto){
-//        service.register(loginIdFromToken,dto);
-//        return ResponseEntity.ok("헬스장 일일이용예약 성공");
-//    }
-
     @GetMapping("")
     public ResponseEntity<List<GymDailyUseDTO>> getList(@AuthenticationPrincipal String loginIdFromToken){
         return ResponseEntity.ok(service.getList(loginIdFromToken));
