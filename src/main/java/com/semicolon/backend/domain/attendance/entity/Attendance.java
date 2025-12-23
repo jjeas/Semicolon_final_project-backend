@@ -37,6 +37,6 @@ public class Attendance {
     @Column(nullable = false)
     private AttendanceStatus status;
 
-    @Column(name = "attendance_memo", nullable = false)
+    @Column(name = "attendance_memo")
     private String memo;
 }
