@@ -5,6 +5,8 @@ import com.semicolon.backend.domain.lesson.entity.LessonStatus;
 import com.semicolon.backend.domain.lesson.repository.LessonRepository;
 import com.semicolon.backend.domain.member.entity.Member;
 import com.semicolon.backend.domain.member.repository.MemberRepository;
+import com.semicolon.backend.domain.payment.entity.Payment;
+import com.semicolon.backend.domain.payment.service.PaymentService;
 import com.semicolon.backend.domain.registration.dto.RegistrationDTO;
 import com.semicolon.backend.domain.registration.entity.Registration;
 import com.semicolon.backend.domain.registration.entity.RegistrationStatus;
@@ -23,6 +25,7 @@ public class RegistrationServiceImpl implements RegistrationService{
     private final MemberRepository memberRepository;
     private final LessonRepository lessonRepository;
     private final RegistrationRepository registrationRepository;
+    private final PaymentService paymentService;
 
     @Override
     @Transactional
@@ -57,6 +60,10 @@ public class RegistrationServiceImpl implements RegistrationService{
         }
         if(registration.getStatus() ==RegistrationStatus.CANCELED){
             throw new IllegalStateException("이미 취소된 강의입니다.");
+        }
+        Payment payment = registration.getPayment();
+        if(payment!=null){
+            paymentService.cancelPayment(payment.getPaymentId(), "회원 요청에 의한 수강 취소");
         }
         registration.cancel();
     }
