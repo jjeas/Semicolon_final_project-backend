@@ -20,11 +20,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
 @Slf4j
+// 1. 기본적으로 읽기 전용으로 설정 (성능 최적화)
+@Transactional(readOnly = true)
 public class AuthServiceImpl implements AuthService{
     private final AuthenticationManager authenticationManager;
     private final MemberRepository memberRepository;
@@ -40,7 +43,7 @@ public class AuthServiceImpl implements AuthService{
         log.info("로그인 인증 성공");
         String authenticatedId=auth.getName(); // 인증된 로그인 아이디
         log.info("인증된 아이디: {} ", authenticatedId);
-        Member member = memberRepository.findByMemberLoginId(authenticatedId).orElseThrow();
+        Member member = memberRepository.findByMemberLoginId(authenticatedId).orElseThrow(() -> new NoSuchElementException("회원 정보를 찾을 수 없습니다."));
         //인증된 로그인 아이디로 DB에서 멤버를 찾는다
         Map<String, Object> claim = Map.of(
                 "memberId", member.getMemberId(),
@@ -59,7 +62,17 @@ public class AuthServiceImpl implements AuthService{
     }
 
     @Override
+    @Transactional
     public void register(MemberDTO dto) {
+        if(memberRepository.existsByMemberLoginId(dto.getMemberLoginId())){
+            throw new IllegalArgumentException("이미 사용중인 아이디입니다.");
+        }
+        if(memberRepository.existsByMemberEmail(dto.getMemberEmail())){
+            throw new IllegalArgumentException("이미 사용중인 이메일입니다.");
+        }
+        if (dto.getPasswordConfirm() != null && !dto.getMemberPassword().equals(dto.getPasswordConfirm())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
         String encodedPassword = passwordEncoder.encode(dto.getMemberPassword());
         Member newMember = Member.builder()
                 .memberLoginId(dto.getMemberLoginId())
@@ -84,7 +97,7 @@ public class AuthServiceImpl implements AuthService{
             return maskingId(foundMember.get().getMemberLoginId());
         }
         else {
-            throw new RuntimeException("사용자를 찾을 수 없습니다.");
+            throw new NoSuchElementException("사용자를 찾을 수 없습니다.");
         }
     }
 

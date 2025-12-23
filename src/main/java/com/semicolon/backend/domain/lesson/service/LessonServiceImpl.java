@@ -227,7 +227,7 @@ public class LessonServiceImpl implements LessonService{
                         .minPeople(lesson.getMinPeople())
                         .currentPeople(current)
                         .regEndDate(end)
-                            .price(lesson.getPrice())
+                        .price(lesson.getPrice())
                         .build();
                     resDTO.checkEndDate();
                     return resDTO;
