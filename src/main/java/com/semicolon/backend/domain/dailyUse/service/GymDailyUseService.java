@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface GymDailyUseService {
 
-    public GymDailyUse register(String loginIdFromToken, GymDailyUseDTO dto);
+//    public GymDailyUse register(String loginIdFromToken, GymDailyUseDTO dto);
     public List<GymDailyUseDTO> getList(String loginIdFromToken);
     public void delete(Long id);
 }

@@ -2,6 +2,9 @@ package com.semicolon.backend.domain.payment.dto;
 
 import lombok.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Builder
@@ -12,4 +15,7 @@ public class PaymentRequestDTO {
     private String productType;
     private Long targetId;
     private Long price;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+    private LocalDate date;
 }

@@ -2,6 +2,14 @@ package com.semicolon.backend.domain.payment.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.semicolon.backend.domain.dailyUse.dto.DailyUseDTO;
+import com.semicolon.backend.domain.dailyUse.dto.GymDailyUseDTO;
+import com.semicolon.backend.domain.dailyUse.entity.DailyUse;
+import com.semicolon.backend.domain.dailyUse.entity.GymDailyUse;
+import com.semicolon.backend.domain.dailyUse.entity.GymDailyUseStatus;
+import com.semicolon.backend.domain.dailyUse.repository.DailyUseRepository;
+import com.semicolon.backend.domain.dailyUse.repository.GymDailyUseRepository;
+import com.semicolon.backend.domain.facility.entity.FacilitySpace;
 import com.semicolon.backend.domain.facility.repository.FacilitySpaceRepository;
 import com.semicolon.backend.domain.lesson.entity.Lesson;
 import com.semicolon.backend.domain.lesson.entity.LessonStatus;
@@ -14,6 +22,7 @@ import com.semicolon.backend.domain.payment.repository.PaymentRepository;
 import com.semicolon.backend.domain.registration.entity.Registration;
 import com.semicolon.backend.domain.registration.entity.RegistrationStatus;
 import com.semicolon.backend.domain.registration.repository.RegistrationRepository;
+import com.semicolon.backend.global.reservationFilter.ReservationFilter;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +45,9 @@ public class PaymentServiceImpl implements PaymentService {
     private final RegistrationRepository registrationRepository;
     private final LessonRepository lessonRepository;
     private final FacilitySpaceRepository facilitySpaceRepository;
+    private final DailyUseRepository dailyUseRepository;
+    private final GymDailyUseRepository gymDailyUseRepository;
+    private final ReservationFilter reservationFilter;
 
     @Value("${iamport.api.key}")
     private String apiKey;
@@ -158,6 +170,12 @@ public class PaymentServiceImpl implements PaymentService {
                 case "LESSON":
                     saveRegistration(dto, member, payment);
                     break;
+                case "DAILY_USE":
+                    saveDailyUse(dto,member,payment);
+                    break;
+                case "GYM_DAILY_USE":
+                    saveGymDailyUse(dto,member,payment);
+                    break;
                 default:
                     throw new RuntimeException("알 수 없는 상품 타입입니다.:" + dto.getProductType());
             }
@@ -204,7 +222,9 @@ public class PaymentServiceImpl implements PaymentService {
             case "RENTAL":
             case "DAILY_USE":
                 String spaceName = facilitySpaceRepository.findById(targetId).map(s -> s.getSpaceName()).orElse("시설이용");
-                return (type.equals("RENTAL") ? "[대관]" : "[일일이용]") + spaceName;
+                return "[일일이용]" + spaceName; 
+            case "GYM_DAILY_USE":
+                return "[헬스장 일일이용]";
             case "LESSON":
                 String lessonTitle = lessonRepository.findById(targetId).map(l -> l.getTitle()).orElse("수강신청");
                 return lessonTitle;
@@ -236,5 +256,44 @@ public class PaymentServiceImpl implements PaymentService {
                 .build();
         if (currentPeople + 1 >= lesson.getMaxPeople()) lesson.setLessonStatus(LessonStatus.CLOSED);
         registrationRepository.save(registration);
+    }
+
+    public void saveDailyUse(PaymentRequestDTO dto, Member member, Payment payment) {
+//        public void saveDailyUse(String loginIdFromToken , DailyUseDTO dto) {
+
+        boolean available = reservationFilter.isAvailable(dto.getTargetId(),dto.getStartTime(),dto.getEndTime());
+        if (!available) {
+            throw new IllegalStateException("해당 시간에 이미 예약이 존재합니다.");
+        }
+
+        FacilitySpace facilitySpace = facilitySpaceRepository.findById(dto.getTargetId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공간입니다."));
+
+        DailyUse  dailyUse= DailyUse.builder()
+                .space(facilitySpace)
+                .member(member)
+                .startTime(dto.getStartTime())
+                .endTime(dto.getEndTime())
+                .price(dto.getPrice())
+                .createdAt(LocalDateTime.now())
+                .payment(payment)
+                .build();
+
+        dailyUseRepository.save(dailyUse);
+
+    }
+
+    public void saveGymDailyUse(PaymentRequestDTO dto, Member member, Payment payment) {
+
+        GymDailyUse gymDailyUse = GymDailyUse.builder()
+                .date(dto.getDate())
+                .createdAt(LocalDateTime.now())
+                .price(dto.getPrice())
+                .status(GymDailyUseStatus.RESERVED)
+                .payment(payment)
+                .member(member)
+                .build();
+
+        gymDailyUseRepository.save(gymDailyUse);
     }
 }

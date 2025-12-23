@@ -3,6 +3,7 @@ package com.semicolon.backend.domain.dailyUse.entity;
 import com.semicolon.backend.domain.facility.entity.Facility;
 import com.semicolon.backend.domain.facility.entity.FacilitySpace;
 import com.semicolon.backend.domain.member.entity.Member;
+import com.semicolon.backend.domain.payment.entity.Payment;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -43,5 +44,9 @@ public class DailyUse {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "space_id", nullable = false)
     private FacilitySpace space;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_id")
+    private Payment payment;
 
 }
