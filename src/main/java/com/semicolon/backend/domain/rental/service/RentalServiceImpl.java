@@ -96,6 +96,8 @@ public class RentalServiceImpl implements RentalService {
                 .filter(i -> i.getId().equals(rentalId))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("해당 예약 정보가 없습니다."));
+        Payment payment = rental.getPayment();
+        paymentService.cancelPayment(payment.getPaymentId(), "회원 요청");
         rentalRepository.delete(rental);
     }
 

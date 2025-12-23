@@ -18,4 +18,8 @@ public class PaymentRequestDTO {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private LocalDate date;
+
+    private String name;
+    private String phoneNumber;
+    private String memo;
 }
