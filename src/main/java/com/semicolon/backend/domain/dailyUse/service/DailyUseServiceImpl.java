@@ -26,32 +26,32 @@ public class DailyUseServiceImpl implements DailyUseService{
     private final FacilitySpaceRepository facilitySpaceRepository;
     private final ReservationFilter reservationFilter;
 
-    @Override
-    public DailyUse register(String loginIdFromToken ,DailyUseDTO dto) {
-
-        boolean available = reservationFilter.isAvailable(dto.getSpaceId(),dto.getStartTime(),dto.getEndTime());
-        if (!available) {
-            throw new IllegalStateException("해당 시간에 이미 예약이 존재합니다.");
-        }
-
-        Member member = memberRepository.findByMemberLoginId(loginIdFromToken)
-                .orElseThrow(()->new IllegalArgumentException("존재하지 않는 회원입니다."));
-
-        FacilitySpace facilitySpace = facilitySpaceRepository.findById(dto.getSpaceId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공간입니다."));
-
-        DailyUse  dailyUse= DailyUse.builder()
-                .space(facilitySpace)
-                .member(member)
-                .startTime(dto.getStartTime())
-                .endTime(dto.getEndTime())
-                .price(dto.getPrice())
-                .createdAt(LocalDateTime.now())
-                .build();
-
-        return dailyUseRepository.save(dailyUse);
-
-    }
+//    @Override
+//    public DailyUse register(String loginIdFromToken ,DailyUseDTO dto) {
+//
+//        boolean available = reservationFilter.isAvailable(dto.getSpaceId(),dto.getStartTime(),dto.getEndTime());
+//        if (!available) {
+//            throw new IllegalStateException("해당 시간에 이미 예약이 존재합니다.");
+//        }
+//
+//        Member member = memberRepository.findByMemberLoginId(loginIdFromToken)
+//                .orElseThrow(()->new IllegalArgumentException("존재하지 않는 회원입니다."));
+//
+//        FacilitySpace facilitySpace = facilitySpaceRepository.findById(dto.getSpaceId())
+//                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공간입니다."));
+//
+//        DailyUse  dailyUse= DailyUse.builder()
+//                .space(facilitySpace)
+//                .member(member)
+//                .startTime(dto.getStartTime())
+//                .endTime(dto.getEndTime())
+//                .price(dto.getPrice())
+//                .createdAt(LocalDateTime.now())
+//                .build();
+//
+//        return dailyUseRepository.save(dailyUse);
+//
+//    }
 
     @Override
     public List<DailyUseDTO> getList(String loginIdFromToken) {
