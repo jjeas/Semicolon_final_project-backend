@@ -45,7 +45,7 @@ public class Payment {
     private ProductType type;
 
     public enum ProductType {
-        RENTAL, DAILY_USE, LESSON
+        RENTAL, DAILY_USE, GYM_DAILY_USE, LESSON
     }
 
     public enum PaymentStatus {

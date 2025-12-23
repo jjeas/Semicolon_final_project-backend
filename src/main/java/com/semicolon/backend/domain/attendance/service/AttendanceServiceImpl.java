@@ -33,9 +33,11 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     public List<AttendanceDTO> getList(String loginIdFromToken, Long lessonNo, LocalDate date) {
-        Lesson lesson = lessonRepository.findLessonByPartnerAndId(loginIdFromToken, lessonNo);
-        if (lesson == null) throw new IllegalArgumentException("내 레슨이 아닙니다");
+        Lesson findLesson = lessonRepository.findLessonByPartnerAndId(loginIdFromToken, lessonNo);
         // 내가 맡은 레슨인지 체크
+        if (findLesson == null) {
+            throw new IllegalArgumentException("내 레슨이 아닙니다");
+        }
 
         List<Registration> registrations = registrationRepository.findAllByLessonId(lessonNo);
         // 특정 레슨 번호(lessonId)로 해당 강좌를 신청한 사람들 목록을 가져옴
@@ -64,6 +66,9 @@ public class AttendanceServiceImpl implements AttendanceService {
     public void save(String loginIdFromToken, List<AttendanceDTO> requestList, Long lessonNo) {
         Lesson findLesson = lessonRepository.findLessonByPartnerAndId(loginIdFromToken, lessonNo);
         // 내가 맡은 레슨인지 체크
+        if (findLesson == null) {
+            throw new IllegalArgumentException("내 레슨이 아닙니다");
+        }
 
         requestList.forEach(i -> {
 

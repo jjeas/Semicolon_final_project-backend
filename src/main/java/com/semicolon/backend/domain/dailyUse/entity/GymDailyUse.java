@@ -1,6 +1,7 @@
 package com.semicolon.backend.domain.dailyUse.entity;
 
 import com.semicolon.backend.domain.member.entity.Member;
+import com.semicolon.backend.domain.payment.entity.Payment;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
@@ -38,5 +39,8 @@ public class GymDailyUse {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_id")
+    private Payment payment;
 
 }
