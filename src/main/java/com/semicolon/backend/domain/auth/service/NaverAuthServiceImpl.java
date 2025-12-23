@@ -168,6 +168,7 @@ public class NaverAuthServiceImpl implements NaverAuthService {
                         .memberName(user.name())
                         .memberEmail(user.email())
                         .memberGender(user.gender())
+                        .socialLogin("NAVER")
                         .memberBirthDate(user.birthDate())
                         .memberPhoneNumber(user.phoneNumber())
                         .memberAddress(user.address())

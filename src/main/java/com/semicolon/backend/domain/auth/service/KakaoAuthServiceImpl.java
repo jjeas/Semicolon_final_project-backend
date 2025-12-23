@@ -166,6 +166,7 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
                         .memberLoginId(user.loginId())
                         .memberPassword("SOCIAL_LOGIN") // 소셜 로그인 표시용
                         .memberName(user.name())
+                        .socialLogin("KAKAO")
                         .memberEmail(user.email())
                         .memberGender(user.gender())
                         .memberBirthDate(user.birthDate())
