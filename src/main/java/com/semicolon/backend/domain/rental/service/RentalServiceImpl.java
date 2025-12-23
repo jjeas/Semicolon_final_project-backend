@@ -5,6 +5,8 @@ import com.semicolon.backend.domain.facility.repository.FacilitySpaceRepository;
 import com.semicolon.backend.domain.lesson.entity.LessonStatus;
 import com.semicolon.backend.domain.member.entity.Member;
 import com.semicolon.backend.domain.member.repository.MemberRepository;
+import com.semicolon.backend.domain.payment.entity.Payment;
+import com.semicolon.backend.domain.payment.service.PaymentService;
 import com.semicolon.backend.domain.rental.dto.RentalDTO;
 import com.semicolon.backend.domain.rental.entity.Rental;
 import com.semicolon.backend.domain.rental.entity.RentalStatus;
@@ -37,6 +39,7 @@ public class RentalServiceImpl implements RentalService {
     private final FacilitySpaceRepository facilitySpaceRepository;
     private final RentalRepository rentalRepository;
     private final ModelMapper mapper;
+    private final PaymentService paymentService;
 
     @Override
     public Rental register(String loginIdFromToken, RentalDTO rentalDTO) {
@@ -93,6 +96,8 @@ public class RentalServiceImpl implements RentalService {
                 .filter(i -> i.getId().equals(rentalId))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("해당 예약 정보가 없습니다."));
+        Payment payment = rental.getPayment();
+        paymentService.cancelPayment(payment.getPaymentId(), "회원 요청");
         rentalRepository.delete(rental);
     }
 
