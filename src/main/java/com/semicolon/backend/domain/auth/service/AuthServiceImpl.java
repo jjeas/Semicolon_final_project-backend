@@ -80,6 +80,7 @@ public class AuthServiceImpl implements AuthService{
                 .memberEmail(dto.getMemberEmail())
                 .memberAddress(dto.getMemberAddress())
                 .memberGender(dto.getMemberGender())
+                .socialLogin("LOCAL")
                 .memberJoinDate(LocalDateTime.now())
                 .memberBirthDate(dto.getMemberBirthDate())
                 .memberPhoneNumber(dto.getMemberPhoneNumber())
