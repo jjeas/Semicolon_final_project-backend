@@ -22,6 +22,9 @@ import com.semicolon.backend.domain.payment.repository.PaymentRepository;
 import com.semicolon.backend.domain.registration.entity.Registration;
 import com.semicolon.backend.domain.registration.entity.RegistrationStatus;
 import com.semicolon.backend.domain.registration.repository.RegistrationRepository;
+import com.semicolon.backend.domain.rental.entity.Rental;
+import com.semicolon.backend.domain.rental.entity.RentalStatus;
+import com.semicolon.backend.domain.rental.repository.RentalRepository;
 import com.semicolon.backend.global.reservationFilter.ReservationFilter;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +51,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final DailyUseRepository dailyUseRepository;
     private final GymDailyUseRepository gymDailyUseRepository;
     private final ReservationFilter reservationFilter;
+    private final RentalRepository rentalRepository;
 
     @Value("${iamport.api.key}")
     private String apiKey;
@@ -169,6 +173,9 @@ public class PaymentServiceImpl implements PaymentService {
             switch (dto.getProductType()) {
                 case "LESSON":
                     saveRegistration(dto, member, payment);
+                    break;
+                case "RENTAL":
+                    saveRental(dto,member,payment);
                     break;
                 case "DAILY_USE":
                     saveDailyUse(dto,member,payment);
@@ -295,5 +302,32 @@ public class PaymentServiceImpl implements PaymentService {
                 .build();
 
         gymDailyUseRepository.save(gymDailyUse);
+    }
+
+    public void saveRental(PaymentRequestDTO dto, Member member, Payment payment) {
+        boolean available = reservationFilter.isAvailable(dto.getTargetId(),dto.getStartTime(),dto.getEndTime());
+        if (!available) {
+            throw new IllegalStateException("해당 시간에 이미 예약이 존재합니다.");
+        }
+
+        FacilitySpace facilitySpace = facilitySpaceRepository.findById(dto.getTargetId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공간입니다."));
+
+        Rental rental = Rental.builder()
+                .createdAt(LocalDateTime.now())
+                .startTime(dto.getStartTime())
+                .endTime(dto.getEndTime())
+                .member(member)
+                .space(facilitySpace)
+                .price(dto.getPrice())
+                .name(dto.getName())
+                .phoneNumber(dto.getPhoneNumber())
+                .memo(dto.getMemo())
+                .status(RentalStatus.PENDING)
+                .payment(payment)
+                .build();
+
+        rentalRepository.save(rental);
+
     }
 }
