@@ -31,24 +31,6 @@ public class GymDailyUseServiceImpl implements GymDailyUseService{
         gymDailyUseRepository.updateExpired(LocalDate.now());
     }
 
-
-//    @Override
-//    public GymDailyUse register(String loginIdFromToken, GymDailyUseDTO dto) {
-//
-//        Member member = memberRepository.findByMemberLoginId(loginIdFromToken)
-//                .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 회원입니다."));
-//
-//        GymDailyUse gymDailyUse = GymDailyUse.builder()
-//                .date(dto.getDate())
-//                .createdAt(LocalDateTime.now())
-//                .price(dto.getPrice())
-//                .status(GymDailyUseStatus.RESERVED)
-//                .member(member)
-//                .build();
-//
-//        return gymDailyUseRepository.save(gymDailyUse);
-//    }
-
     @Override
     public List<GymDailyUseDTO> getList(String loginIdFromToken) {
         Member member = memberRepository.findByMemberLoginId(loginIdFromToken)

@@ -149,6 +149,12 @@ public class RentalServiceImpl implements RentalService {
     public void statusChange(Long id, RentalStatus status) {
         Rental rental = rentalRepository.findById(id).orElseThrow(()->new IllegalArgumentException("해당 대관 내역이 존재하지 않습니다."));
         rental.setStatus(status);
+
+        Payment payment = rental.getPayment();
+        if(payment!=null){
+            paymentService.cancelPayment(payment.getPaymentId(),"반려로 인한 결제 취소");
+        }
+
         rentalRepository.save(rental);
     }
 
