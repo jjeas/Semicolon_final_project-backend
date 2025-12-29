@@ -36,8 +36,12 @@ public class LessonListResDTO {
 
     public void checkEndDate(){
         LocalDateTime now = LocalDateTime.now();
+        LocalDate now2=LocalDate.now();
         if(now.isBefore(this.regEndDate.atTime(LocalTime.MAX))){ //아직 신청마감 시간 아니면 함수 종료
             return;
+        }
+        if(this.regEndDate.equals(now2)){
+            this.status=LessonStatus.CLOSED;
         }
         if(this.currentPeople<minPeople){ //마감일이 지났는데 최소 인원 미달성시
             this.status=LessonStatus.CANCELED; //취소로 바꿈

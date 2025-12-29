@@ -7,7 +7,6 @@ import com.semicolon.backend.domain.partner.dto.PartnerDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -16,15 +15,19 @@ import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
-    @Query("""
-    select new com.semicolon.backend.domain.partner.dto.PartnerDTO(p.status)
-    from Partner p
-    join p.member m
-    where m.memberId = :memId
-    order by p.requestNo desc
-    fetch first 1 rows only
-""")
-    Optional<PartnerDTO> getPartnerStatus(@Param("memId") Long memId);
+    @Query(value = """
+        SELECT new com.semicolon.backend.domain.partner.dto.PartnerDTO(p.status)
+        FROM Partner p
+        JOIN p.member m
+        WHERE m.memberId = :memId
+        ORDER BY p.requestNo DESC
+    """)
+    List<PartnerDTO> getPartnerStatusList(@Param("memId") Long memId);
+    default Optional<PartnerDTO> getPartnerStatus(@Param("memId") Long memId) {
+        List<PartnerDTO> list = getPartnerStatusList(memId);
+        return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
+    }
+
     Optional<Member> findByMemberLoginId(String memberLoginId);
     Optional<Member> findMemberIdByMemberNameAndMemberEmail(String memberName, String memberEmail);
     Optional<Member> findMemberByMemberNameAndMemberEmailAndMemberLoginId(String memberName, String memberEmail, String memberLoginId);
@@ -40,7 +43,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query(value =
             "SELECT T.ageGroup AS ageGroup, T.MEMBER_GENDER AS gender, COUNT(1) AS count " +
                     "FROM ( " +
-                    "    SELECT m.MEMBER_GENDER, " + // [수정] 실제 컬럼명 MEMBER_GENDER 사용
+                    "    SELECT m.MEMBER_GENDER, " +
                     "      CASE " +
                     "        WHEN (:currentYear - EXTRACT(YEAR FROM m.BIRTH_DATE)) < 20 THEN '10대 이하' " +
                     "        WHEN (:currentYear - EXTRACT(YEAR FROM m.BIRTH_DATE)) BETWEEN 20 AND 29 THEN '20대' " +
@@ -52,12 +55,13 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
                     "    FROM tbl_member m " +
                     "    WHERE m.member_role='ROLE_USER' " +
                     ") T " +
-                    "GROUP BY T.ageGroup, T.MEMBER_GENDER " + // [수정] 그룹핑도 MEMBER_GENDER로
+                    "GROUP BY T.ageGroup, T.MEMBER_GENDER " +
                     "ORDER BY T.ageGroup, T.MEMBER_GENDER",
             nativeQuery = true)
     List<MemberGenderAgeDTO> getAgeGenderGroupStats(@Param("currentYear") int currentYear);
+
     long countByMemberRole(MemberRole memberRole);
 
-    @Query(value = "SELECT COUNT(member_id) FROM tbl_member WHERE TRUNC(join_date) = TRUNC(SYSDATE)", nativeQuery = true)
+    @Query(value = "SELECT COUNT(member_id) FROM tbl_member WHERE DATE(join_date) = CURDATE()", nativeQuery = true)
     long countMembersJoinToday();
 }

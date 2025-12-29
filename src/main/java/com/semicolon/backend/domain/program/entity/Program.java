@@ -18,11 +18,10 @@ import java.util.List;
 @ToString
 public class Program {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_program")
-    @SequenceGenerator(name = "seq_program",sequenceName = "SEQ_PROGRAM", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long pno;
 
-    @Column(name = "content", nullable = false, columnDefinition = "CLOB")
+    @Column(name = "content", nullable = false, columnDefinition = "LONGTEXT")
     private String content;
 
     @Column(name = "program_name",nullable = false)

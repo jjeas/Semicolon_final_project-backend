@@ -14,8 +14,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class Schedule {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @SequenceGenerator(name = "seq_schedule",sequenceName = "SEQ_SCHEDULE",allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "schedule_id", nullable = false)
     private Long scheduleId;
 

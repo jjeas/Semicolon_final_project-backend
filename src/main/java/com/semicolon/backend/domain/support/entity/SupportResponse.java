@@ -19,7 +19,7 @@ public class SupportResponse {
     @Column(name ="response_id")
     private Long id;
 
-    @Column(name = "content",nullable = false, columnDefinition = "CLOB")
+    @Column(name = "content",nullable = false, columnDefinition = "LONGTEXT")
     private String content;
 
     @Column(name = "created_at",nullable = false)
