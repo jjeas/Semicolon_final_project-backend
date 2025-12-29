@@ -17,8 +17,7 @@ import java.time.LocalDateTime;
 public class Member {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tbl_member_seq")
-    @SequenceGenerator(name = "tbl_member_seq", sequenceName = "TBL_MEMBER_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
     private long memberId;
 

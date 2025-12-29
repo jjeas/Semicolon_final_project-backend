@@ -17,15 +17,14 @@ import java.util.List;
 
 public class Gallery {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE,generator = "seq_gallery")
-    @SequenceGenerator(name = "seq_gallery", sequenceName = "SEQ_GALLERY",allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "gallery_id")
     private Long galleryId;
 
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "content", nullable = true, columnDefinition = "CLOB")
+    @Column(name = "content", nullable = true, columnDefinition = "LONGTEXT")
     private String content;
 
     @Column(name = "view_count", nullable = false)
