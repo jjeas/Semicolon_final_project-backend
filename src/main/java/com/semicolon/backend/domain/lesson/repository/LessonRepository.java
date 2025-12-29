@@ -15,6 +15,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import static com.semicolon.backend.domain.lesson.entity.LessonStatus.ACCEPTED;
+
 public interface LessonRepository extends JpaRepository<Lesson, Long> {
     List<Lesson> findByPartnerId(Member member);
 
@@ -80,5 +82,6 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
             LocalDate today,
             LessonStatus status
     );
+    List<Lesson> findByLessonStatusAndStartDateBefore(LessonStatus status, LocalDate date);
 
 }
