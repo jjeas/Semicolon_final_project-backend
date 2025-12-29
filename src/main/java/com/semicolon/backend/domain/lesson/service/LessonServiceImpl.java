@@ -233,6 +233,7 @@ public class LessonServiceImpl implements LessonService{
                     return resDTO;
         })
                         .toList();
+
         return PageResponseDTO.<LessonListResDTO>withAll()
                 .dtoList(dtoList)
                 .pageRequestDTO(dto)

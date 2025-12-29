@@ -92,7 +92,6 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
                 //그 외의 모든 요청은 로그인된 사람만 가능
                 );
-
         httpSecurity.addFilterBefore(jwtCheckFilter, UsernamePasswordAuthenticationFilter.class);
         //스프링 시큐리티의 기본 로그인 필터보다 커스텀한 JwtFilterCheck 를 먼저 쓰겠다(내가 만든거 쓰고싶다)
         return httpSecurity.build();
