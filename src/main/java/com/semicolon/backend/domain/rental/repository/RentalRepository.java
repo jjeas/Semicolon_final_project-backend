@@ -50,7 +50,7 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
     @Query("select r from Rental r where r.status = RentalStatus.PENDING")
     List<Rental> findByStatusIsPending();
 
-    @Query(value = "SELECT COUNT(*) FROM tbl_rental WHERE TRUNC(created_at) = TRUNC(SYSDATE)", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM tbl_rental WHERE DATE(created_at) = CURDATE()", nativeQuery = true)
     long countRentalToday();
 
 }

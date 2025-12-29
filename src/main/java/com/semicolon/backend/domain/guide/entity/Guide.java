@@ -25,7 +25,7 @@ public class Guide {
     private GuideCategory category;
 
     @Lob
-    @Column(name = "guide_html", nullable = false, columnDefinition = "CLOB")
+    @Column(name = "guide_html", nullable = false, columnDefinition = "LONGTEXT")
     private String html;
 
     @Column(name="guide_updated_date", nullable = false)

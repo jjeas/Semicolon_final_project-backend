@@ -17,8 +17,7 @@ import lombok.extern.apachecommons.CommonsLog;
 
 public class GalleryImage {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE,generator = "seq_gallery_image")
-    @SequenceGenerator(name = "seq_gallery_image", sequenceName = "SEQ_GALLERY_IMAGE", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long imageId;
 
     @Column(name ="image_url", nullable = false)

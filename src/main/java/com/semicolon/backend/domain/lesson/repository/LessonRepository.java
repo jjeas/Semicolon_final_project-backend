@@ -18,15 +18,19 @@ import java.util.List;
 public interface LessonRepository extends JpaRepository<Lesson, Long> {
     List<Lesson> findByPartnerId(Member member);
 
-    @Query("select distinct l from Lesson l join l.facilitySpace fs join fs.facility f join l.partnerId p join l.schedules s join s.lessonDay d "+
-            "where (:category is null or f.facilityName = :category ) and " +
-            " (:titleKeyword is null or l.title like %:titleKeyword% ) and " +
-            " (:partnerKeyword is null or p.memberName like %:partnerKeyword% ) and " +
-            " (d in (:days)) and (not exists(select sc from l.schedules sc join sc.lessonDay le where le not in (:days))) and " +
-            " (:startTime is null or TO_CHAR(s.startTime, 'HH24:MI') >= :startTime) and " +
-            " (:endTime is null or TO_CHAR(s.endTime, 'HH24:MI') <= :endTime) and " +
-            " ((:availableOnly is null or :availableOnly = false ) or (l.lessonStatus=com.semicolon.backend.domain.lesson.entity.LessonStatus.ACCEPTED and "+
-            "not exists(select r from Registration r where r.lesson=l and r.member.memberLoginId=:loginId and r.status=com.semicolon.backend.domain.registration.entity.RegistrationStatus.APPLIED)))"
+    @Query("select distinct l from Lesson l " +
+            "join l.facilitySpace fs join fs.facility f join l.partnerId p " +
+            "join l.schedules s join s.lessonDay d " +
+            "where (:category is null or :category = '' or f.facilityName = :category) and " +
+            " (:titleKeyword is null or :titleKeyword = '' or l.title like concat('%', :titleKeyword, '%')) and " +
+            " (:partnerKeyword is null or :partnerKeyword = '' or p.memberName like concat('%', :partnerKeyword, '%')) and " +
+            " (d in (:days)) and " +
+            " (not exists (select sc from l.schedules sc join sc.lessonDay le where le not in (:days))) and " +
+            " (:startTime is null or :startTime = '' or function('DATE_FORMAT', s.startTime, '%H:%i') >= :startTime) and " +
+            " (:endTime is null or :endTime = '' or function('DATE_FORMAT', s.endTime, '%H:%i') <= :endTime) and " +
+            " ((:availableOnly is null or :availableOnly = false) or " +
+            "  (l.lessonStatus = com.semicolon.backend.domain.lesson.entity.LessonStatus.ACCEPTED and " +
+            "   not exists (select r from Registration r where r.lesson = l and r.member.memberLoginId = :loginId and r.status = RegistrationStatus.APPLIED)))"
     )
     Page<Lesson> searchLesson(
             @Param("category") String category,
