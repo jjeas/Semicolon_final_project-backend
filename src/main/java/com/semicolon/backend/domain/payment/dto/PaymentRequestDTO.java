@@ -15,6 +15,7 @@ public class PaymentRequestDTO {
     private String productType;
     private Long targetId;
     private Long price;
+
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private LocalDate date;

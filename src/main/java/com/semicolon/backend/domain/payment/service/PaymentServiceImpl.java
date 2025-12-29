@@ -172,6 +172,7 @@ public class PaymentServiceImpl implements PaymentService {
         try {
             switch (dto.getProductType()) {
                 case "LESSON":
+
                     saveRegistration(dto, member, payment);
                     break;
                 case "RENTAL":
