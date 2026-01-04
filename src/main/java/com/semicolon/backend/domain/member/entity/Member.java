@@ -33,6 +33,9 @@ public class Member {
     @Column(name = "member_address", nullable = false, length = 500)
     private String memberAddress;
 
+    @Column(name = "member_detail_address", nullable = false, length = 500)
+    private String memberDetailAddress;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "member_role", length = 20)
     @Builder.Default
